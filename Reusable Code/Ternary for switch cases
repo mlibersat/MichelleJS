@@ -1,0 +1,46 @@
+function clientListenerFunction(a) {
+  console.log('clientListenerFunction');
+  console.log(a);
+  switch (a.type) {
+    case 'select':
+      console.log('in select');
+      selectedObj = a.target;
+      //where I differentiate what I want to happen depending on what is selected
+      var selectedObjParser =
+        selectedObj === 'instructionsIcon'
+          ? 1
+          : selectedObj === 'xIcon'
+          ? 2
+          : selectedObj === 'AAppletStatus'
+          ? 3
+          : pointsToObserve.indexOf(selectedObj) > -1
+          ? 4
+          : 5;
+      switch (selectedObjParser) {
+        case 1:
+          //something 1
+          break;
+        case 2:
+          //something 2
+          break;
+        case 3:
+          //something 3
+          break;
+        case 4:
+          //something 4, stuff that happens when I select any point
+          break;
+        default:
+          console.log('in select default');
+          break;
+      }
+      break;
+    case 'deselect':
+      //deselect stuff
+      break;
+    case 'dragEnd':
+      //dragEnd stuff
+      break;
+    case 'movedGeos':
+      break;
+  }
+}

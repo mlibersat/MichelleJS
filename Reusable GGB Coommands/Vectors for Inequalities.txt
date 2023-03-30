@@ -1,0 +1,25 @@
+//
+xpixel = (x(corner3) - x(corner1)) / x(corner)
+//
+vectorRadius = 1
+//
+studentLine1: y = x
+//
+studentInnerBorder = Polyline({(xMin, yMax) + (1, -1), (xMin, yMin) + (1, 1), (xMax, yMin) + (-1, 1), (xMax, yMax) + (-1, -1), (xMin, yMax) + (1, -1)})
+//
+********** rename after creating one below*********
+StVec1Pt1 = Intersect(studentLine1, studentInnerBorder) 
+StVec1Pt2 = Intersect(studentLine1, studentInnerBorder)
+//
+stVec1Pt1Int1 = Intersect(Circle(StVec1Pt1, vectorRadius - 5xpixel), PerpendicularLine(StVec1Pt1, studentLine1), 1)
+//
+stVec1Pt1Int1InRegion = IsInRegion(stVec1Pt1Int1, studentInequality1Region) <-- replace studentInequality1Regionwith inequality polygon (screen polygon that is on the correct side of the inequality) 
+//
+
+StVec1Pt1End = Intersect(Circle(StVec1Pt1, vectorRadius - 5xpixel), PerpendicularLine(StVec1Pt1, studentLine1), If(stVec1Pt1Int1InRegion, 1, 2))
+StVec1Pt2End = Intersect(Circle(StVec1Pt2, vectorRadius - 5xpixel), PerpendicularLine(StVec1Pt2, studentLine1), If(stVec1Pt1Int1InRegion, 1, 2))
+
+//
+
+StudentLine1Vector1 = Vector(StVec1Pt1, StVec1Pt1End)
+StudentLine1Vector2 = Vector(StVec1Pt2, StVec1Pt2End)

@@ -1,0 +1,10 @@
+/*Execute({   
+"escTextCount=0",   
+"AAppletStatus= "+ UnicodeToLetter(34)+ "Insert dynamic state of the applet here. "+UnicodeToLetter(34) "  + If(escTextCount<2, "+UnicodeToLetter(34)+"Press the escape key to exit the interactive and return to the page. "+UnicodeToLetter(34) ","+UnicodeToLetter(34)+""+UnicodeToLetter(34) ")",
+"tabOrder={AAppletStatus,instructionsIcon,xIcon}",   
+"SetFixed(AAppletStatus, false, true)",   
+"SetFixed(tabOrder, false, true)"
+})
+*/
+
+//AAppletStatus= "Insert dynamic state of the applet here. " + If(escTextCount<2, "Press the escape key to exit the interactive and return to the page. ","")

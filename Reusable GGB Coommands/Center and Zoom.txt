@@ -1,0 +1,16 @@
+// with button bar
+With Button Bar (height 2.39):
+
+
+Execute({"___","___","___"})
+
+
+Execute({"CenterPoint = (0, 0) + (0, 2.39)","center=Button()","defZoom=Button()"})
+
+center
+On Click: 
+CenterView(CenterPoint)
+
+defZoom
+On Click: 
+ZoomIn(-11, -11, 11, 13.39)

@@ -1,0 +1,1 @@
+$\scalebox{.01}{words to be read by screen reader }\bgcolor{white}{visible caption with white box}$

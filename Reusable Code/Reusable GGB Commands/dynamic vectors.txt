@@ -1,0 +1,71 @@
+//
+xpixel = (x(corner3) - x(corner1)) / x(corner)
+//
+vectorLength = 20xpixel
+//
+newStudentLine: y = x + 6
+//
+borderGap=30xpixel
+//
+innerBorder = Polygon(corner1 + (borderGap, borderGap), corner2 + (-borderGap, borderGap), corner3 + (0 - borderGap, -buttonBarHeight - borderGap), corner4 + (borderGap, -buttonBarHeight - borderGap), corner1 + (borderGap, borderGap))
+//
+********** rename after creating one below*********
+***VectorStudent1Start = Intersect(newStudentLine, innerBorder)
+***VectorStudent2Start = Intersect(newStudentLine, innerBorder)
+
+
+stVec1Circ: Circle(VectorStudent1Start, stVectorLength)
+stVec2Circ: Circle(VectorStudent2Start, stVectorLength)
+
+VectorStudent1Int1 = Intersect(stVec1Circ,newStudentLine, 1)
+VectorStudent1Int2 = Intersect(stVec1Circ, newStudentLine, 2)
+VectorStudent2Int1 = Intersect(stVec2Circ, newStudentLine, 1)
+VectorStudent2Int2 = Intersect(stVec2Circ, newStudentLine, 2)
+
+stVec1Int1IsMax=x(VectorStudent1Int1)>=x(VectorStudent1Int2)
+
+VectorStudent1End = If(stVec1Int1IsMax,VectorStudent1Int1,VectorStudent1Int2)
+VectorStudent2End = If(stVec1Int1IsMax,VectorStudent2Int1,VectorStudent2Int2)
+
+stVecRtAngle = If(studentAbove, 90°, -90°)
+
+visStudentLineVector1 = Rotate(Vector(VectorStudent1Start, VectorStudent1End),stVecRtAngle,VectorStudent1Start)
+visStudentLineVector2 = Rotate(Vector(VectorStudent2Start, VectorStudent2End),stVecRtAngle,VectorStudent2Start)
+
+
+
+
+
+
+
+////////////////////////////// OLD Method -(Not recommended) Use this method only if there is already a GGB inequality poly created   //////////////////////////
+
+
+
+VectorStudentLEnd = Intersect(Circle(VectorStudentLStart, vectorLength - 5xpixel), PerpendicularLine(VectorStudentLStart, newStudentLine), If(VectorStudentLStartInt1InRegion, 1, 2))
+//
+VectorStudentLStartInt1 = Intersect(Circle(VectorStudentLStart, vectorLength - 5xpixel), PerpendicularLine(VectorStudentLStart, newStudentLine), 1)
+//
+
+****** replace studentInequality1Regionwith inequality polygon (screen polygon that is on the correct side of the inequality) *****
+///////////////////////////////////////
+BOOL:
+studentHuge1AInRegion = studentInequality1(StudentHuge1A)
+//
+studentInequality1HugeRegion = If(studentHuge1AInRegion, studentHugeQuad1A, studentHugeQuad1B)
+///////////////////////////////////////
+
+***VectorStudentLStartInt1InRegion = IsInRegion(VectorStudentLStartInt1, studentInequality1Region) 
+//
+
+VectorStudentLEnd = Intersect(Circle(VectorStudentLStart, vectorLength - 5xpixel), PerpendicularLine(VectorStudentLStart, newStudentLine), If(VectorStudentLStartInt1InRegion, 1, 2))
+VectorStudentREnd = Intersect(Circle(VectorStudentRStart, vectorLength - 5xpixel), PerpendicularLine(VectorStudentRStart, newStudentLine), If(VectorStudentLStartInt1InRegion, 1, 2))
+
+//
+
+newStudentLineVector1 = Vector(VectorStudent1Start, VectorStudent1End)
+newStudentLineVector2 = Vector(VectorStudent2Start, VectorStudent2End)
+
+
+
+

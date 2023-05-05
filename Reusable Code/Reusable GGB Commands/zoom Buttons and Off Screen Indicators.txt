@@ -1,0 +1,54 @@
+Needed for Zoom Buttons & relatedAltText/keyboard functionality of
+// example applet https://www.geogebra.org/m/fese2hqw
+//
+//
+////////////////////////////////////// ZOOM BUTTONS //////////////////////////////////////////////////////
+//
+//
+
+enableHome = false
+
+// If necessary, use this to limit zooming in beyond -1 to 1. Or, customize based on the needs of the applet.
+enableZoomIn = x(corner1) <= -2
+
+// Insert zoom button SVGs
+// Note add to tab order: picDefZoomOut, picDefZoomIn, picDefZoomInDisab, picDefHome, picDefHomeDisab
+
+//
+//
+////////////////////////////////// OFF SCREEN INDICATORS ///////////////////////////////////////////////
+//
+//
+
+// Different right gap needed so dragged points do not overlap with button bar
+rightGap = 25xpixel
+
+maxXStage = x(corner3) - rightGap
+maxYStage = y(corner3) - buttonBarHeight
+minXStage = x(corner1)
+minYStage = y(corner1)
+
+maxXPoint = floor(x(corner3) - rightGap - 30xpixel)
+maxYPoint = floor(y(corner3) - buttonBarHeight - 30ypixel)
+minXPoint = ceil(x(corner1) + 20xpixel)
+minYPoint = ceil(y(corner1) + 20ypixel)
+
+
+// If there are more points, offset their off-screen indicators by creating gap values for each point (ex: gapXB = 45xpixel)
+gapXA = 30xpixel
+gapYA = 30ypixel
+
+screenPolyYMax = y(corner4) - buttonBarHeight
+screenPoly = Polygon({corner1, corner2, corner3 + (0, -buttonBarHeight), (x(corner4), screenPolyYMax)})
+
+AInScreenPoly = IsInRegion(A, screenPoly)
+
+// If other points, use similar but change out gap names
+// Segments are automatically created. We will use these to place our off screen indicator points.
+innerAPolyDONTEDIT = Polygon((minXStage, minYStage) + (gapXA, gapYA), (maxXStage, minYStage) + (-gapXA, gapYA), (maxXStage, maxYStage) + (-gapXA, -gapYA), (minXStage, maxYStage) + (gapXA, -gapYA))
+
+// For point A
+// example created segment from innerAPoly
+a = Segment((minXStage, minYStage) + (gapXA, gapYA), (maxXStage, minYStage) + (-gapXA, gapYA), innerAPolyDONTEDIT)
+
+OffScreenABottom = If(IsDefined(ClosestPoint(a, A)), ClosestPoint(a, A), (0, 0))

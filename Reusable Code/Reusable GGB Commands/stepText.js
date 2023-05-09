@@ -1,7 +1,13 @@
-// step=1
-// nextStep=(If(step==10,5,step==5,1,10))")
+/* 
+step=1
+nextStep=(If(step==10,5,step==5,1,10))")
 // paste into input bar
-// stepText = "The point is set to move by " + step + If(step ≟ 1, " unit.", " units.")+" Press space to set the point to move by " + nextStep + If(nextStep ≟ 1, " unit.", " units.")
+// Normed language:
+stepText="Current movement increment is " + step + ". Press space to increment by "+ nextStep +"." 
+*/
+
+// For younger grades and/or "unit" text needed, use:
+/*  stepText = "The point is set to move by " + step + If(step ≟ 1, " unit.", " units.")+" Press space to set the point to move by " + nextStep + If(nextStep ≟ 1, " unit.", " units.") */
 
 /////////// OPTION 1 -- Uses GGB step and nextStep objects /////////////
 

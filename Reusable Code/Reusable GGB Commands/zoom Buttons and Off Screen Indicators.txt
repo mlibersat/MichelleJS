@@ -14,6 +14,53 @@ enableZoomIn = x(corner1) <= -2
 // Insert zoom button SVGs
 // Note add to tab order: picDefZoomOut, picDefZoomIn, picDefZoomInDisab, picDefHome, picDefHomeDisab
 
+
+// Global JS - See this example applet for keyboard Instructions, and click function:
+////////// Global JS client, click, and keyit functions for use with off screen points. 
+// See example here:
+    C:\Users\MichelleLibersat\JavaScript\DIDwhiteboard\IM1\M2\TA L01 - Solution Sets of Linear Equations in Two Variables\03 - GlobalJS.js
+
+/////////////////////////// If Black Focus Indicators are needed ///////////////
+focusGap=5xpixel 
+zoomHomeSelected=false
+zoomInSelected=false
+zoomOutSelected=false
+// set these in coding layer select/deselect
+
+focusZoomHome = Polygon({Corner(picDefHome, 1) + (-focusGap, -focusGap), Corner(picDefHome, 2) + (focusGap, -focusGap), Corner(picDefHome, 3) + (focusGap, focusGap), Corner(picDefHome, 4) + (-focusGap, focusGap)})
+
+SetFixed(focusZoomHome, true, false)
+SetColor(focusZoomHome, 0, 0, 0)
+SetFilling(focusZoomHome, 0)
+SetLineThickness(focusZoomHome, 8)
+SetLayer(focusZoomHome, 8)
+SetConditionToShowObject(focusZoomHome, zoomHomeSelected)
+
+/////////////
+// set these in coding layer select/deselect
+
+focusZoomIn = Polygon({Corner(picDefZoomIn, 1) + (-focusGap, -focusGap), Corner(picDefZoomIn, 2) + (focusGap, -focusGap), Corner(picDefZoomIn, 3) + (focusGap, focusGap), Corner(picDefZoomIn, 4) + (-focusGap, focusGap)})
+
+SetFixed(focusZoomIn, true, false)
+SetColor(focusZoomIn, 0, 0, 0)
+SetFilling(focusZoomIn, 0)
+SetLineThickness(focusZoomIn, 8)
+SetLayer(focusZoomIn, 8)
+SetConditionToShowObject(focusZoomIn, zoomInSelected)
+
+/////////////
+// set these in coding layer select/deselect
+
+focusZoomOut = Polygon({Corner(picDefZoomOut, 1) + (-focusGap, -focusGap), Corner(picDefZoomOut, 2) + (focusGap, -focusGap), Corner(picDefZoomOut, 3) + (focusGap, focusGap), Corner(picDefZoomOut, 4) + (-focusGap, focusGap)})
+
+SetFixed(focusZoomOut, true, false)
+SetColor(focusZoomOut, 0, 0, 0)
+SetFilling(focusZoomOut, 0)
+SetLineThickness(focusZoomOut, 8)
+SetLayer(focusZoomOut, 8)
+SetConditionToShowObject(focusZoomOut, zoomOutSelected)
+
+
 //
 //
 ////////////////////////////////// OFF SCREEN INDICATORS ///////////////////////////////////////////////
@@ -52,3 +99,8 @@ innerAPolyDONTEDIT = Polygon((minXStage, minYStage) + (gapXA, gapYA), (maxXStage
 a = Segment((minXStage, minYStage) + (gapXA, gapYA), (maxXStage, minYStage) + (-gapXA, gapYA), innerAPolyDONTEDIT)
 
 OffScreenABottom = If(IsDefined(ClosestPoint(a, A)), ClosestPoint(a, A), (0, 0))
+
+
+////////// Global JS client, click, and keyit functions for use with off screen points. 
+// See example here:
+    C:\Users\MichelleLibersat\JavaScript\DIDwhiteboard\IM1\M2\TA L01 - Solution Sets of Linear Equations in Two Variables\03 - GlobalJS.js

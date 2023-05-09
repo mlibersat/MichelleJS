@@ -1,0 +1,15 @@
+
+focusGap=10xpixel
+pic1Selected=false
+// set these in coding layer select/deselect
+
+focusPic1 = Polygon({Corner(pic1, 1) + (-focusGap, -focusGap), Corner(pic1, 2) + (focusGap, -focusGap), Corner(pic1, 3) + (focusGap, focusGap), Corner(pic1, 4) + (-focusGap, focusGap)})
+
+SetFixed(focusPic1, true, false)
+SetColor(focusPic1, 0, 0, 0)
+SetFilling(focusPic1, 0)
+SetLineThickness(focusPic1, 8)
+SetLayer(focusPic1, 8)
+SetConditionToShowObject(focusPic1, pic1Selected)
+
+

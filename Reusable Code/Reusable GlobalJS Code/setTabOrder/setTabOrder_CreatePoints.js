@@ -147,7 +147,7 @@ Remove tabOrder and addedList from Graphics View 1 so they never show.
       setTabOrder(initList, addedList, enders);
 
       // Delete points that were created on mouseDown
-      allObjects = ggbObject.getObjectNames("Point");
+      let allObjects = ggbObject.getObjectNames("Point");
       allObjects.forEach((el) => {
         if (el.includes("Point")) {
           ggbObject.deleteObject(el);

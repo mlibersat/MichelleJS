@@ -1,1 +1,2 @@
-richTextEditor1.updateData({ text: `$${H} × ${L}$ $=$ $${P}$` });
+let string = "and the string I want read."
+let num = 

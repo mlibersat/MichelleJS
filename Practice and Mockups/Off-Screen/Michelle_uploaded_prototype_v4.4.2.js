@@ -54,6 +54,12 @@ function ggbOnInit(name, ggbObject) {
       libKeyFunction(event);
     });
 
+    registerSafeObjectUpdateListener("radius", function () {
+      console.log("from radius updateListener");
+      positionAInRegion();
+      setBFakeCoords();
+    });
+
     var selectedObject;
     var prevAX;
     var prevAY;

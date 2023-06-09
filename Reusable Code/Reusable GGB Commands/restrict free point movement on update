@@ -1,0 +1,14 @@
+// (option 1, nested if statement)
+// restricts horizontal movement of A between 0 and 10. vertical movement is always 0. < - may be buggy?
+SetCoords(A, If(x(A) < 0, 0, If(x(A) >= 10, 10, x(A))), 0);
+
+// (option 2, single if statement)
+// restricts horizontal movement of B between 0 and 10. vertical movement is always 5.
+SetCoords(B, If(0 < x(B) <= 10, x(B), x(B) < 0, 0, x(B) >= 10, 10, x(B)), 5);
+
+// restricts horiz and vert movement of C between 0 and 10
+SetCoords(
+  C,
+  If(0 < x(C) <= 10, x(C), x(C) < 0, 0, x(C) >= 10, 10, x(C)),
+  If(0 < y(C) <= 10, y(C), y(C) < 0, 0, y(C) >= 10, 10, y(C))
+);

@@ -53,27 +53,27 @@ function ggbOnInit(name, ggbObject) {
 
     //////// FOR PIXEL COLOR PICKER ///////////
     /* 
-    var id = "canvas" + name;
-    //  var ggbcanvas = document.getElementById(id);
-    if (ggbcanvas) {
-    //  ggbcanvas.setAttribute("aria-label", "Hover Interactive");
-    ggbcanvas.addEventListener("mousemove", function (e) {
+var id = "canvas" + name;
+//  var ggbcanvas = document.getElementById(id);
+if (ggbcanvas) {
+  //  ggbcanvas.setAttribute("aria-label", "Hover Interactive");
+  ggbcanvas.addEventListener("mousemove", function (e) {
     hover(e);
-    });
-    ggbcanvas.addEventListener(
+  });
+  ggbcanvas.addEventListener(
     "touchmove",
     function (e) {
-    var touch = e.touches[0];
-    var mouseEvent = new MouseEvent("mousemove", {
-    clientX: touch.clientX,
-    clientY: touch.clientY,
-    });
-    ggbcanvas.dispatchEvent(mouseEvent);
+      var touch = e.touches[0];
+      var mouseEvent = new MouseEvent("mousemove", {
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+      });
+      ggbcanvas.dispatchEvent(mouseEvent);
     },
     false
-    );
-    }
-    */
+  );
+}
+*/
     setAriaLabel(ggbcanvas, "Aral Sea Interactive");
 
     function defineStatusName() {
@@ -93,70 +93,29 @@ function ggbOnInit(name, ggbObject) {
     });
 
     // ggbObject.registerAddListener(enableDisableButton);
-    registerHoverListener(hoverFunction());
+    registerHoverListener();
     // registerSafeObjectUpdateListener("toolNum", function () {
-    registerSafeObjectUpdateListener("Follow", function () {
-      // COME BACK TO THIS --- Can/Should I register this inside of manageTool function and deregister it after it's not needed?
-      if (addVertsToolActive) {
-        if (ggbObject.getValue("followInDropZone") === 1) {
-          segmentHoverActivated = true;
-          segmentHover();
-        } else {
-          segmentHoverActivated = false;
-        }
-      }
-    });
     // console.log("update listener fired");
     // });
 
     var click = 0;
-    var mdptCounter = 0;
-    var tempPointsArray = [];
+    var pointsArray = [];
     var Length = 0;
     var selectedObject = "";
     var createdPolys = [];
     var createdWhitePolys = [];
-    var allPolyPoints = [];
     var activePoly = "";
     var activePolyPointsArray = [];
     var activePolySegsArray = [];
     var polysToDelete = [];
     var allPolySegs = [];
-    var tempMdpt = "";
-    // var tempAddedPointsArray = [];
+
     var selectOptionToolActive;
     var createPolysToolActive;
     var editVertsToolActive;
     var addVertsToolActive;
     var deletePolysToolActive;
-    var nonActiveFirstPolys = [];
-    var nonActiveLastPolys = [];
-    const initList = " polygonTools, Stamp";
-    var addedList = "";
-    var enders = "ggbButton1, ggbButton2, showGrid, showAxes, showArea, view";
 
-    // var showFollowBool = false;
-
-    const pointLayer = 3;
-    const addVertPointLayer = 6;
-    const whitePointLayer = 2;
-    const pointSizeSmall = 4;
-    const whitePointSizeSmall = 5;
-    const pointSizeBig = 6;
-    const whitePointSizeBig = 7;
-    const polyLayer = 2;
-    const whitePolyLayer = 1;
-    const segLayer = 6;
-    const regLineThickness = 5;
-    const whiteLineThickness = 8;
-    const hoverLineThickness = 10;
-    var segmentHoverActivated = false;
-    var hoverSeg = "";
-    var spaceFlag = false;
-
-    if (ggbObject.getValue("Length(tabOrder)") === 0) {
-      setTabOrder(initList, addedList, enders);
-    }
     defineToolNum();
 
     function defineToolNum() {
@@ -186,6 +145,26 @@ function ggbOnInit(name, ggbObject) {
       if (deletePolysToolActive) {
         console.log("deletePolysToolActive");
       }
+    }
+
+    var nonActiveFirstPolys = [];
+    var nonActiveLastPolys = [];
+
+    const initList = " polygonTools, Stamp";
+    var addedList = "";
+    var enders = "ggbButton1, ggbButton2, showGrid, showAxes, showArea, view";
+
+    const pointLayer = 3;
+    const pointSizeSmall = 4;
+    const whitePointSizeSmall = 5;
+    const pointSizeBig = 6;
+    const whitePointSizeBig = 7;
+    const polyLayer = 2;
+    const regLineThickness = 5;
+    const thickLineThickness = 7;
+
+    if (ggbObject.getValue("Length(tabOrder)") === 0) {
+      setTabOrder(initList, addedList, enders);
     }
 
     function defineButtonClickScripts() {
@@ -233,7 +212,7 @@ function ggbOnInit(name, ggbObject) {
           : unavailableButtonText,
         ggbButton2: ggbObject.getValue("ggbButton2Enabled")
           ? "Press space to delete the selected polygon."
-          : unavailableButtonText,
+          : unavailableButtonText, // COME BACK TO THIS - how will the student mark the polygon for deletion? Can the student just press the "backspace" key?
         ggbButton3: ggbObject.getValue("ggbButton3Enabled") ? "Press space to ___." : unavailableButtonText,
         ggbButton4: ggbObject.getValue("ggbButton4Enabled") ? "Press space to ___." : unavailableButtonText,
         ggbButton5: ggbObject.getValue("ggbButton5Enabled") ? "Press space to ___." : unavailableButtonText,
@@ -251,22 +230,15 @@ function ggbOnInit(name, ggbObject) {
             selectedObject = a.target;
             // console.log("select - selectedObject", selectedObject);
             // manageToolChange();
-            // if (ggbObject.getObjectType(selectedObject) === "segment") {
-            //   // detectAndStyleActivePolySegs();
-            //   showMidpoint(selectedObject);
-            // }
           }
-
           break;
         case "mouseDown":
           {
-            spaceFlag = false;
-
             var hitTarget = a.hits[0];
             // console.log("mouseDown - hitTarget", hitTarget);
 
             switch (true) {
-              case createPolysToolActive || (addVertsToolActive && segmentHoverActivated):
+              case createPolysToolActive:
                 {
                   // if (a.target === "Stamp") {
                   ggbObject.setCoords("TempPt", didUtils.round(a.x, 1), didUtils.round(a.y, 1));
@@ -297,7 +269,6 @@ function ggbOnInit(name, ggbObject) {
                 }
 
                 break;
-                makePoints();
               case editVertsToolActive:
                 {
                   if (ggbObject.getObjectType(hitTarget) === "point" || createdPolys.includes(hitTarget)) {
@@ -307,6 +278,12 @@ function ggbOnInit(name, ggbObject) {
                 }
 
                 break;
+              // case deletePolysToolActive:
+              //   {
+              //     //
+              //   }
+
+              // break;
 
               default:
                 break;
@@ -332,61 +309,38 @@ function ggbOnInit(name, ggbObject) {
           {
             if (a.target) break;
             selectedObject = "";
-
-            //if the student did not add the point on the segment, delete the temporary midpoint
-
-            // if (ggbObject.getColor(tempMdpt) === "000000") {
-            //   mdptCounter++;
-            //   ggbObject.evalCommand("Midpoint" + mdptCounter + "=CopyFreePoint(" + tempMdpt + ")");
-            //   ggbObject.deleteObject(tempMdpt);
-            // }
-            // ggbObject.setVisible(tempMdpt, false);
-
-            // If student clicked on the segment to make a point
-            if (tempMdpt !== "") {
-              ggbObject.setVisible(tempMdpt, false);
-              ggbObject.deleteObject(tempMdpt);
-
-              tempMdpt = "";
-            }
           }
           break;
       }
     }
 
     function clickListenerFunction(a) {
-      console.log("click listener,", a);
-      const clickedObject = a;
+      // console.log("click listener,", a);
       // console.log("click - a", a);
 
-      // Edit & Add Vertices Tool: detect the active poly and make a list of its vertices or segments
-      if (createdPolys.includes(clickedObject)) {
+      if (createdPolys.includes(a)) {
         if (editVertsToolActive) {
-          activePolyPointsArray = getPointsArrayFromPolyName(clickedObject);
+          activePolyPointsArray = getPointsArrayFromPolyName(a);
         } else if (addVertsToolActive) {
-          activePolySegsArray = getSegsArrayFromPolyName(clickedObject);
+          activePolySegsArray = getSegsArrayFromPolyName(a);
         }
       }
 
-      // Edit, Delete, or Add Tools: style the active points/segments/poly and include only necessary items in the tabOrder
+      if (createPolysToolActive && a === "Stamp") {
+        // console.log("makePoints called from clickListener");
+        makePoints();
+      }
+
+      // COME BACK TO THIS///////////////////////////////////////////////////////////////////////
       if (
-        ((editVertsToolActive || deletePolysToolActive || addVertsToolActive) &&
-          createdPolys.includes(clickedObject)) ||
-        activePolyPointsArray.includes(clickedObject)
-        // || allPolySegs.includes(clickedObject)
+        ((editVertsToolActive || deletePolysToolActive) && createdPolys.includes(a)) ||
+        activePolyPointsArray.includes(a)
       ) {
-        if (editVertsToolActive || addVertsToolActive) {
-          // console.log("call detectAndStyle - Points");
-          detectAndStyleActivePolyPoints(clickedObject);
-          if (addVertsToolActive) {
-            // console.log("call detectAndStyle - Segs");
-            detectAndStyleActivePolySegs(clickedObject);
-          }
-        }
-        manageTabOrder(clickedObject);
+        detectAndStyleActivePolyPoints(a);
+        manageTabOrder(a);
 
         if (deletePolysToolActive) {
-          styleDeletePoly(clickedObject);
+          styleDeletePoly(a);
         }
       }
     }
@@ -430,183 +384,44 @@ function ggbOnInit(name, ggbObject) {
       //     // }
       //     break;
       // }
-      // console.log("event.key", event.key, ",  ", "selectedObject", selectedObject);
-      switch (event.key) {
-        case " ":
-          spaceFlag = true;
-          // Create Polygon Tool: make points on space press of stamp
-          // defineToolNum();
-          if (createPolysToolActive && selectedObject === "Stamp") {
-            // console.log("makePoints called from space press");
-            makePoints();
-          }
-
-          // create point at midpoint (tempMdpt is defined on select of the segment)
-          if (ggbObject.getObjectType(selectedObject) === "segment") {
-            console.warn("segment pressed!!!!!!");
-            const xTempMdpt = ggbObject.getXcoord(tempMdpt);
-            const yTempMdpt = ggbObject.getYcoord(tempMdpt);
-            ggbObject.setCoords("Stamp", xTempMdpt, yTempMdpt);
-            console.log(tempPointsArray);
-
-            var pointAlreadyThere = false;
-            var midptToDelete = "";
-
-            for (let i = 0, L = tempPointsArray.length; i < L; i++) {
-              const el = tempPointsArray[i];
-              console.log("element", el);
-              console.log(
-                "xTemp ",
-                xTempMdpt,
-                "yTemp ",
-                yTempMdpt,
-                "x",
-                el,
-                " ",
-                ggbObject.getXcoord(el),
-                "y",
-                el,
-                " ",
-                ggbObject.getYcoord(el)
-              );
-              console.log(
-                "Are they equal?",
-                xTempMdpt === ggbObject.getXcoord(el) && yTempMdpt === ggbObject.getYcoord(el)
-              );
-              if (xTempMdpt === ggbObject.getXcoord(el) && yTempMdpt === ggbObject.getYcoord(el)) {
-                midptToDelete = el;
-                pointAlreadyThere = true;
-                break;
-              }
-            }
-
-            // tempPointsArray.forEach(function (el) {
-            //   console.log("element", el);
-            //   console.log(
-            //     "xTemp ",
-            //     xTempMdpt,
-            //     "yTemp ",
-            //     yTempMdpt,
-            //     "x",
-            //     el,
-            //     " ",
-            //     ggbObject.getXcoord(el),
-            //     "y",
-            //     el,
-            //     " ",
-            //     ggbObject.getYcoord(el)
-            //   );
-            //   if (ggbObject.evalCommand("AreEqual(" + el + ",tempMdpt)") === 0) {
-            //     pointAlreadyThere = false;
-            //   } else {
-            //     pointAlreadyThere = true;
-            //   }
-            // });
-            console.log("pointAlreadyThere", pointAlreadyThere);
-            if (!pointAlreadyThere) {
-              makePoints();
-            } else {
-              ggbObject.deleteObject(midptToDelete);
-              tempPointsArray.filter(function (el) {
-                return !tempMdpt;
-              });
-              // tempMdpt = "";
-            }
-            console.log("new tempPointsArray", tempPointsArray);
-          }
-          break;
-        case "Tab":
-          if (ggbObject.getObjectType(selectedObject) === "segment") {
-            showMidpoint(selectedObject);
-          }
-          break;
-        default:
-          spaceFlag = false;
-
-          break;
-      }
     }
 
     function makePoints() {
       click++;
       var stampX = ggbObject.getXcoord("Stamp");
       var stampY = ggbObject.getYcoord("Stamp");
-      var newPointName = "";
+      var newPointName = "NewPoint".concat(click);
       var newWhitePointName = newPointName.concat("White");
 
-      // console.log("1");
-
-      //create and name the created point
-      if (addVertsToolActive) {
-        // When add verts Tool is Active, create points at midpoints of segments (when space is pressed) and add points on mousedown when the segment hover is active
-        // Ex name: "NewMdpt3"
-        console.log("2");
-
-        //   // COME BACK TO THIS -- MAYBE PUT THIS IN THE TEMP POINT function
-        //   // eval command create temp Point on segment
-        //   // find closest point from the Stamp on the active segment
-        newPointName = "NewMdpt".concat(click);
-        console.log("in makePoints - hoverSeg", hoverSeg, "newMdpt", newPointName);
-
-        // If students are creating points from pressing space on a segment, drop a point at the midpoint
-        if (spaceFlag) {
-          ggbObject.evalCommand(newPointName.concat("=(", stampX, ",", stampY, ")"));
-        } else {
-          // If students are creating points on mouseDown, drop a point at the closest location of their mouse to the active segment
-          ggbObject.evalCommand(newPointName.concat("=ClosestPoint(", hoverSeg, ", Stamp)"));
-        }
-        ggbObject.setColor(newPointName, 0, 0, 0);
-        console.log("end 2");
-      } else {
-        //   console.log("3");
-        newPointName = "NewPoint".concat(click);
-
-        ggbObject.evalCommand(newPointName.concat("=(", stampX, ",", stampY, ")"));
-      }
-
-      // console.log("4");
-
+      ggbObject.evalCommand(newPointName.concat("=(", stampX, ",", stampY, ")"));
       ggbObject.evalCommand(newWhitePointName.concat("=", newPointName, ""));
 
       ggbObject.setPointSize(newPointName, pointSizeSmall);
-      // if (addVertsToolActive) {
-      //   console.log("5");
-      // }
-      // console.log("6");
       ggbObject.setPointSize(newWhitePointName, whitePointSizeSmall);
       ggbObject.setColor(newWhitePointName, 255, 255, 255);
-      ggbObject.setLayer(newPointName, addVertsToolActive ? addVertPointLayer : pointLayer);
-      ggbObject.setLayer(newWhitePointName, whitePointLayer);
+      ggbObject.setLayer(newPointName, pointLayer);
+      ggbObject.setLayer(newWhitePointName, pointLayer - 1);
       ggbObject.setFixed(newPointName, false, false);
       ggbObject.setFixed(newWhitePointName, false, false);
-      // console.log("7");
-
-      tempPointsArray.push(newPointName);
-      console.warn("tempPointsArray", tempPointsArray);
-      // console.log("8");
-
-      // If points are added on a midpoint by clicking a segment, don't set the increment now. Set it later after the point is reconfigured as a vertex of the polygon
-      if (!addVertsToolActive) {
-        setIncrement(newPointName);
-      }
-      // console.log("9");
-      Length = tempPointsArray.length;
-      // console.log("10");
+      pointsArray.push(newPointName);
+      setIncrement(newPointName);
+      Length = pointsArray.length;
       enableDisableButton();
+      // console.warn("new point:", newPointName);
     }
 
     function makePoly() {
       // console.log("in makePoly - tabOrder", ggbObject.getDefinitionString("tabOrder"));
       // console.log("addedList", addedList);
 
-      // console.log("tempPointsArray", tempPointsArray);
+      // console.log("pointsArray", pointsArray);
       var createdPolysNum = createdPolys.length;
       var createdWhitePolysNum = createdPolys.length;
       var newPolyName = "polyGon".concat(createdPolysNum + 1);
       var newWhitePolyName = "polyGon".concat(createdWhitePolysNum + 1, "White");
 
-      // reorder points to make sides non-intersecting
-      const points = Array.from(tempPointsArray, (el) => ({
+      // reorder points to make convex poly
+      const points = Array.from(pointsArray, (el) => ({
         x: ggbObject.getXcoord(el),
         y: ggbObject.getYcoord(el),
         name: el,
@@ -625,17 +440,12 @@ function ggbOnInit(name, ggbObject) {
 
       // Add an angle property to each point using tan(angle) = y/x
       const angles = points.map(({ x, y, name }) => {
-        return {
-          x,
-          y,
-          angle: (Math.atan2(y - center.y, x - center.x) * 180) / Math.PI,
-          name,
-        };
+        return { x, y, angle: (Math.atan2(y - center.y, x - center.x) * 180) / Math.PI, name };
       });
 
       // Sort your points by angle
       const pointsSorted = angles.sort((a, b) => a.angle - b.angle);
-      // console.log("tempPointsArraySorted", pointsSorted);
+      // console.log("pointsArraySorted", pointsSorted);
 
       function getFields(input, field) {
         var output = [];
@@ -643,86 +453,81 @@ function ggbOnInit(name, ggbObject) {
         return output;
       }
 
-      tempPointsArray = getFields(pointsSorted, "name");
-      // console.log("tempPointsArray names???", tempPointsArray);
+      pointsArray = getFields(pointsSorted, "name");
+      // console.log("pointsArray names???", pointsArray);
 
-      // create the poly with non-intersecting sides using the new order of points in tempPointsArray
-      createdPolys.push(ggbObject.evalCommandGetLabels(newPolyName.concat("=Polygon({", tempPointsArray, "})")));
+      // create the convex poly using the new order of points in pointsArray
+      createdPolys.push(ggbObject.evalCommandGetLabels(newPolyName.concat("=Polygon({", pointsArray, "})")));
       // console.log("created polys", createdPolys);
 
       // create polys in GGB
-      createdWhitePolys.push(
-        ggbObject.evalCommandGetLabels(newWhitePolyName.concat("=Polygon(", tempPointsArray, ")"))
-      );
+
       setLineOpacity(newPolyName);
+      createdWhitePolys.push(ggbObject.evalCommandGetLabels(newWhitePolyName.concat("=Polygon(", pointsArray, ")")));
       ggbObject.setLayer(newPolyName, polyLayer);
-      ggbObject.setColor(newPolyName, 0, 127, 175);
       ggbObject.setFilling(newPolyName, 0.35);
       ggbObject.setFixed(newPolyName, false, false);
       // console.log("poly created in GGB");
 
       // create white polys
-      ggbObject.setLineThickness(newWhitePolyName, whiteLineThickness);
       setLineOpacity(newWhitePolyName);
-      ggbObject.setLayer(newWhitePolyName, whitePolyLayer);
+      ggbObject.setLineThickness(newWhitePolyName, 8);
+      ggbObject.setLayer(newWhitePolyName, polyLayer - 1);
       ggbObject.setColor(newWhitePolyName, 255, 255, 255);
       // ggbObject.setFilling(newWhitePolyName, 1);
       ggbObject.setFixed(newWhitePolyName, false, false);
       // console.log("white poly created in GGB");
 
-      tempPointsArray = [];
+      pointsArray = [];
+      // console.log("in makePoly -before manageAddedList - tabOrder", ggbObject.getDefinitionString("tabOrder"));
 
+      //////////COME BACK TO THIS//////////// <-- how can I get it to not delete any elements already in addedList?
       // console.log("addedList before manageAdded", addedList);
       addedList = manageAddedList(newPolyName, true); // add the polys to the tab order, but they remain nonselectable until tool drop down is edit or delete
+      // addedList = addedList.concat(", ", manageAddedList(newPolyName, true)); // add the polys to the tab order, but they remain nonselectable until tool drop down is edit or delete
+      // if (!addedList.includes(newPolyName)) {
+      //   addedList = addedList.concat(", ", manageAddedList(newPolyName, true));
+      // } // add the polys to the tab order, but they remain nonselectable until tool drop down is edit or delete
       // console.log("addedList after manageAdded", addedList);
 
       setTabOrder(initList, addedList, enders);
-
-      updateAllPolySegs();
-      allPolySegs.forEach(function (element) {
-        ggbObject.setColor(element, 0, 127, 175);
-        ggbObject.setFixed(element, false, false);
-        ggbObject.setLineThickness(element, regLineThickness);
-        ggbObject.setLayer(element, segLayer);
-      });
+      // console.log("manageAddedList and setTabOrder");
+      // console.log("end makePoly - tabOrder AFTER", ggbObject.getDefinitionString("tabOrder"));
+      getSegmentList();
     }
 
     // Note: segments created by makePoly() are automatically named by GGB as "newpoint1","newpoint2", etc.
     // Note2: segment are named according to which point they are being drawn TO.
-    function updateAllPolySegs() {
+    function getSegmentList() {
       allPolySegs = ggbObject.getAllObjectNames("segment").filter(function (el) {
         return el.includes("newpoint");
       });
-      const sortAlphaNum = (a, b) =>
-        a.localeCompare(b, "en", {
-          numeric: true,
-        });
+      const sortAlphaNum = (a, b) => a.localeCompare(b, "en", { numeric: true });
       var sortedSegs = allPolySegs.sort(sortAlphaNum);
 
-      // sortedSegs.forEach(function (element) {
-      //   ggbObject.setVisible(element, false);
-      //   // ggbObject.setLineThickness(element, 0);
-      // });
+      sortedSegs.forEach(function (element) {
+        ggbObject.setLineThickness(element, 0);
+      });
 
+      console.log("sortedSegs", sortedSegs);
       allPolySegs = [...sortedSegs];
-      // console.log("allPolySegs", allPolySegs);
+      console.log("allPolySegs", allPolySegs);
+
+      /* // find the poly that the segments belong to
+      createdPolys.forEach(function (element) {
+        // ggbObject.
+      }); */
     }
 
     function setIncrement(a) {
-      console.log("setIncrement 1");
       var xmlstring = ggbObject.getXML(a);
       xmlstring = xmlstring.slice(xmlstring.indexOf("/>") + 2);
       var parser = new DOMParser();
       var xmldom = parser.parseFromString(xmlstring, "application/xml");
-      console.log("setIncrement 2");
-
       xmldom.getElementsByTagName("animation")[0].setAttribute("step", "0.5");
       var serializer = new XMLSerializer();
-      console.log("setIncrement 3");
       xmlstring = serializer.serializeToString(xmldom);
-      console.log("setIncrement 4");
       ggbObject.evalXML(xmlstring);
-      console.log("setIncrement end");
     }
 
     function setLineOpacity(obj, opacity = 1) {
@@ -744,12 +549,9 @@ function ggbOnInit(name, ggbObject) {
 
       var polyDefString = "";
 
-      // temporarily make all points small
+      makePointsSmall(true); // selectableBool == true
 
-      // console.log("call makePointsSmall");
-      makePointsSmall(editVertsToolActive); // editVertsToolActive bool is passed so that points are selectable only if Edit Verts Tool is active (not add Verts tool)
-
-      // if a poly is selected, detect its vertices
+      // if a poly is selected, make its vertices big
       if (polySelected || pointSelected) {
         if (pointSelected) {
           createdPolys.forEach(function (element) {
@@ -763,78 +565,47 @@ function ggbOnInit(name, ggbObject) {
         }
 
         activePolyPointsArray = getPointsArrayFromPolyName(activePoly);
-        // Edit Vertices Tool: make the active points big
-        if (editVertsToolActive) {
-          activePolyPointsArray.forEach(function (element) {
-            // console.log("make active points selectable and BIG");
-            ggbObject.setFixed(element, false, true);
-            ggbObject.setPointSize(element, pointSizeBig);
-            ggbObject.setPointSize(element.concat("White"), whitePointSizeBig);
-          });
-        } else if (addVertsToolActive) {
-          // console.log("in detectAndStyle called from clickListener - addVertstool");
 
-          // Add Vertices Tool
-          // temporarily make all points hidden
-          updateAllPointsArray();
-          allPolyPoints.forEach(function (element) {
-            // console.log("make active points visible");
-
-            ggbObject.setVisible(element, false);
-            ggbObject.setVisible(element.concat("White"), false);
-            ggbObject.setFixed(element, true, false);
-          });
-          // Add Vertices Tool: Make active vertices visible but small and nonselectable.
-          activePolyPointsArray.forEach(function (element) {
-            ggbObject.setVisible(element, true);
-            ggbObject.setVisible(element.concat("White"), true);
-            ggbObject.setFixed(element, false, false);
-          });
-          // console.log("poly points non-selectable");
-        }
+        activePolyPointsArray.forEach(function (element) {
+          ggbObject.setFixed(element, false, true);
+          ggbObject.setPointSize(element, pointSizeBig);
+          ggbObject.setPointSize(element.concat("White"), whitePointSizeBig);
+        });
       }
     }
 
     function makePointsSmall(selectableBool) {
-      updateAllPointsArray();
+      var allPoints = ggbObject.getAllObjectNames("point");
+
+      // filter out anything that doesn't contain "NewPoint" and anything that does contain "White"
+      const polyPoints = allPoints.filter(function (el) {
+        return el.includes("NewPoint") && !el.includes("White");
+      });
       // make all vertices small ("active" vertices will be made big in next step)
-      // console.log("in makePointsSmall, selectableBool", selectableBool);
-      allPolyPoints.forEach(function (element) {
+      polyPoints.forEach(function (element) {
         ggbObject.setFixed(element, false, selectableBool);
         ggbObject.setPointSize(element, pointSizeSmall);
         ggbObject.setPointSize(element.concat("White"), whitePointSizeSmall);
       });
     }
 
-    function updateAllPointsArray() {
-      var allPoints = ggbObject.getAllObjectNames("point");
-
-      // filter out anything that doesn't contain "NewPoint" and anything that does contain "White"
-      allPolyPoints = allPoints.filter(function (el) {
-        return el.includes("NewPoint") && !el.includes("White");
-      });
-      // console.log("allPolyPoints", allPolyPoints);
-    }
-
     // detect active polygon, make all segments associated with the polygon thick and all others regular. (all are selectable but not all in tab cycle)
     // Called on: space press of poly, on mouseDown of seg or poly, and on click of seg or poly
     function detectAndStyleActivePolySegs(obj) {
-      // console.log("in detectAndStyleActivePolySegs");
       const segSelected = ggbObject.getObjectType(obj) === "segment";
       const polySelected = createdPolys.includes(obj);
 
       var polyDefString = "";
 
-      makeSegsSelectable(false);
+      makeSegsRegularThickness(true); // selectableBool == true
 
-      // if a poly is clicked, make its vertices visible
+      // if a poly is selected, make its vertices big
       if (polySelected || segSelected) {
         if (segSelected) {
           const truncSegName = obj.substring(3, obj.length);
-          // console.log("trunc seg name:", truncSegName);
+          console.log("trunc seg name:", truncSegName);
           createdPolys.forEach(function (element) {
             polyDefString = ggbObject.getDefinitionString(element);
-            // console.log("In segSelected of detectAndStyle - Poly def string", ggbObject.getDefinitionString(element));
             if (polyDefString.includes(truncSegName)) {
               activePoly = element;
             }
@@ -843,21 +614,22 @@ function ggbOnInit(name, ggbObject) {
           activePoly = obj;
         }
 
-        activePolySegsArray = getSegsArrayFromPolyName(activePoly);
+        activePolyPointsArray = getSegsArrayFromPolyName(activePoly);
 
         activePolyPointsArray.forEach(function (element) {
-          ggbObject.setFixed(element, true, false);
-        });
-        activePolySegsArray.forEach(function (element) {
-          ggbObject.setFixed(element, true, true);
+          ggbObject.setFixed(element, false, true);
+          ggbObject.setLineThickness(element, thickLineThickness);
+          // ggbObject.setLineThickness(element.concat("white"), thickLineThickness + 1);
         });
       }
     }
 
-    function makeSegsSelectable(selectableBool) {
+    function makeSegsRegularThickness(selectableBool) {
+      // make all vertices small ("active" vertices will be made big in next step)
       allPolySegs.forEach(function (element) {
-        ggbObject.setVisible(element, true);
         ggbObject.setFixed(element, false, selectableBool);
+        ggbObject.setLineThickness(element, regLineThickness);
+        // ggbObject.setLineThickness(element.concat("white"), regLineThickness + 1);
       });
     }
 
@@ -866,19 +638,19 @@ function ggbOnInit(name, ggbObject) {
       var polyPointsString = polyDefString.substring(9, polyDefString.length - 1);
       return polyPointsString.split(", ");
     }
-
     function getSegsArrayFromPolyName(poly) {
       var polyDefString = ggbObject.getDefinitionString(poly);
-      var polySegsString = polyDefString.substring(9, polyDefString.length - 1);
+      var polySegsString = polyDefString.substring(8, polyDefString.length - 2);
       var segs = polySegsString.toLowerCase();
+      console.log(segs.split(", "));
       return segs.split(", ");
     }
 
     function enableDisableButton() {
       defineToolNum();
       if (createPolysToolActive) {
-        // console.log(tempPointsArray);
-        Length = tempPointsArray.length;
+        console.log(pointsArray);
+        Length = pointsArray.length;
         var enableBool = Length > 2 ? true : false;
         enableButton(1, enableBool);
         // console.log("create button enabled?? - from add listener:", enableBool);
@@ -896,11 +668,6 @@ function ggbOnInit(name, ggbObject) {
 
       if (!editVertsToolActive) {
         makePointsSmall(false); // selectableBool == false
-        updateAllPointsArray();
-        allPolyPoints.forEach(function (element) {
-          ggbObject.setFixed(element, false, false);
-        });
-        // console.log("in manageToolChange - points are not selectable");
       }
 
       // When the tool is changed away from delete polys, reset the shading of any polys that may have been marked for deletion & show poly points again
@@ -910,18 +677,9 @@ function ggbOnInit(name, ggbObject) {
         allPoints.forEach(function (element) {
           // console.log("point element", element);
           if (element.includes("NewPoint")) {
-            // hide poly points when add Verts or delete Polys is chosen
             ggbObject.setVisible(element, false);
           }
         });
-        if (addVertsToolActive) {
-          ggbObject.setValue("showFollow", true);
-          // show poly segments and make them selectable when add Verts is chosen
-          allPolySegs.forEach(function (element) {
-            ggbObject.setVisible(element, true);
-            ggbObject.setFixed(element, false, false);
-          });
-        }
       } else if (!deletePolysToolActive) {
         polysToDelete.forEach(function (element) {
           ggbObject.evalCommand("SetDecoration(" + element + ", 0)");
@@ -934,33 +692,25 @@ function ggbOnInit(name, ggbObject) {
           }
         });
       }
-      if (!addVertsToolActive) {
-        console.log("addVertsTool is Inactive");
-        ggbObject.setValue("showFollow", false);
-        updateAllPolySegs();
-        allPolySegs.forEach(function (element) {
-          ggbObject.setLineThickness(element, regLineThickness);
-        });
-      }
 
       // When the tool is changed away from create polys, delete any stray points that may have been created and not made into a poly and disable create button.
       if (!createPolysToolActive) {
         enableButton(1, false);
+        console.log("create button disabled - from manageToolChange");
 
         selectableOrNot = selectOptionToolActive ? false : true;
-        // console.warn("tempPointsArray before", tempPointsArray);
+        // console.warn("pointsArray before", pointsArray);
         // console.warn("tabOrder before", ggbObject.getDefinitionString("tabOrder"));
-        if (tempPointsArray.length !== 0) {
-          tempPointsArray.forEach(function (element) {
+        if (pointsArray.length !== 0) {
+          pointsArray.forEach(function (element) {
             ggbObject.deleteObject(element);
             ggbObject.deleteObject(element + "White");
           });
-          tempPointsArray = [];
+          pointsArray = [];
         }
-        // console.log(">>>> tempPointsArray AFTER", tempPointsArray);
+        // console.log(">>>> pointsArray AFTER", pointsArray);
         // console.log(">>>> tabOrder AFTER", ggbObject.getDefinitionString("tabOrder"));
       }
-
       createdPolys.forEach(function (element) {
         ggbObject.setFixed(element, false, selectableOrNot); // make the poly selectable if toolNum 2 or 3, otherwise nonselectable
       });
@@ -1001,36 +751,22 @@ function ggbOnInit(name, ggbObject) {
       // >>>>>>>> Added List (2 of 4) - activePoly <<<<<<<<
       addedList = manageAddedList(activePoly, true); // put nonactive first polys back in the tab order
 
-      // >>>>>>>> Added List (3(a) of 4) - active points <<<<<<<<
+      // >>>>>>>> Added List (3 of 4) - active points <<<<<<<<
       // only add points to tabOrder if "Edit Vertices" is selected
       if (editVertsToolActive) {
-        // const allPoints = ggbObject.getAllObjectNames("point");
+        const allPoints = ggbObject.getAllObjectNames("point");
 
-        // // filter out anything that doesn't contain "NewPoint" and anything that does contain "White"
-        // const nonActivePolyPoints = allPolyPoints.filter(function (el) {
-        //   return el.includes("NewPoint") && !el.includes("White") && !activePolyPointsArray.includes(el);
-        // });
-        // console.log("activePolyPointsArray", activePolyPointsArray);
+        // filter out anything that doesn't contain "NewPoint" and anything that does contain "White"
+        const nonActivePolyPoints = allPoints.filter(function (el) {
+          return el.includes("NewPoint") && !el.includes("White") && !activePolyPointsArray.includes(el);
+        });
+
         activePolyPointsArray.forEach(function (element) {
+          // if (!tabOrder.includes(element)) {
           addedList = manageAddedList(element, true);
+          // }
         });
       }
-
-      // >>>>>>>> Added List (3(b) of 4) - active segments <<<<<<<<
-      // only add segments to tabOrder if "Add Vertices" is selected
-      if (addVertsToolActive) {
-        updateAllPolySegs();
-
-        // const nonActivePolySegs = allPolySegs.filter(function (el) {
-        //   return !activePolySegsArray.includes(el);
-        // });
-        // console.log("activePolySegsArray", activePolySegsArray);
-
-        activePolySegsArray.forEach(function (element) {
-          addedList = manageAddedList(element, true);
-        });
-      }
-
       // >>>>>>>>  Added List (4 of 4) - nonActive "last" polys <<<<<<<<
       nonActiveLastPolys.forEach(function (element) {
         addedList = manageAddedList(element, true); // put nonactive polys back in the tab order after active poly points
@@ -1052,10 +788,7 @@ function ggbOnInit(name, ggbObject) {
         );
 
       // console.log("allPolys unsorted", allPolys);
-      const sortAlphaNum = (a, b) =>
-        a.localeCompare(b, "en", {
-          numeric: true,
-        });
+      const sortAlphaNum = (a, b) => a.localeCompare(b, "en", { numeric: true });
       let sortedPolys = allPolys.sort(sortAlphaNum);
       let siftedAndSortedPolys = sortedPolys.filter(function (el) {
         return el.includes("Gon") && !el.includes("White");
@@ -1100,64 +833,44 @@ function ggbOnInit(name, ggbObject) {
       pointsToDelete = [];
       // console.log("End deletePolygons function - createdPolys:", createdPolys);
     }
+    ////////////
 
-    function hoverFunction() {
-      // const xFollow = ggbObject.getXcoord("Follow");
-      // const yFollow = ggbObject.getYcoord("Follow");
-      // console.log("Follow", xFollow, yFollow);
-    }
+    ////////////
 
-    function segmentHover() {
-      const distances = [];
-      allPolySegs.forEach(function (element) {
-        ggbObject.setLineThickness(element, regLineThickness);
-        ggbObject.evalCommand("dist = Distance(Follow," + element + ")");
-        const dist = ggbObject.getValue("dist");
-        distances.push(dist);
-      });
-      // console.warn("distances,", distances);
-      const min = Math.min.apply(null, distances);
-      // console.log(min);
-      if (min < 1) {
-        const indexMin = distances.indexOf(min);
-        // console.log("indexMin", indexMin, "allPolySegs indexMin:", allPolySegs[indexMin]);
+    ////////////////////////
 
-        ggbObject.setLineThickness(allPolySegs[indexMin], hoverLineThickness);
-        hoverSeg = allPolySegs[indexMin];
-      } else {
-        hoverSeg = "";
-      }
-      // console.log("hoverSeg", hoverSeg);
-    }
+    // //use var initlist = determineOrder() if using this to set up initial positioning along with setTabOrder
+    // function determineOrder() {
+    //   /* This part gets all of the types of objects you want sorted.
+    //   Make an array called allInits that contains the objects: images, quadrilaterals, points, etc. */
 
-    function showMidpoint(seg) {
-      tempMdpt = ggbObject.evalCommandGetLabels("Midpoint(" + seg + ")");
-      ggbObject.setPointStyle(tempMdpt, 2);
-      ggbObject.setPointSize(tempMdpt, 5);
-      ggbObject.setLayer(tempMdpt, addVertPointLayer);
-      ggbObject.setColor(tempMdpt, 255, 255, 255);
-      ggbObject.setFixed(tempMdpt, true, false);
-      console.log("tempMdpt created", tempMdpt);
-    }
+    // //in this case, gets all of the visible quads whose name starts with "box"
+    // var allInits = pointsArray
 
-    // function distance(v, w, p) {
-    //   function sqr(x) {
-    //     return x * x;
+    // //sorts the images from the previous array based on their y-coordinate
+    //   var sortedInits = allInits.sort(function (a, b) {
+    //       /*This next part sets up the logic for the sort.
+    //       Change it to your situation(vertical alignment based on yCoord, object name alphabetically, etc)*/
+
+    //   //change these to whatever point names govern the position of the object if using object position as sort
+    //   var aName = "NewPoint".concat(a.slice(1));
+    //       var bName = "NewPoint".concat(b.slice(1));
+
+    //   //in this case, determines which x-coord is smaller and returns a number accordingly to tell the sort which order they go in
+    //   if (ggbObject.getXcoord(aName) < ggbObject.getXcoord(bName)) {
+    //     return -1;
     //   }
-    //   function dist2(v, w) {
-    //     return sqr(v.x - w.x) + sqr(v.y - w.y);
+    //   if (ggbObject.getXcoord(aName) > ggbObject.getXcoord(bName)) {
+    //     return 1;
     //   }
-    //   function distToSegmentSquared(p, v, w) {
-    //     var l2 = dist2(v, w);
-    //     if (l2 == 0) return dist2(p, v);
-    //     var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-    //     t = Math.max(0, Math.min(1, t));
-    //     return dist2(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
-    //   }
-    //   function distToSegment(p, v, w) {
-    //     return Math.sqrt(distToSegmentSquared(p, v, w));
-    //   }
+    //   //if they are the same
+    //   return 0;
+    // });
+    // var initList = sortedInits.join(",");
+    // return initList;
     // }
+
+    ///////////////////////
 
     //add new stuff above this line
   });

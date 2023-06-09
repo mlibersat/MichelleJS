@@ -1,5 +1,4 @@
-///////////////////TESTING TABORDER REDESIGN/////////////////
-
+// test using constructor
 function ggbOnInit(name, ggbObject) {
   loadUtils().then(function (setupGGB) {
     const buttonClicks = defineButtonClickScripts();
@@ -53,26 +52,26 @@ function ggbOnInit(name, ggbObject) {
 
     //////// FOR PIXEL COLOR PICKER ///////////
     /* 
-var id = "canvas" + name;
-//  var ggbcanvas = document.getElementById(id);
-if (ggbcanvas) {
-  //  ggbcanvas.setAttribute("aria-label", "Hover Interactive");
-  ggbcanvas.addEventListener("mousemove", function (e) {
-    hover(e);
-  });
-  ggbcanvas.addEventListener(
-    "touchmove",
-    function (e) {
-      var touch = e.touches[0];
-      var mouseEvent = new MouseEvent("mousemove", {
-        clientX: touch.clientX,
-        clientY: touch.clientY,
-      });
-      ggbcanvas.dispatchEvent(mouseEvent);
-    },
-    false
-  );
-}
+  var id = "canvas" + name;
+  //  var ggbcanvas = document.getElementById(id);
+  if (ggbcanvas) {
+    //  ggbcanvas.setAttribute("aria-label", "Hover Interactive");
+    ggbcanvas.addEventListener("mousemove", function (e) {
+      hover(e);
+    });
+    ggbcanvas.addEventListener(
+      "touchmove",
+      function (e) {
+        var touch = e.touches[0];
+        var mouseEvent = new MouseEvent("mousemove", {
+          clientX: touch.clientX,
+          clientY: touch.clientY,
+        });
+        ggbcanvas.dispatchEvent(mouseEvent);
+      },
+      false
+    );
+  }
 */
     setAriaLabel(ggbcanvas, "Aral Sea Interactive");
 
@@ -100,9 +99,10 @@ if (ggbcanvas) {
 
     var click = 0;
     var pointsArray = [];
-    var Length = 0;
+    var lengthPointsArray = pointsArray.length;
     var selectedObject = "";
     var createdPolys = [];
+    var lengthCreatedPolys = createdPolys.length;
     var createdWhitePolys = [];
     var activePoly = "";
     var activePolyPointsArray = [];
@@ -129,6 +129,28 @@ if (ggbcanvas) {
     const pointSizeBig = 6;
     const whitePointSizeBig = 7;
     const polyLayer = 2;
+
+    // Constructors start with a capital letter by convention
+    // difference form above - uses new and this. in the constructor function
+    function Polygon(name) {
+      this.name = name;
+      this.numberString = function () {
+        this.name.substring(5, this.name.length).length;
+      };
+      this.label = function () {
+        `Polygon  ${this.number} of ${lengthCreatedPolys}.`;
+      };
+    }
+
+    /*    console.log("polys");
+    // To call Person() as a constructor, use new:
+    const poly1 = new Polygon("Polygon 1");
+    console.log(poly1.name); // Polygon 1
+    console.log(poly1.number()); // 1
+
+    const poly2 = new Polygon("Polygon 2");
+    console.log(poly1.name); // Polygon 2
+    console.log(poly1.number()); // 2 */
 
     if (ggbObject.getValue("Length(tabOrder)") === 0) {
       setTabOrder(initList, addedList, enders);
@@ -364,7 +386,7 @@ if (ggbcanvas) {
       ggbObject.setFixed(newWhitePointName, false, false);
       pointsArray.push(newPointName);
       setIncrement(newPointName);
-      Length = pointsArray.length;
+      lengthPointsArray = pointsArray.length;
       enableDisableButton();
       console.warn("new point:", newPointName);
     }
@@ -374,10 +396,10 @@ if (ggbcanvas) {
       // console.log("addedList", addedList);
 
       // console.log("pointsArray", pointsArray);
-      var createdPolysNum = createdPolys.length;
-      var createdWhitePolysNum = createdPolys.length;
-      var newPolyName = "polyGon".concat(createdPolysNum + 1);
-      var newWhitePolyName = "polyGon".concat(createdWhitePolysNum + 1, "White");
+
+      lengthCreatedPolys = createdPolys.length;
+      var newPolyName = "polyGon".concat(lengthCreatedPolys + 1);
+      var newWhitePolyName = "polyGon".concat(lengthCreatedPolys + 1, "White");
 
       // reorder points to make convex poly
       const points = Array.from(pointsArray, (el) => ({
@@ -394,20 +416,12 @@ if (ggbcanvas) {
           acc.y += y / points.length;
           return acc;
         },
-        {
-          x: 0,
-          y: 0,
-        }
+        { x: 0, y: 0 }
       );
 
       // Add an angle property to each point using tan(angle) = y/x
       const angles = points.map(({ x, y, name }) => {
-        return {
-          x,
-          y,
-          angle: (Math.atan2(y - center.y, x - center.x) * 180) / Math.PI,
-          name,
-        };
+        return { x, y, angle: (Math.atan2(y - center.y, x - center.x) * 180) / Math.PI, name };
       });
 
       // Sort your points by angle
@@ -441,7 +455,7 @@ if (ggbcanvas) {
       ggbObject.setLineThickness(newWhitePolyName, 8);
       ggbObject.setLayer(newWhitePolyName, polyLayer - 1);
       ggbObject.setColor(newWhitePolyName, 255, 255, 255);
-      // ggbObject.setFilling(newWhitePolyName, 1);
+      // ggbObject.setFilling(newWhitePolyName, 1);get
       ggbObject.setFixed(newWhitePolyName, false, false);
       // console.log("white poly created in GGB");
 
@@ -461,13 +475,24 @@ if (ggbcanvas) {
       // console.log("manageAddedList and setTabOrder");
       // console.log("end makePoly - tabOrder AFTER", ggbObject.getDefinitionString("tabOrder"));
       getSegmentList();
+
+      // make new polygon object
+      const poly = new Polygon(newPolyName);
+      console.log(poly); // Polygon 1
     }
 
+    // Note: segments created by makePoly() are automatically named by GGB as "newpoint1","newpoint2", etc.
+    // Note2: segment are named according to which point they are being drawn TO.
     function getSegmentList() {
       const allPolySegs = ggbObject.getAllObjectNames("segment").filter(function (el) {
         return el.includes("newpoint");
       });
+
+      allPolySegs.forEach(function (element) {
+        ggbObject.setLineThickness(element, 0);
+      });
       console.log("allSegs", allPolySegs);
+      // find the poly that the segments belong to
     }
 
     function setIncrement(a) {
@@ -550,8 +575,8 @@ if (ggbcanvas) {
       defineToolNum();
       if (toolNum === 1) {
         console.log(pointsArray);
-        Length = pointsArray.length;
-        var enableBool = Length > 2 ? true : false;
+        lengthPointsArray = pointsArray.length;
+        var enableBool = lengthPointsArray > 2 ? true : false;
         enableButton(1, enableBool);
         console.log("create button enabled?? - from add listener:", enableBool);
       }
@@ -691,10 +716,7 @@ if (ggbcanvas) {
         );
 
       // console.log("allPolys unsorted", allPolys);
-      const sortAlphaNum = (a, b) =>
-        a.localeCompare(b, "en", {
-          numeric: true,
-        });
+      const sortAlphaNum = (a, b) => a.localeCompare(b, "en", { numeric: true });
       let sortedPolys = allPolys.sort(sortAlphaNum);
       let siftedAndSortedPolys = sortedPolys.filter(function (el) {
         return el.includes("Gon") && !el.includes("White");

@@ -12,7 +12,7 @@ function solution(inputArray) {
   return Math.max(...inputArray.map((el, index) => el * inputArray[index + 1]).filter((el) => !isNaN(el)));
 }
 /////////////////////////TRIAL 3 ///////////////////////
-/* 
+
 function solution(inputArray) {
   // ex: inputArray: [3, 6, -2, -5, 7, 3]
   // Given an array of integers, find the pair of adjacent elements that has the largest product and return that product.
@@ -34,7 +34,22 @@ function solution(inputArray) {
   console.log(newArray);
   return Math.max(...newArray); // ... spread operator (spreads the individual elements in an array)
   // return the max value in the array
-} */
+}
+
+function solution(inputArray) {
+  // ex: inputArray: [3, 6, -2, -5, 7, 3]
+  // Given an array of integers, find the pair of adjacent elements that has the largest product and return that product.
+
+  const productArray = [];
+  inputArray.forEach((element, index) => {
+    productArray.push(element * inputArray[index + 1]);
+  });
+
+  const newArray = productArray.filter((el) => !isNaN(el)); 
+
+  console.log(newArray);
+  return Math.max(...newArray); 
+}
 
 /////////////////////////TRIAL 2 ///////////////////////
 

@@ -11,7 +11,7 @@ for (let i = 0, L = objectNames.length; i < L; i++) {
     // ggbApplet.getObjectType(objectNames[i]) === "triangle" // only show labels of certain object type
   ) {
     console.log(objectNames[i], " visible: ", ggbApplet.getVisible(objectNames[i]));
-    // ggbApplet.setLabelVisible(objectNames[i], true);
+    ggbApplet.setLabelVisible(objectNames[i], true);
     // ggbApplet.setColor(objectNames[i], 0, 127, 175);
   }
 }

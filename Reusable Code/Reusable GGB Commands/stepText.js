@@ -13,13 +13,13 @@ stepText="Current movement increment is " + step + ". Press space to increment b
 
 // in GlobalJS defineKeyboardInstructions function
 // function defineKeyboardInstructions(obj) {
-var stepText = ggbObject.getValueString("stepText");
-var arrowText = "Press the arrow keys to move this point. "; // or "Use + or - to move this point."
-var compiledStepText = arrowText.concat(stepText);
-var wrappedStepText = compiledStepText.replace(/(?![^\n]{1,38}$)([^\n]{1,38})\s/g, "$1\\\\");
+let stepText = ggbObject.getValueString("stepText");
+let moveText = "Press the arrow keys to move this point. "; // or "Use + or - to move this point."
+let compiledStepText = moveText.concat(stepText);
+let wrappedPointText = compiledStepText.replace(/(?![^\n]{1,38}$)([^\n]{1,38})\s/g, "$1\\\\");
 
 // const keyboardInstructions = {
-// A: wrappedStepText,
+// A: wrappedPointText,
 // }
 // }
 

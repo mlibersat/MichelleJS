@@ -3,8 +3,8 @@ var objectNames;
 objectNames = ggbApplet.getAllObjectNames();
 for (let i = 0, L = objectNames.length; i < L; i++) {
   if (
-    ggbApplet.getVisible(objectNames[i]) === true 
-    && ggbApplet.getObjectType(objectNames[i]) === "point"
+    ggbApplet.getVisible(objectNames[i]) === true &&
+    ggbApplet.getObjectType(objectNames[i]) === "segment"
     // || ggbApplet.getObjectType(objectNames[i]) === "hexagon" ||
     // ggbApplet.getObjectType(objectNames[i]) === "pentagon" ||
     // ggbApplet.getObjectType(objectNames[i]) === "quadrilateral" ||
@@ -12,6 +12,7 @@ for (let i = 0, L = objectNames.length; i < L; i++) {
   ) {
     console.log(objectNames[i], " visible: ", ggbApplet.getVisible(objectNames[i]));
     ggbApplet.setLabelVisible(objectNames[i], true);
+    console.log("line Style:", ggbApplet.getLineStyle(objectNames[i]));
     // ggbApplet.setColor(objectNames[i], 0, 127, 175);
   }
 }

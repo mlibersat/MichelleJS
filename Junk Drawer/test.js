@@ -153,90 +153,90 @@ function ggbOnInit(name, ggbObject) {
         break;
       // case "select":
       //   selectedObject = a.target;
-        // const myVals =
-        //   a.target == "instructionsIcon"
-        //     ? 1
-        //     : a.target == "xIcon"
-        //     ? 2
-        //     : a.target == "AAppletStatus"
-        //     ? 3
-        //     : a.target == "dropDownList"
-        //     ? 4
-        //     : a.target == "DangleDAB" || a.target == "CangleCAE"
-        //     ? 5
-        //     : 6;
-        // switch (selectedObject) {
-        //   // case 1:
-        //   //   ggbObject.setVisible("instructionsIconFocusIndicator", true);
-        //   //   // ggbObject.setVisible("displayedGGBButtonMessage", false);
-        //   //   break;
-        //   // case 2:
-        //   //   ggbObject.setVisible("xIconFocusIndicator", true);
-        //   //   // ggbObject.setVisible("displayedGGBButtonMessage", false);
-        //   //   break;
-        //   // case 3:
-        //   //   ggbObject.setValue(
-        //   //     "escTextCount",
-        //   //     ggbObject.getValue("escTextCount") + 1
-        //   //   );
-        //   //   break;
-        //   case "dropDownList":
-        //     ggbObject.evalCommand("ReadText(selectAngleText)");
-        //     break;
-        //   case "DangleDAB":
-        //   case "CangleCAE":
-        //     ggbObject.evalCommand("ReadText(stepText)");
-        //     break;
-        //   default:
-        //     if (barButtons.includes(a.target) && !ggbObject.getValue(a.target + "Enabled")) {
-        //       disabledButtonDisplayMessage();
-        //     } else {
-        //       // ggbObject.setVisible("displayedGGBButtonMessage", false);
-        //     }
-        // }
-        // const myVals =
-        //   a.target == "instructionsIcon"
-        //     ? 1
-        //     : a.target == "xIcon"
-        //     ? 2
-        //     : a.target == "AAppletStatus"
-        //     ? 3
-        //     : a.target == "dropDownList"
-        //     ? 4
-        //     : a.target == "DangleDAB" || a.target == "CangleCAE"
-        //     ? 5
-        //     : 6;
-        // switch (myVals) {
-        //   case 1:
-        //     ggbObject.setVisible("instructionsIconFocusIndicator", true);
-        //     // ggbObject.setVisible("displayedGGBButtonMessage", false);
-        //     break;
-        //   case 2:
-        //     ggbObject.setVisible("xIconFocusIndicator", true);
-        //     // ggbObject.setVisible("displayedGGBButtonMessage", false);
-        //     break;
-        //   case 3:
-        //     ggbObject.setValue(
-        //       "escTextCount",
-        //       ggbObject.getValue("escTextCount") + 1
-        //     );
-        //     break;
-        //   case 4:
-        //     ggbObject.evalCommand("ReadText(selectAngleText)");
-        //     break;
-        //   case 5:
-        //     ggbObject.evalCommand("ReadText(stepText)");
-        //     break;
-        //   default:
-        //     if (
-        //       barButtons.includes(a.target) &&
-        //       !ggbObject.getValue(a.target + "Enabled")
-        //     ) {
-        //       disabledButtonDisplayMessage();
-        //     } else {
-        //       // ggbObject.setVisible("displayedGGBButtonMessage", false);
-        //     }
-        // }
+      // const myVals =
+      //   a.target == "instructionsIcon"
+      //     ? 1
+      //     : a.target == "xIcon"
+      //     ? 2
+      //     : a.target == "AAppletStatus"
+      //     ? 3
+      //     : a.target == "dropDownList"
+      //     ? 4
+      //     : a.target == "DangleDAB" || a.target == "CangleCAE"
+      //     ? 5
+      //     : 6;
+      // switch (selectedObject) {
+      //   // case 1:
+      //   //   ggbObject.setVisible("instructionsIconFocusIndicator", true);
+      //   //   // ggbObject.setVisible("displayedGGBButtonMessage", false);
+      //   //   break;
+      //   // case 2:
+      //   //   ggbObject.setVisible("xIconFocusIndicator", true);
+      //   //   // ggbObject.setVisible("displayedGGBButtonMessage", false);
+      //   //   break;
+      //   // case 3:
+      //   //   ggbObject.setValue(
+      //   //     "escTextCount",
+      //   //     ggbObject.getValue("escTextCount") + 1
+      //   //   );
+      //   //   break;
+      //   case "dropDownList":
+      //     ggbObject.evalCommand("ReadText(selectAngleText)");
+      //     break;
+      //   case "DangleDAB":
+      //   case "CangleCAE":
+      //     ggbObject.evalCommand("ReadText(stepText)");
+      //     break;
+      //   default:
+      //     if (barButtons.includes(a.target) && !ggbObject.getValue(a.target + "Enabled")) {
+      //       disabledButtonDisplayMessage();
+      //     } else {
+      //       // ggbObject.setVisible("displayedGGBButtonMessage", false);
+      //     }
+      // }
+      // const myVals =
+      //   a.target == "instructionsIcon"
+      //     ? 1
+      //     : a.target == "xIcon"
+      //     ? 2
+      //     : a.target == "AAppletStatus"
+      //     ? 3
+      //     : a.target == "dropDownList"
+      //     ? 4
+      //     : a.target == "DangleDAB" || a.target == "CangleCAE"
+      //     ? 5
+      //     : 6;
+      // switch (myVals) {
+      //   case 1:
+      //     ggbObject.setVisible("instructionsIconFocusIndicator", true);
+      //     // ggbObject.setVisible("displayedGGBButtonMessage", false);
+      //     break;
+      //   case 2:
+      //     ggbObject.setVisible("xIconFocusIndicator", true);
+      //     // ggbObject.setVisible("displayedGGBButtonMessage", false);
+      //     break;
+      //   case 3:
+      //     ggbObject.setValue(
+      //       "escTextCount",
+      //       ggbObject.getValue("escTextCount") + 1
+      //     );
+      //     break;
+      //   case 4:
+      //     ggbObject.evalCommand("ReadText(selectAngleText)");
+      //     break;
+      //   case 5:
+      //     ggbObject.evalCommand("ReadText(stepText)");
+      //     break;
+      //   default:
+      //     if (
+      //       barButtons.includes(a.target) &&
+      //       !ggbObject.getValue(a.target + "Enabled")
+      //     ) {
+      //       disabledButtonDisplayMessage();
+      //     } else {
+      //       // ggbObject.setVisible("displayedGGBButtonMessage", false);
+      //     }
+      // }
       //   break;
       // case "deselect":
       //   ggbObject.setVisible("instructionsIconFocusIndicator", false);
@@ -363,4 +363,306 @@ function ggbOnInit(name, ggbObject) {
   //     ggbObject.evalCommand('ReadText("Point D is moveable.")');
   //   }
   // }
+}
+function ggbOnInit(name, ggbObject) {
+  loadUtils().then(function (setupGGB) {
+    const buttonClicks = defineButtonClickScripts();
+    // you may replace the following function call with the name of your status text object as a string
+    // if you do, you can delete the function defineStatusName
+    const statusName = defineStatusName();
+    const {
+      getCanvas,
+      setAriaLabel,
+      readKeyboardInstructions,
+      updateKeyboardInstructions,
+      ggbReadText,
+      enableButton,
+      libClientFunction,
+      libClickFunction,
+      libKeyFunction,
+      registerSafeObjectUpdateListener,
+      registerSafeObjectClickListener,
+      registerHoverListener,
+      unavailableButtonText,
+      setTabOrder,
+      manageAddedList,
+    } = setupGGB({
+      name,
+      ggbObject,
+      defineKeyboardInstructions,
+      buttonClicks,
+      statusName,
+    });
+    const ggbcanvas = getCanvas(name);
+
+    /*
+     * IGNORE above
+     * EDIT below
+     */
+
+    //global-ish variables
+    let viewAnimate = false;
+    let startAnimation = false;
+    let selectedObject = "";
+    const moverPoints = [
+      "CubeMover",
+      "ConeEdge",
+      "CylinderEdge",
+      "HemisphereEdge",
+      "HexMover",
+      "RectanglePt2",
+      "SphereEdge",
+      "SquarePyramidMover",
+      "TriPrismMover",
+      "TriPyramidMover",
+    ];
+
+    const showDIBooleans = [
+      "showCubeArrows",
+      "showConeArrows",
+      "showCylinderArrows",
+      "showHemiArrows",
+      "showHexArrows",
+      "showRecPrismArrows",
+      "showSphereArrows",
+      "showSPArrows",
+      "showTPrismArrows",
+      "showTPyramidArrows",
+    ];
+
+    let storedViewNum = ggbObject.getValue("viewSelected"); //needed to keep track of when shape view is animating
+
+    //register my listeners
+    registerSafeObjectUpdateListener("viewSelected", setView);
+    registerSafeObjectUpdateListener("viewPoint", updateViewDropDown);
+
+    setAriaLabel(ggbcanvas, "Growing Shapes Interactive");
+
+    function defineStatusName() {
+      // put the name of your GGB status text object here
+      return "AAppletStatus";
+    }
+    // listeners here; keep these, add your own as needed
+    ggbObject.registerClientListener(function (a) {
+      clientFunction(a);
+      libClientFunction(a);
+    });
+    ggbObject.registerClickListener(function (a) {
+      clickListenerFunction(a);
+      libClickFunction(a);
+    });
+    ggbcanvas.addEventListener("keyup", function (event) {
+      keyit(event);
+      libKeyFunction(event);
+    });
+
+    function defineButtonClickScripts() {
+      // defines button scripts
+      // keep this function, but you can delete anything/everything inside it
+      return {
+        ggbButton1: function () {
+          ggbObject.evalCommand("SetViewDirection()");
+          // enableButton(1, false);
+        },
+        ggbButton2: function () {
+          enableButton(1, true);
+          enableButton(2, false);
+        },
+        ggbButton3: function () {},
+        ggbButton4: function () {},
+        ggbButton5: function () {},
+      };
+    }
+
+    function defineKeyboardInstructions(obj) {
+      // takes a GGB object name as an argument, returns its keyboard text.
+      if (moverPoints.includes(obj)) {
+        return "Use + or – to move this point.";
+      }
+      const keyboardInstructions = {
+        // A: "Press the arrow keys to move this point.", // example for a point
+        height: "Press the up and down arrow keys to change the value.",
+        dropDown:
+          "Press space to open. Press up arrow and down arrow\\\\to go to different options. Press enter to select.",
+        viewDropDown:
+          "Press space to open. Press up arrow and down arrow\\\\to go to different options. Press enter to select.",
+        ggbButton1: ggbObject.getValue("ggbButton1Enabled") ? "Press space to ___." : unavailableButtonText,
+        ggbButton2: ggbObject.getValue("ggbButton2Enabled") ? "Press space to ___." : unavailableButtonText,
+        ggbButton3: ggbObject.getValue("ggbButton3Enabled") ? "Press space to ___." : unavailableButtonText,
+        ggbButton4: ggbObject.getValue("ggbButton4Enabled") ? "Press space to ___." : unavailableButtonText,
+        ggbButton5: ggbObject.getValue("ggbButton5Enabled") ? "Press space to ___." : unavailableButtonText,
+      };
+      return keyboardInstructions[obj];
+    }
+
+    function clientFunction(a) {
+      // console.log(a);
+      switch (a.type) {
+        case "select":
+          selectedObject = a.target;
+          if (moverPoints.includes(selectedObject)) {
+            //need to set the correct boolean to true to show DIs
+            let tempIndex = moverPoints.indexOf(selectedObject);
+            ggbObject.setValue(showDIBooleans[tempIndex], true);
+          }
+          break;
+        case "deselect":
+          showDIBooleans.forEach((el) => {
+            ggbObject.setValue(el, false);
+          });
+          selectedObject = "";
+          break;
+        case "viewChanged3D":
+          break;
+        case "mouseDown":
+          if (a.viewNo === 512) {
+            //mouseDown in 3D
+            // console.log("mouseDown in 3D view");
+            viewAnimate = false;
+            ggbObject.enableShiftDragZoom(true);
+          }
+          break;
+        case "dragEnd":
+          break;
+      }
+    }
+
+    function clickListenerFunction(a) {
+      // switch (a) {}
+    }
+
+    function keyit(event) {
+      // feel free to use event.key instead
+      // switch (event.code) {}
+    }
+
+    function setView() {
+      //sets the view of the applet based on the dropdown selection.
+      let viewNum = ggbObject.getValue("viewSelected");
+
+      if (viewNum !== 1) {
+        viewAnimate = true;
+        startAnimation = true;
+        ggbObject.enableShiftDragZoom(false);
+      }
+      switch (viewNum) {
+        case 2:
+          //home view
+          ggbObject.evalCommand("SetViewDirection()");
+          break;
+        case 3:
+          //top view
+          ggbObject.evalCommand("SetViewDirection(topVec)");
+          break;
+        case 4:
+          //side view
+          ggbObject.evalCommand("SetViewDirection(sideVec)");
+          break;
+        case 5:
+          //front view
+          ggbObject.evalCommand("SetViewDirection(frontVec)");
+          break;
+      }
+      console.log("viewAnimate at end of setView:", viewAnimate);
+      console.warn("set view direction start");
+    }
+
+    function updateViewDropDown() {
+      //if a view is selected and a student uses mouse to move off that view, set the dropdown back to "Select an Option"
+      let xCoord = didUtils.round(ggbObject.getXcoord("viewPoint"), 2);
+      let yCoord =
+        ggbObject.getYcoord("viewPoint") < 0.001 || isNaN(ggbObject.getYcoord("viewPoint"))
+          ? 0
+          : didUtils.round(ggbObject.getYcoord("viewPoint"), 2);
+      let zCoord =
+        ggbObject.getZcoord("viewPoint") < 0.001 || isNaN(ggbObject.getZcoord("viewPoint"))
+          ? 0
+          : didUtils.round(ggbObject.getZcoord("viewPoint"), 2);
+
+      let coordsArray = [xCoord, yCoord, zCoord];
+      let homeArray = [-0.47, 0.81, 0];
+      let frontArray = [0, 1, 0];
+      let sideArray = [-1, 0, 0];
+      let topArray = [0, 0, 0];
+
+      let trackObject = {
+        2: homeArray,
+        3: topArray,
+        4: sideArray,
+        5: frontArray,
+      };
+
+      if (viewAnimate) {
+        //check to see if its double counting where it started
+        if (
+          coordsArray[0] === trackObject[storedViewNum.toString()][0] &&
+          coordsArray[1] === trackObject[storedViewNum.toString()][1] &&
+          coordsArray[2] === trackObject[storedViewNum.toString()][2]
+        ) {
+          // console.warn("double counting is happening!")
+        }
+      }
+
+      // console.log("viewAnimate before switch in update:", viewAnimate);
+      // console.log("x:", coordsArray[0], "y:", coordsArray[1], "z:", coordsArray[2]);
+
+      switch (true) {
+        case coordsArray[0] === homeArray[0] && coordsArray[1] === homeArray[1] && coordsArray[2] === homeArray[2]:
+          // console.log("at home");
+          viewAnimate = false;
+          ggbObject.enableShiftDragZoom(true);
+          storedViewNum = ggbObject.getValue("viewSelected");
+          break;
+        case coordsArray[0] === frontArray[0] && coordsArray[1] === frontArray[1] && coordsArray[2] === frontArray[2]:
+          // console.log("front");
+          viewAnimate = false;
+          ggbObject.enableShiftDragZoom(true);
+          storedViewNum = ggbObject.getValue("viewSelected");
+          break;
+        case coordsArray[0] === sideArray[0] && coordsArray[1] === sideArray[1] && coordsArray[2] === sideArray[2]:
+          // console.log("side");
+          viewAnimate = false;
+          ggbObject.enableShiftDragZoom(true);
+          storedViewNum = ggbObject.getValue("viewSelected");
+          break;
+        case coordsArray[0] === topArray[0] && coordsArray[1] === topArray[1] && coordsArray[2] === topArray[2]:
+          // console.log("top");
+          viewAnimate = false;
+          ggbObject.enableShiftDragZoom(true);
+          storedViewNum = ggbObject.getValue("viewSelected");
+          break;
+        case !viewAnimate:
+          // console.log("random loc");
+          // console.log("set to Select an Option");
+          ggbObject.setValue("viewDropDown", 1);
+          break;
+      }
+    }
+
+    //add new stuff above this line
+  });
+
+  /*
+   * IGNORE BELOW
+   */
+  function loadUtils() {
+    function parseJS(JSString) {
+      return Function("" + JSString)();
+    }
+    if (!window.didUtils || !window.didUtils.setupGGB) {
+      return fetch("https://cdn.digital.greatminds.org/did-utils/latest/index.js", {
+        cache: "no-cache",
+      })
+        .then(function (response) {
+          return response.text();
+        })
+        .then(function (codingText) {
+          parseJS(codingText);
+        })
+        .then(function () {
+          return window.didUtils.setupGGB;
+        });
+    }
+    return Promise.resolve(window.didUtils.setupGGB);
+  }
 }

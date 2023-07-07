@@ -1,3 +1,5 @@
+// Julia's 3D applet
+
 function ggbOnInit(name, ggbObject) {
   const arialabel = "Angles Interactive";
   const ggbcanvasarray = document.querySelectorAll("canvas");

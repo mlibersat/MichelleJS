@@ -1,305 +1,230 @@
+// Nate's 3D applet code
+
 function ggbOnInit(name, ggbObject) {
-  loadUtils().then(function (setupGGB) {
-    const buttonClicks = defineButtonClickScripts();
-    // you may replace the following function call with the name of your status text object as a string
-    // if you do, you can delete the function defineStatusName
-    const statusName = defineStatusName();
-    const {
-      getCanvas,
-      setAriaLabel,
-      readKeyboardInstructions,
-      updateKeyboardInstructions,
-      ggbReadText,
-      enableButton,
-      libClientFunction,
-      libClickFunction,
-      libKeyFunction,
-      registerSafeObjectUpdateListener,
-      registerSafeObjectClickListener,
-      registerHoverListener,
-      unavailableButtonText,
-      setTabOrder,
-      manageAddedList,
-    } = setupGGB({
-      name,
-      ggbObject,
-      defineKeyboardInstructions,
-      buttonClicks,
-      statusName,
-    });
-    const ggbcanvas = getCanvas();
-
-    /*
-     * IGNORE above
-     * EDIT below
-     */
-
-    //globalish-variables
-    let selectedObject = "";
-    const movePoints = ["MovePoint1", "MovePoint2", "MovePoint3"];
-    const xmin = ggbObject.getValue("xMinShown");
-    const xmax = ggbObject.getValue("xMaxShown");
-    const ymin = ggbObject.getValue("yMinShown");
-    const ymax = ggbObject.getValue("yMaxShown");
-
-    setAriaLabel(ggbcanvas, "Graph Vertices to Find Length Interactive");
-
-    function defineStatusName() {
-      // put the name of your GGB status text object here
-      return "AAppletStatus";
+  var arialabel = "Interactive";
+  // optional name change:
+  var allCanvases = document.querySelectorAll("canvas");
+  for (i = 0; i < allCanvases.length; i++) {
+    // // required replacement 1:
+    var ggbDiv = allCanvases[i].closest("div.appletParameters,div.notranslate");
+    if (ggbDiv) {
+      var parameterID = ggbDiv.getAttribute("id");
+      var canvasID = "canvas" + parameterID;
+      allCanvases[i].setAttribute("id", canvasID);
     }
-    // listeners here; keep these, add your own as needed
-    ggbObject.registerClientListener(function (a) {
-      clientFunction(a);
-      libClientFunction(a);
-    });
-    ggbObject.registerClickListener(function (a) {
-      clickListenerFunction(a);
-      libClickFunction(a);
-    });
-    ggbcanvas.addEventListener("keyup", function (event) {
-      keyit(event);
-      libKeyFunction(event);
-    });
-
-    //register my listeners
-    registerSafeObjectUpdateListener("boxText", value);
-    registerSafeObjectUpdateListener("value", sqrtReadText);
-
-    function defineButtonClickScripts() {
-      // defines button scripts
-      // keep this function, but you can delete anything/everything inside it
-      return {
-        ggbButton1: function () {
-          for (let i = 1; i < 4; i++) {
-            ggbObject.setCoords(
-              "MovePoint".concat(i),
-              ggbObject.getXcoord("Point".concat(i)),
-              ggbObject.getYcoord("Point".concat(i))
-            );
-          }
-          ggbObject.setValue("value", "?");
-          ggbObject.setLayer("CaptionMovePoint1", 5);
-          ggbObject.setLayer("CaptionMovePoint2", 4);
-          ggbObject.setLayer("CaptionMovePoint3", 3);
-          ggbReadText("resetButtonText", true);
-        },
-        ggbButton2: function () {},
-        ggbButton3: function () {},
-        ggbButton4: function () {},
-        ggbButton5: function () {},
-      };
-    }
-
-    function defineKeyboardInstructions(obj) {
-      // takes a GGB object name as an argument, returns its keyboard text.
-      if (movePoints.includes(obj)) {
-        let current = ggbObject.getValue("step");
-        let next = current === 1 ? "5" : current === 2 ? "1" : "2";
-        return "Press the arrow keys to move this point.\\\\Current movement increment is ".concat(
-          current,
-          ". Press space to increment by ",
-          next,
-          "."
-        );
-      }
-      if (ggbObject.getObjectType(obj) == "textfield" && ggbObject.getValue("error" + selectedObject)) {
-        ggbObject.setColor("displayedKeyboardInstructions", 218, 41, 28);
-        const errorText = ggbObject.getValueString("errorMessage");
-        return errorText;
-      } else if (ggbObject.getObjectType(obj) == "textfield" && ggbObject.getValue("error" + selectedObject) == false) {
-        ggbObject.setColor("displayedKeyboardInstructions", 0, 0, 0);
-        return "Input a value and press enter to submit.";
-      }
-      const keyboardInstructions = {
-        // A: "Press the arrow keys to move this point.", // example for a point
-        ggbButton1: ggbObject.getValue("ggbButton1Enabled") ? "Press space to reset." : unavailableButtonText,
-        ggbButton2: ggbObject.getValue("ggbButton2Enabled") ? "Press space to ___." : unavailableButtonText,
-        ggbButton3: ggbObject.getValue("ggbButton3Enabled") ? "Press space to ___." : unavailableButtonText,
-        ggbButton4: ggbObject.getValue("ggbButton4Enabled") ? "Press space to ___." : unavailableButtonText,
-        ggbButton5: ggbObject.getValue("ggbButton5Enabled") ? "Press space to ___." : unavailableButtonText,
-      };
-      return keyboardInstructions[obj];
-    }
-
-    function clientFunction(a) {
-      switch (a.type) {
-        case "select":
-          selectedObject = a.target;
-          ggbObject.setValue("deselected", true);
-          movePoints.forEach((el) => {
-            switch (true) {
-              case el === selectedObject:
-                ggbObject.setLayer("Caption".concat(el), 5);
-                ggbObject.setLayer(el, 5);
-                break;
-              case el === "MovePoint1":
-                ggbObject.setLayer("Caption".concat(el), 4);
-                ggbObject.setLayer(el, 4);
-                break;
-              case el === "MovePoint2":
-                ggbObject.setLayer("Caption".concat(el), 3);
-                ggbObject.setLayer(el, 3);
-                break;
-              case el === "MovePoint3":
-                ggbObject.setLayer("Caption".concat(el), 2);
-                ggbObject.setLayer(el, 2);
-                break;
-            }
-          });
-          break;
-        case "deselect":
-          ggbObject.setColor("displayedKeyboardInstructions", 0, 0, 0);
-          selectedObject = "";
-          break;
-        case "dragEnd":
-          ggbObject.setValue("step", 1);
-          if (movePoints.includes(selectedObject)) {
-            updateKeyboardInstructions(selectedObject);
-            readText(selectedObject);
-          }
-          break;
-        case "mouseDown":
-          if (movePoints.includes(a.hits[0])) {
-            ggbObject.setValue("step", 2);
-          }
-          break;
-      }
-    }
-
-    function clickListenerFunction(a) {
-      if (movePoints.includes(a)) {
-        let step = ggbObject.getValue("step");
-        switch (step) {
-          case 5:
-            ggbObject.setValue("step", 2);
-            break;
-          case 2:
-            ggbObject.setValue("step", 1);
-            break;
-          case 1:
-            ggbObject.setValue("step", 5);
-        }
-        let current = ggbObject.getValue("step");
-        let next = current === 1 ? "5" : current === 2 ? "1" : "2";
-        ggbReadText("Current movement increment is ".concat(current, ". Press space to increment by ", next, "."));
-      }
-      if (a === "AAppletStatus") {
-        ggbReadText("promptText", true);
-      }
-    }
-
-    function keyit(event) {
-      // feel free to use event.key instead
-      // switch (event.code) {}
-      if (event.code.includes("Arrow") && movePoints.includes(selectedObject)) {
-        readText(selectedObject);
-      }
-    }
-
-    function value() {
-      console.log("in value function");
-      //ADD
-      // box is inputbox name
-      let box = "Box";
-      ggbObject.setValue("deselected", false);
-      var xmlstring = ggbObject.getXML(box);
-      console.log("box xml:", xmlstring);
-      var parser = new DOMParser();
-      var xmldom = parser.parseFromString(xmlstring, "application/xml");
-      var element = xmldom.getElementsByTagName("tempUserInput")[0];
-      console.log("box element:", element);
-
-      // if blank, don't show error message
-      if (element === undefined) {
-        ggbObject.setValue("error" + box, false);
-      } else {
-        ggbObject.setValue("error" + box, true);
-      }
-      setTimeout(function () {
-        if (selectedObject !== box) {
-        } else {
-          updateKeyboardInstructions("Box");
-        }
-      }, 100);
-    }
-
-    function sqrtReadText() {
-      let sqrtReadString = ggbObject.getScreenReaderOutput("Box");
-      ggbObject.setTextValue("rootValReadString", sqrtReadString);
-    }
-
-    function readText(a) {
-      //creates and reads out updates on points, includes min/max text
-      let tempX = ggbObject.getXcoord(a);
-      let tempY = ggbObject.getYcoord(a);
-      let minMaxText = "";
-      let num = a.slice(-1);
-
-      switch (true) {
-        case tempX === xmin && tempY === ymax:
-          //top left corner
-          minMaxText = "This point is at its minimum x value and maximum y value.";
-          break;
-        case tempX === xmin && tempY === ymin:
-          //bottom left corner
-          minMaxText = "This point is at its minimum x and y value.";
-          break;
-        case tempX === xmax && tempY === ymin:
-          //bottom right corner
-          minMaxText = "This point is at its maximum x value and minimum y value.";
-          break;
-        case tempX === xmax && tempY === ymax:
-          //top right corner
-          minMaxText = "This point is at its maximum x and y value.";
-          break;
-        case tempX === xmin:
-          //left side
-          minMaxText = "This point is at its minimum x value.";
-          break;
-        case tempX === xmax:
-          //right side
-          minMaxText = "This point is at its maximum x value.";
-          break;
-        case tempY === ymin:
-          //bottom
-          minMaxText = "This point is at its minimum y value.";
-          break;
-        case tempY === ymax:
-          //top
-          minMaxText = "This point is at its maximum y value.";
-          break;
-      }
-
-      let moveText = ggbObject.getValueString("Move".concat(num));
-      let readOutText = moveText.concat(" ", minMaxText);
-      ggbReadText(readOutText);
-    }
-
-    //add new stuff above this line
-  });
-
-  /*
-   * IGNORE BELOW
-   */
-  function loadUtils() {
-    function parseJS(JSString) {
-      return Function("" + JSString)();
-    }
-    if (!window.didUtils || !window.didUtils.setupGGB) {
-      return fetch("https://cdn.digital.greatminds.org/did-utils/latest/index.js", {
-        cache: "no-cache",
-      })
-        .then(function (response) {
-          return response.text();
-        })
-        .then(function (codingText) {
-          parseJS(codingText);
-        })
-        .then(function () {
-          return window.didUtils.setupGGB;
-        });
-    }
-    return Promise.resolve(window.didUtils.setupGGB);
+    // end 1
   }
+  var id = "canvas" + name;
+  var ggbcanvas = document.getElementById(id);
+  if (ggbcanvas) {
+    ggbcanvas.setAttribute("aria-label", arialabel);
+  }
+
+  function button1Click() {
+    enableButton(1, false);
+    enableButton(2, true);
+    ggbReadText("Two halves of the prism slide apart along a diagonal plane.");
+    ggbObject.setValue("time", 0);
+    ggbObject.setAnimating("time", true);
+    ggbObject.startAnimation();
+  }
+
+  function button2Click() {
+    enableButton(2, false);
+    enableButton(1, true);
+    ggbReadText("The halves of the prism slide together along the diagonal plane to form the original prism.");
+    ggbObject.setValue("time", -1);
+    ggbObject.setAnimating("time", true);
+    ggbObject.startAnimation();
+  }
+
+  function button3Click() {
+    ggbObject.setValue("CameraX", 0);
+    ggbObject.setValue("CameraY", 0);
+    ggbObject.setValue("time", 0);
+    enableButton(3, false);
+  }
+
+  function button4Click() {
+    // button 4 code here
+  }
+
+  function button5Click() {
+    // button 5 code here
+  }
+
+  // required replacement 2: replaces readButtonText and keyboardInstructions
+  function defineKeyboardInstructions(obj) {
+    // takes a GGB object name as an argument, returns its keyboard text.
+    var unavailableButtonText = "This button is unavailable.";
+    var keyboardInstructions = {
+      // object you shouldn't need to change
+      AAppletStatus: "Press tab to select next object.",
+      instructionsIcon: "Keyboard instructions enabled",
+      xIcon: "Keyboard instructions enabled",
+      // static text objects
+      /* A: "Press the arrow keys to move this point.", // example for a point */
+      // dynamic text objects
+      ggbButton1: ggbObject.getValue("ggbButton1Enabled") ? "Press space to ___." : unavailableButtonText,
+      ggbButton2: ggbObject.getValue("ggbButton2Enabled") ? "Press space to ___." : unavailableButtonText,
+      ggbButton3: ggbObject.getValue("ggbButton3Enabled") ? "Press space to ___." : unavailableButtonText,
+      ggbButton4: ggbObject.getValue("ggbButton4Enabled") ? "Press space to ___." : unavailableButtonText,
+      ggbButton5: ggbObject.getValue("ggbButton5Enabled") ? "Press space to ___." : unavailableButtonText,
+    };
+    // if obj is a key in keyboardInstructions, then return the value. If not, then return the default string.
+    return keyboardInstructions[obj] || "Keyboard instructions enabled.";
+  }
+  // end 2
+
+  // optional name changes:
+  ggbObject.registerClientListener(clientFunction);
+  ggbObject.registerClickListener(clickListenerFunction);
+  ggbObject.registerObjectUpdateListener("time", stopAnim);
+  ggbObject.registerObjectUpdateListener("CameraX", enableReset);
+  ggbObject.registerObjectUpdateListener("CameraY", enableReset);
+  ggbcanvas.addEventListener("keyup", keyit);
+
+  function stopAnim() {
+    if ([-1, 0].includes(ggbObject.getValue("time"))) {
+      ggbObject.stopAnimation();
+      ggbObject.setAnimating("time", false);
+    }
+  }
+
+  function enableReset() {
+    if (ggbObject.getValue("CameraX") !== 0 || ggbObject.getValue("CameraY") !== 0) {
+      enableButton(3, true);
+    }
+  }
+
+  // // required replacement 3: replaces enableButton
+  // call when you want to read what the keyboard instructions say, pass in an object
+  function readKeyboardInstructions(obj) {
+    var readIt = defineKeyboardInstructions(obj);
+    ggbReadText(readIt);
+  }
+
+  // call when you want to show keyboard instructions for current object
+  function updateKeyboardInstructions(obj = "") {
+    var showIt = defineKeyboardInstructions(obj);
+    ggbObject.setTextValue("keyboardInstructions", "\\text{" + showIt + "}");
+  }
+
+  // screen reader function
+  // if readString is the name of a GGB text object, include true as a second argument
+  function ggbReadText(readString, isGGBTextObj = false) {
+    var addQuotes = isGGBTextObj ? "" : '"';
+    ggbObject.evalCommand("ReadText(" + addQuotes + readString + addQuotes + ")");
+  }
+
+  // button state function
+  function enableButton(buttonNum, boolean) {
+    var enableOrDisable = boolean ? "enable" : "disable";
+    ggbObject.evalCommand("Execute(" + enableOrDisable + "BarButton, ggbButton" + buttonNum + ")");
+  }
+  // end 3
+
+  var barButtons = ["ggbButton1", "ggbButton2", "ggbButton3", "ggbButton4", "ggbButton5"];
+
+  function clientFunction(a) {
+    var clientTarget = a.target;
+    switch (a.type) {
+      case "select":
+        // // required addition 4
+        // on select always: update the keyboard instructions
+        updateKeyboardInstructions(clientTarget);
+        // if input box selected, show the keyboard instructions temporarily
+        var forceKeyboardInstructions = ["textfield"];
+        if (forceKeyboardInstructions.includes(ggbObject.getObjectType(clientTarget))) {
+          ggbObject.setValue("showKeyboardInstructionsTemporarily", true);
+        }
+        // end 4
+        switch (clientTarget) {
+          // // required deletion 5
+          // end 5
+          case "AAppletStatus":
+            // if status selected, don't read out escape text more than once
+            ggbObject.setValue("escTextCount", ggbObject.getValue("escTextCount") + 1);
+            break;
+          default:
+            // if button selected, read out its keyboard instructions
+            if (barButtons.includes(clientTarget)) {
+              // // required replacement 6
+              readKeyboardInstructions(clientTarget);
+              // end 6
+            }
+        }
+        break;
+      case "deselect":
+        // on deselect always: stop showing keyboard instructions temporarily, update keyboard instructions
+        // // required replacement 7
+        ggbObject.setValue("showKeyboardInstructionsTemporarily", false);
+        updateKeyboardInstructions();
+        // end 7
+        break;
+    }
+  }
+
+  // optional name change
+  function clickListenerFunction(a) {
+    switch (a) {
+      case "instructionsIcon":
+        // show instructions, read out instructions, select xIcon
+        var rawInstructions = ggbObject.getLaTeXString("instructionsText");
+        var trimmedInstructions = rawInstructions.substr(6, rawInstructions.length - 7);
+        var finalInstructions = trimmedInstructions.concat(" Press space to close the instructions.");
+        // // required deletion 8: focus indicator
+        // end 8
+        ggbObject.setValue("showInstructions", true);
+        ggbReadText(finalInstructions);
+        ggbObject.evalCommand("SelectObjects(xIcon)");
+        break;
+      case "xIcon":
+        // hide instructions, select instructionsIcon
+        // // required deletion 9: focus indicator
+        // end 9
+        ggbObject.setValue("showInstructions", false);
+        ggbObject.evalCommand("SelectObjects(instructionsIcon)");
+        break;
+      default:
+        if (barButtons.includes(a)) {
+          // clicked button: run its function if it's enabled, read its text otherwise; always update keyboard instructions
+          var buttonFunctions = {
+            ggbButton1: button1Click,
+            ggbButton2: button2Click,
+            ggbButton3: button3Click,
+            ggbButton4: button4Click,
+            ggbButton5: button5Click,
+          };
+          if (buttonFunctions[a] && ggbObject.getValue(a + "Enabled")) {
+            buttonFunctions[a]();
+          } else {
+            // // required replacement 10
+            readKeyboardInstructions(a);
+            // end 10
+          }
+          // required addition 11
+          updateKeyboardInstructions(a);
+          // end 11
+        }
+    }
+  }
+
+  // // required addition 12
+  function keyit(event) {
+    switch (event.code) {
+      case "KeyK":
+        // toggle keyboard instructions, read new value
+        var KIBool = ggbObject.getValue("showKeyboardInstructions");
+        var KIText = "Keyboard instructions " + (KIBool ? "hidden" : "shown") + ".";
+        ggbReadText(KIText);
+        ggbObject.setValue("showKeyboardInstructions", !KIBool);
+        break;
+      // uncomment if you have >5 selectable objects
+      /* case "KeyX":
+          ggbObject.evalCommand("SelectObjects(AAppletStatus)");
+          break; */
+    }
+  }
+  // end 12
 }

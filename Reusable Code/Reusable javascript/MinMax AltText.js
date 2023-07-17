@@ -93,14 +93,15 @@ function returnMinMaxString() {
   let appletMinYCoord = ggbObject.getValue("minYPoint");
   let readMinMax = "";
   let pointLocationStr = "";
-  if (pointRestricted) {
-    pointLocationStr = "The point moved to (".concat(
-      ggbObject.getXcoord(selectedObject),
-      ", ",
-      ggbObject.getYcoord(selectedObject),
-      ")."
-    );
-  }
+  // If using restrictFreePoint function
+  // if (pointRestricted) {
+  //   pointLocationStr = "The point moved to (".concat(
+  //     ggbObject.getXcoord(selectedObject),
+  //     ", ",
+  //     ggbObject.getYcoord(selectedObject),
+  //     ")."
+  //   );
+  // }
 
   let moveFurtherText = " To move this point further, first use the Zoom Out button to expand the zoom window. ";
 
@@ -161,3 +162,46 @@ function returnMinMaxString() {
   // returns the point location and the min max language
   return pointLocationStr.concat(" ", readMinMax);
 }
+
+// let pointRestricted = false;
+// function restrictFreePoint(point) {
+//   const xCoord = ggbObject.getXcoord(point);
+//   const yCoord = ggbObject.getYcoord(point);
+//   const xMin = ggbObject.getValue("minXPoint");
+//   const xMax = ggbObject.getValue("maxXPoint");
+//   const yMin = ggbObject.getValue("minYPoint");
+//   const yMax = ggbObject.getValue("maxYPoint");
+
+//   var xRestricted = false;
+//   var yRestricted = false;
+
+//   var newXCoord;
+//   if (xCoord < xMin) {
+//     newXCoord = xMin;
+//     xRestricted = true;
+//   } else if (xCoord > xMax) {
+//     newXCoord = xMax;
+//     xRestricted = true;
+//   } else {
+//     newXCoord = xCoord;
+//     xRestricted = false;
+//   }
+
+//   var newYCoord;
+//   if (yCoord < yMin) {
+//     newYCoord = yMin;
+//     yRestricted = true;
+//   } else if (yCoord > yMax) {
+//     newYCoord = yMax;
+//     yRestricted = true;
+//   } else {
+//     newYCoord = yCoord;
+//     yRestricted = false;
+//   }
+
+//   pointRestricted = xRestricted || yRestricted;
+//   console.log(xRestricted, yRestricted, pointRestricted);
+
+//   ggbObject.setCoords(point, newXCoord, newYCoord);
+//   console.log("new", newXCoord, newYCoord);
+// }

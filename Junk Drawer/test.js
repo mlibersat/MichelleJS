@@ -1,1058 +1,898 @@
+// Published PVC Addition Global JS
+
 function ggbOnInit(name, ggbObject) {
-  loadUtils().then(function (setupGGB) {
-    const buttonClicks = defineButtonClickScripts();
-    // you may replace the following function call with the name of your status text object as a string
-    // if you do, you can delete the function defineStatusName
-    const statusName = defineStatusName();
-    const {
-      getCanvas,
-      setAriaLabel,
-      readKeyboardInstructions,
-      updateKeyboardInstructions,
-      ggbReadText,
-      enableButton,
-      libClientFunction,
-      libClickFunction,
-      libKeyFunction,
-      registerSafeObjectUpdateListener,
-      registerSafeObjectClickListener,
-      registerHoverListener,
-      unavailableButtonText,
-    } = setupGGB({
-      name,
-      ggbObject,
-      defineKeyboardInstructions,
-      buttonClicks,
-      statusName,
-    });
-    const ggbcanvas = getCanvas(name);
+  //PVC appears in grades 2 through 6
+  //this PVC covers population for addition and multiplication at the moment
 
-    /*
-     * IGNORE above
-     * EDIT below
-     */
+  //requires PVC that has sectionWidth (default 6), sectionHeight (default 15), box# regions in order from right to left and
+  //  starter points at the beginning of each region that are named StarterPoint# in order right to left
 
-    ggbObject.setErrorDialogsActive(false);
+  const numRegions = ggbObject.getValue("requiredRegions");
+  const regions = ["One", "Ten", "Hundred", "Thousand", "TenThousand", "HundredThousand", "Million"];
 
-    const points = ["P1A", "P2A", "P1B", "P2B"];
-    const objects = ["frogSVG", "cheese1SVG", "cheese2SVG", "cheese3SVG"];
-    const quizPoints = [
-      "QuizPoint1",
-      "QuizPoint2",
-      "QuizPoint3",
-      "QuizPoint4",
-      "QuizPoint5",
-      "QuizPoint6",
-      "QuizPoint7",
-      "QuizPoint8",
-    ];
+  const regionColors = ["#E60E20", "#009B44", "#0075A4", "#949494", "#F17E09", "#FFDA00", "#7ECDEB"];
+  ggbObject.setCoordSystem(
+    -0.05 * numRegions * ggbObject.getValue("sectionWidth"),
+    1.05 * numRegions * ggbObject.getValue("sectionWidth"),
+    -1,
+    ggbObject.getValue("sectionHeight") + 3
+  );
+  updateReadText();
 
-    const quizPointsOnALine = ["QuizPoint3", "QuizPoint4", "QuizPoint6", "QuizPoint7"];
+  const starterArray = ggbObject.getAllObjectNames("point").filter(function (value) {
+    return value.includes("StarterPoint");
+  });
 
-    //"is a solution" style is 10, "not a solution" style is 1... even though the ggb documention says it is 2 for a "cross"
-    const correctPoints = [10, 1, 1, 1, 1, 10, 1, 1];
-    let numAttempted = 0;
-    let numCorrect = 0;
+  //finds x and y coords of the start points
+  const starterX = starterArray.map(function (element) {
+    return ggbObject.getXcoord(element);
+  });
+  const starterY = starterArray.map(function (element) {
+    return ggbObject.getYcoord(element);
+  });
+  let carryArray = [
+    "\\phantom{\\scriptsize{1}}",
+    "\\phantom{\\scriptsize{1}}",
+    "\\phantom{\\scriptsize{1}}",
+    "\\phantom{\\scriptsize{1}}",
+    "\\phantom{\\scriptsize{1}}",
+    "\\phantom{\\scriptsize{1}}",
+    "\\phantom{\\scriptsize{1}}",
+  ];
 
-    const dot = "is a dot";
-    const ex = "is an x";
-    const gridInt = "is a blank grid intersection";
-    let currentPointStyleText; // string -en, dot, or gridInt text
-    let nextPointStyleText; // string - en, dot, or gridInt text
-    let pointStyle; //string - number character
-    let pressSpaceText;
-    // var readPointStyleText;
+  //breaks an integer down into place values, returns ones, tens, hundreds, etc
+  function pulverize(number) {
+    let numArray = number.toString().split("").map(Number).reverse();
+    return numArray;
+  }
 
-    let quizPointCaption;
-    let pointNumber;
+  //creates max two rows of five with this configuration, but does contain spacer parameter Math.floor(j/10) in line 67
+  // I DON'T LOVE THE POINT NAMING HERE!!!!!!!!!!!!!!!
+  function popul8() {
+    reset();
+    //pull data from inputs (GGB or Platform)
+    let number1 = ggbObject.getValue("number");
+    let number2 = ggbObject.getValue("number2");
+    let multiplier = ggbObject.getValue("multiplier");
 
-    const normalLineThickness = 5;
-    const subtleLineThickness = 3;
+    //break down into digits
+    let num1Array = pulverize(number1);
+    let num2Array = pulverize(number2);
 
-    let pointReadText;
-    let keyUpReadText;
-
-    let selectedObject;
-    let tabSelect;
-
-    setAriaLabel(ggbcanvas, "Inequalities Graph Interactive");
-
-    function defineStatusName() {
-      // put the name of your GGB status text object here
-      return "AAppletStatus";
-    }
-    // listeners here; keep these, add your own as needed
-    ggbObject.registerClientListener(function (a) {
-      clientFunction(a);
-      libClientFunction(a);
-    });
-    ggbObject.registerClickListener(function (a) {
-      clickListenerFunction(a);
-      libClickFunction(a);
-      // styleIt(a);
-    });
-    ggbcanvas.addEventListener("keyup", function (event) {
-      keyit(event);
-      libKeyFunction(event);
-    });
-    registerSafeObjectUpdateListener("submitPressed", setObjectLayer);
-
-    // registerSafeObjectUpdateListener("frogInFocus", frogFocusUpdated);
-
-    // function frogFocusUpdated() {
-    //   // console.log("frogInFocus");
-    //   // console.log(ggbObject.getValue("frogInFocus"));
-    // }
-
-    function defineButtonClickScripts() {
-      // defines button scripts
-      // keep this function, but you can delete anything/everything inside it
-      return {
-        ggbButton1: function () {
-          // button 1 code here - LockItIn
-          ggbObject.setValue("locked", true);
-
-          //slide2 lock it in
-          if (ggbObject.getValue("slide2") === 1) {
-            //If correct
-            if (
-              ggbObject.getValue("frogCompletelyInInequality1") &&
-              !ggbObject.getValue("cheese1InInequality1") &&
-              !ggbObject.getValue("cheese2InInequality1") &&
-              !ggbObject.getValue("cheese3InInequality1")
-            ) {
-              ggbObject.setValue("allowLineControls", false);
-              ggbObject.setLayer("P1AHelp", 3);
-              ggbObject.setLayer("P1BHelp", 3);
-              enableButton(1, false);
-              enableButton(2, true);
-
-              ggbObject.setLineThickness("line1", subtleLineThickness);
-              ggbObject.setFixed("line1", true, false);
-              ggbObject.setLineThickness("Line1Vector1", subtleLineThickness);
-              ggbObject.setLineThickness("Line1Vector2", subtleLineThickness);
-              ggbObject.setFixed("Line1Vector1", true, false);
-              ggbObject.setFixed("Line1Vector2", true, false);
-
-              ggbObject.setValue("showLine1Points", false);
+    //for as many multiples exist
+    for (let k = 0; k < multiplier; k++) {
+      //for as many regions as there are place values defined
+      if (num1Array.length <= numRegions && num2Array.length <= numRegions) {
+        //need error messaging to allow higher than 9 in a region
+        for (let i = 0, L = num1Array.length; i < L; i++) {
+          //create a point in that region named by the region name (from array above) and attached to that box
+          for (let j = 0, K = num1Array[i]; j < K; j++) {
+            if (i == 0) {
+              ggbObject.evalCommand(regions[i] + "Point" + (j + 1) + "Set" + (k + 1) + "=PointIn(box" + (i + 1) + ")");
             } else {
-              //if incorrect
-              enableButton(1, true);
-              enableButton(2, false);
-
-              ggbObject.setLineThickness("line1", normalLineThickness);
-              ggbObject.setFixed("line1", false, true);
-              ggbObject.setLineThickness("Line1Vector1", normalLineThickness);
-              ggbObject.setLineThickness("Line1Vector2", normalLineThickness);
-              ggbObject.setFixed("Line1Vector1", false, true);
-              ggbObject.setFixed("Line1Vector2", false, true);
-
-              ggbObject.setValue("showLine1Points", true);
-            }
-          }
-
-          //slide3, 10, or 14 lock it in
-          if (
-            ggbObject.getValue("slide3") === 1 ||
-            ggbObject.getValue("slide10") === 1 ||
-            ggbObject.getValue("slide14") === 1
-          ) {
-            //If the slide has frog and cheese (slide 3 and 14), only lock in the student's work if they are correct
-            if (
-              ggbObject.getValue("slide10") === 1 ||
-              (ggbObject.getValue("frogCompletelyInInequality1") &&
-                ggbObject.getValue("frogCompletelyInInequality2") &&
-                !(ggbObject.getValue("cheese1InInequality1") && ggbObject.getValue("cheese1InInequality2")) &&
-                !(ggbObject.getValue("cheese2InInequality1") && ggbObject.getValue("cheese2InInequality2")) &&
-                !(ggbObject.getValue("cheese3InInequality1") && ggbObject.getValue("cheese3InInequality2")))
-            ) {
-              // console.log("lock it in pressed - student graph locked, button 2 enabled");
-              ggbObject.setValue("allowLineControls", false);
-              ggbObject.setLayer("P1AHelp", 3);
-              ggbObject.setLayer("P1BHelp", 3);
-              ggbObject.setLayer("P2AHelp", 3);
-              ggbObject.setLayer("P2BHelp", 3);
-              enableButton(1, false);
-              enableButton(2, true);
-              ggbObject.setLineThickness("line1", subtleLineThickness);
-              ggbObject.setLineThickness("line2", subtleLineThickness);
-              ggbObject.setFixed("line1", true, false);
-              ggbObject.setFixed("line2", true, false);
-              ggbObject.setFixed("frogSVG", true, false);
-              ggbObject.setFixed("cheese1SVG", true, false);
-              ggbObject.setFixed("cheese3SVG", true, false);
-              ggbObject.setFixed("cheese2SVG", true, false);
-              ggbObject.setLineThickness("Line1Vector1", subtleLineThickness);
-              ggbObject.setLineThickness("Line2Vector1", subtleLineThickness);
-              ggbObject.setLineThickness("Line1Vector2", subtleLineThickness);
-              ggbObject.setLineThickness("Line2Vector2", subtleLineThickness);
-              ggbObject.setFixed("Line1Vector1", true, false);
-              ggbObject.setFixed("Line1Vector2", true, false);
-              ggbObject.setFixed("Line2Vector1", true, false);
-              ggbObject.setFixed("Line2Vector2", true, false);
-              ggbObject.setValue("showLine1Points", false);
-              ggbObject.setValue("showLine2Points", false);
-            } else {
-              //if incorrect
-              // console.log("lock it in pressed - graph not locked yet, button 1 still enabled");
-              enableButton(1, true);
-              enableButton(2, false);
-
-              ggbObject.setLineThickness("line1", normalLineThickness);
-              ggbObject.setLineThickness("line2", normalLineThickness);
-              ggbObject.setFixed("line1", false, true);
-              ggbObject.setFixed("line2", false, true);
-              ggbObject.setFixed("frogSVG", false, true);
-              ggbObject.setFixed("cheese1SVG", false, true);
-              ggbObject.setFixed("cheese3SVG", false, true);
-              ggbObject.setFixed("cheese2SVG", false, true);
-              ggbObject.setLineThickness("Line1Vector1", normalLineThickness);
-              ggbObject.setLineThickness("Line2Vector1", normalLineThickness);
-              ggbObject.setLineThickness("Line1Vector2", normalLineThickness);
-              ggbObject.setLineThickness("Line2Vector2", normalLineThickness);
-              ggbObject.setFixed("Line1Vector1", false, true);
-              ggbObject.setFixed("Line2Vector1", false, true);
-              ggbObject.setFixed("Line1Vector2", false, true);
-              ggbObject.setFixed("Line2Vector2", false, true);
-              ggbObject.setValue("showLine1Points", true);
-              ggbObject.setValue("showLine2Points", true);
-            }
-          }
-
-          //slide4 lock it in
-          if (ggbObject.getValue("slide4") === 1) {
-            ggbObject.setValue("allowLineControls", false);
-            ggbObject.setLayer("P1AHelp", 3);
-            ggbObject.setLayer("P1BHelp", 3);
-            enableButton(1, false);
-            enableButton(2, true);
-
-            ggbObject.setLineThickness("line1", subtleLineThickness);
-            ggbObject.setFixed("line1", true, false);
-            ggbObject.setLineThickness("Line1Vector1", subtleLineThickness);
-            ggbObject.setLineThickness("Line1Vector2", subtleLineThickness);
-            ggbObject.setFixed("Line1Vector1", true, false);
-            ggbObject.setFixed("Line1Vector2", true, false);
-
-            ggbObject.setValue("showLine1Points", false);
-          }
-
-          //slide5 lock it in
-          if (ggbObject.getValue("slide5") === 1) {
-            ggbObject.setValue("allowLineControls", false);
-            ggbObject.setLayer("P2AHelp", 3);
-            ggbObject.setLayer("P2BHelp", 3);
-            enableButton(1, false);
-            enableButton(2, true);
-
-            ggbObject.setLineThickness("line2", subtleLineThickness);
-            ggbObject.setFixed("line2", true, false);
-            ggbObject.setLineThickness("Line2Vector1", subtleLineThickness);
-            ggbObject.setLineThickness("Line2Vector2", subtleLineThickness);
-            ggbObject.setFixed("Line2Vector1", true, false);
-            ggbObject.setFixed("Line2Vector2", true, false);
-
-            ggbObject.setValue("showLine2Points", false);
-          }
-
-          //slide8 LockItIn
-          if (ggbObject.getValue("slide8") === 1) {
-            numCorrect = 0;
-            numAttempted = 0;
-            for (let i = 1, L = 8; i <= L; i++) {
-              if (
-                ggbObject.getValue(`answer$ {
-                                  i
-                              }
-                              Selected`) === 1
-              ) {
-                numAttempted++;
-              }
-            }
-            // eslint-disable-next-line no-redeclare
-            for (let i = 1; i < 9; i++) {
-              if (
-                ggbObject.getPointStyle(`QuizPoint$ {
-                                  i
-                              }`) == correctPoints[i - 1]
-              ) {
-                numCorrect++;
-              }
-              if (numAttempted === 8) {
-                ggbObject.setFixed(
-                  `QuizPoint$ {
-                                  i
-                              }`,
-                  true,
-                  false
-                );
-              }
-            }
-            // console.log("numAttempted", numAttempted);
-            if (numAttempted === 8) {
-              enableButton(1, false);
-              enableButton(2, true);
-            }
-            ggbObject.setValue("numAttempted", numAttempted);
-            ggbObject.setValue("numCorrect", numCorrect);
-          }
-
-          ggbReadText("button1ClickText", true);
-        },
-        ggbButton2: function () {
-          // button 2 code here - Unlock/Start Over
-          enableButton(1, true);
-          enableButton(2, false);
-          ggbObject.setValue("locked", false);
-          //yAxis bools are not working so hide y-axis when unlock pressed
-          ggbApplet.setVisible("fakeYAxis", 0);
-
-          //slide 2 or slide 4 unlock graphs
-          if (ggbObject.getValue("slide2") === 1 || ggbObject.getValue("slide4") === 1) {
-            ggbObject.setValue("showLine1Points", true);
-            ggbObject.setValue("allowLineControls", true);
-            ggbObject.setLayer("P1AHelp", 4);
-            ggbObject.setLayer("P1BHelp", 4);
-            ggbObject.setFixed("line1", false, true);
-            ggbObject.setFixed("Line1Vector1", false, true);
-            ggbObject.setFixed("Line1Vector2", false, true);
-            ggbObject.setValue("showStudentGraphVectors", false);
-
-            ggbObject.setValue("showStudentInequality1", false);
-            ggbObject.setLineThickness("line1", normalLineThickness);
-            ggbObject.setValue("showContrastLine", false);
-
-            ggbObject.setLineThickness("Line1Vector1", normalLineThickness);
-            ggbObject.setLineThickness("Line1Vector2", normalLineThickness);
-
-            ggbObject.setValue("showLine1Points", true);
-            setObjectLayer();
-          }
-
-          //slide 3, 10, or 14 unlock graphs
-          // console.log("slide 3,10,14 unlock - set objects selectable");
-
-          if (
-            ggbObject.getValue("slide3") === 1 ||
-            ggbObject.getValue("slide10") === 1 ||
-            ggbObject.getValue("slide14") === 1
-          ) {
-            ggbObject.setValue("showLine1Points", true);
-            ggbObject.setValue("allowLineControls", true);
-            ggbObject.setLayer("P1AHelp", 4);
-            ggbObject.setLayer("P2AHelp", 4);
-            ggbObject.setLayer("P1BHelp", 4);
-            ggbObject.setLayer("P2BHelp", 4);
-            ggbObject.setFixed("line1", false, true);
-            ggbObject.setFixed("line2", false, true);
-            ggbObject.setFixed("frogSVG", false, true);
-            ggbObject.setFixed("cheese1SVG", false, true);
-            ggbObject.setFixed("cheese3SVG", false, true);
-            ggbObject.setFixed("cheese2SVG", false, true);
-            ggbObject.setFixed("Line1Vector1", false, true);
-            ggbObject.setFixed("Line2Vector1", false, true);
-            ggbObject.setFixed("Line1Vector2", false, true);
-            ggbObject.setFixed("Line2Vector2", false, true);
-            ggbObject.setLineThickness("line1", normalLineThickness);
-            ggbObject.setLineThickness("line2", normalLineThickness);
-            ggbObject.setValue("showContrastLine", false);
-
-            ggbObject.setLineThickness("Line1Vector1", normalLineThickness);
-            ggbObject.setLineThickness("Line2Vector1", normalLineThickness);
-            ggbObject.setLineThickness("Line1Vector2", normalLineThickness);
-            ggbObject.setLineThickness("Line2Vector2", normalLineThickness);
-
-            ggbObject.setValue("showLine1Points", true);
-            ggbObject.setValue("showLine2Points", true);
-          }
-
-          //slide 5 unlock graphs
-          if (ggbObject.getValue("slide5") === 1) {
-            ggbObject.setValue("showLine2Points", true);
-            ggbObject.setValue("allowLineControls", true);
-            ggbObject.setLayer("P2AHelp", 4);
-            ggbObject.setLayer("P2BHelp", 4);
-            ggbObject.setFixed("line2", false, true);
-            ggbObject.setFixed("Line2Vector1", false, true);
-            ggbObject.setFixed("Line2Vector2", false, true);
-            ggbObject.setValue("showStudentGraphVectors", false);
-
-            ggbObject.setValue("showStudentInequality1", false);
-            ggbObject.setLineThickness("line2", normalLineThickness);
-            ggbObject.setValue("showContrastLine", false);
-
-            ggbObject.setLineThickness("Line2Vector1", normalLineThickness);
-            ggbObject.setLineThickness("Line2Vector2", normalLineThickness);
-
-            ggbObject.setValue("showLine2Points", true);
-          }
-
-          //slide 8 Start Over
-          if (ggbObject.getValue("slide8") === 1) {
-            numAttempted = 0;
-            numCorrect = 0;
-            ggbObject.setValue("numAttempted", numAttempted);
-            ggbObject.setValue("numCorrect", numCorrect);
-
-            for (let i = 1; i < 9; i++) {
-              ggbObject.setValue(
-                `answer$ {
-                                  i
-                              }
-                              Selected`,
-                false
-              );
-              ggbObject.setFixed(
-                `QuizPoint$ {
-                              i
-                          }`,
-                true,
-                true
-              );
-              ggbObject.setPointStyle(
-                `QuizPoint$ {
-                              i
-                          }`,
-                3
-              );
-              ggbObject.setColor(
-                `QuizPoint$ {
-                              i
-                          }`,
-                128,
-                128,
-                128
-              );
-
-              ggbObject.setVisible(
-                `quizPoint$ {
-                                  i
-                              }
-                              Contrast1X`,
-                false
-              );
-              ggbObject.setVisible(
-                `quizPoint$ {
-                                  i
-                              }
-                              Contrast2X`,
-                false
+              ggbObject.evalCommand(
+                regions[i] + "Point" + (j + 1) + "Set" + (k + 1) + "=PointIn(Union(box" + (i + 1) + ",box" + i + "))"
               );
             }
+            ggbObject.setCoords(
+              regions[i] + "Point" + (j + 1) + "Set" + (k + 1),
+              starterX[i] + (j % 5),
+              starterY[i] - Math.floor(j / 5) - Math.floor(j / 10) - 3 * k
+            );
+            prettyPoints(regions[i] + "Point" + (j + 1) + "Set" + (k + 1), i);
           }
-
-          ggbReadText("button2ClickText", true);
-        },
-        ggbButton3: function () {},
-        ggbButton4: function () {},
-        ggbButton5: function () {},
-      };
-    }
-
-    function defineKeyboardInstructions(obj) {
-      const stepText = ggbObject.getValueString("stepText");
-      const arrowText = "Press the arrow keys to move this point. ";
-      const compiledStepText = arrowText.concat(stepText);
-      const wrappedStepText = compiledStepText.replace(/(?![^\n]{1,38}$)([^\n]{1,38})\s/g, "$1\\\\");
-
-      const arrowFrogCheeseText = "Press the arrow keys to move this object. ";
-      const stepFrogCheeseText = ggbObject.getValueString("stepFrogCheeseText");
-      const compiledFrogCheeseStepText = arrowFrogCheeseText.concat(stepFrogCheeseText);
-      const wrappedFrogCheeseStepText = compiledFrogCheeseStepText.replace(
-        /(?![^\n]{1,38}$)([^\n]{1,38})\s/g,
-        "$1\\\\"
-      );
-
-      const keyboardInstructions = {
-        P1A: wrappedStepText,
-        P1B: wrappedStepText,
-        P2A: wrappedStepText,
-        P2B: wrappedStepText,
-        frogSVG: wrappedFrogCheeseStepText,
-        cheese1SVG: wrappedFrogCheeseStepText,
-        cheese2SVG: wrappedFrogCheeseStepText,
-        cheese3SVG: wrappedFrogCheeseStepText,
-        QuizPoint1: pressSpaceText,
-        QuizPoint2: pressSpaceText,
-        QuizPoint3: pressSpaceText,
-        QuizPoint4: pressSpaceText,
-        QuizPoint5: pressSpaceText,
-        QuizPoint6: pressSpaceText,
-        QuizPoint7: pressSpaceText,
-        QuizPoint8: pressSpaceText,
-        Line1Vector1: ggbObject.getValueString("line1VectorKeyboardText"),
-        Line2Vector1: ggbObject.getValueString("line2VectorKeyboardText"),
-        line1: ggbObject.getValueString("line1KeyboardText"),
-        line2: ggbObject.getValueString("line2KeyboardText"),
-
-        ggbButton1: ggbObject.getValue("ggbButton1Enabled")
-          ? "Press space to lock in your graph."
-          : unavailableButtonText,
-        ggbButton2: ggbObject.getValue("ggbButton2Enabled")
-          ? ggbObject.getValueString("ggbButton2SelectText")
-          : unavailableButtonText,
-        ggbButton3: ggbObject.getValue("ggbButton3Enabled") ? "Press space to ___." : unavailableButtonText,
-        ggbButton4: ggbObject.getValue("ggbButton4Enabled") ? "Press space to ___." : unavailableButtonText,
-        ggbButton5: ggbObject.getValue("ggbButton5Enabled") ? "Press space to ___." : unavailableButtonText,
-      };
-      return keyboardInstructions[obj];
-    }
-
-    function clientFunction(a) {
-      const clientTarget = a.target;
-      switch (a.type) {
-        case "select":
-          selectedObject = clientTarget;
-
-          if (clientTarget === "frogSVG") {
-            ggbObject.setValue("frogInFocus", true);
-          } else if (clientTarget === "cheese1SVG") {
-            ggbObject.setValue("cheese1InFocus", true);
-          } else if (clientTarget === "cheese2SVG") {
-            ggbObject.setValue("cheese2InFocus", true);
-          } else if (clientTarget === "cheese3SVG") {
-            ggbObject.setValue("cheese3InFocus", true);
-          }
-
-          pointNumber = ggbObject.getValueString(clientTarget).substr(9, 1);
-          // updateKeyboardInstructions(clientTarget);
-
-          //select points P1A, P1B, P2A, P2B
-          if (points.includes(clientTarget)) {
-            // console.log("tabSelect", tabSelect);
-            // do not pass go, do not collect $200 - if lines are not shown because movable points coincide- don't read screader text for point selection
-            const line1Shown = ggbObject.getValue("line1IsLine");
-            const line2Shown = ggbObject.getValue("line2IsLine");
-            if (line1Shown === 0 || line2Shown === 0) {
-              if (line1Shown === 0) {
-                if (clientTarget === "P1A") {
-                  ggbObject.evalCommand(
-                    'ReadText("Line A B is hidden because this point coincides with point B. Please move this point to reveal line A B...")'
-                  );
-                } else if (clientTarget === "P1B") {
-                  ggbObject.evalCommand(
-                    'ReadText("Line A B is hidden because this point coincides with point A. Please move this point to reveal line A B...")'
-                  );
-                }
-              }
-              if (line2Shown === 0) {
-                // console.log("line 2 is hidden");
-                if (clientTarget === "P2A") {
-                  ggbObject.evalCommand(
-                    'ReadText("Line C D is hidden because this point coincides with point D. Please move this point to reveal line C D...")'
-                  );
-                } else if (clientTarget === "P2B") {
-                  ggbObject.evalCommand(
-                    'ReadText("Line C D is hidden because this point coincides with point C. Please move this point to reveal line C D...")'
-                  );
-                }
-              }
-            } else if (tabSelect === false) {
-              // get out of jail free -if lines are showing and the point was selected via keyboard tab key, - read screader text for point selection
-
-              switch (clientTarget) {
-                case "P1A":
-                  ggbReadText("p1ASelectText", true);
-                  break;
-                case "P1B":
-                  ggbReadText("p1BSelectText", true);
-                  break;
-                case "P2A":
-                  ggbReadText("p2ASelectText", true);
-                  break;
-                case "P2B":
-                  ggbReadText("p2BSelectText", true);
-                  break;
-              }
-            }
-          }
-          //on select of quiz points
-          if (quizPoints.includes(clientTarget)) {
-            ggbObject.setValue("showQuizPoint" + pointNumber + "Caption", true);
-            pointStyle = ggbObject.getPointStyle(clientTarget);
-            switch (pointStyle) {
-              case 3:
-                currentPointStyleText = gridInt;
-                nextPointStyleText = dot;
-                break;
-              case -1:
-                currentPointStyleText = dot;
-                nextPointStyleText = ex;
-                break;
-              case 10:
-                currentPointStyleText = dot;
-                nextPointStyleText = ex;
-                break;
-              case 1:
-                currentPointStyleText = ex;
-                nextPointStyleText = gridInt;
-                break;
-            }
-            readQuizPointSelectText();
-            // updateKeyboardInstructions(clientTarget);
-            ggbObject.setCaption(clientTarget, quizPointCaption);
-            ggbObject.setLabelVisible(clientTarget, false);
-          }
-          //on select of points - except slide 8 or 9 - show labels
-          if (
-            ggbObject.getObjectType(clientTarget) === "point" &&
-            ggbObject.getValue("slide8") === 0 &&
-            ggbObject.getValue("slide9") === 0
-          ) {
-            ggbObject.setLabelVisible(clientTarget, true);
-          }
-          //on select of lines - show labels and read text
-          if (ggbObject.getObjectType(clientTarget) === "line") {
-            ggbObject.setValue(clientTarget + "Selected", true);
-          }
-
-          switch (clientTarget) {
-            // // required deletion 5
-            // end 5
-
-            case "Line1Vector1":
-              // console.log("L1V1 selected");
-              ggbObject.evalCommand("ReadText(objectsInInequality1)");
-              break;
-            case "Line2Vector1":
-              // console.log("L2V1 selected");
-              ggbObject.evalCommand("ReadText(objectsInInequality2)");
-              break;
-
-            default:
-          }
-          break;
-        case "deselect":
-          // on deselect always: stop showing keyboard instructions temporarily, update keyboard instructions
-          // // required replacement 7
-          ggbObject.setValue("showKeyboardInstructionsTemporarily", false);
-          // updateKeyboardInstructions();
-          ggbObject.setValue("inequalityGroup1Selected", false);
-          ggbObject.setValue("inequalityGroup2Selected", false);
-          ggbObject.setLabelVisible("P1A", false);
-          ggbObject.setLabelVisible("P1B", false);
-          ggbObject.setLabelVisible("P2A", false);
-          ggbObject.setLabelVisible("P2B", false);
-          ggbObject.setValue("showQuizPoint1Caption", false);
-          ggbObject.setValue("showQuizPoint2Caption", false);
-          ggbObject.setValue("showQuizPoint3Caption", false);
-          ggbObject.setValue("showQuizPoint4Caption", false);
-          ggbObject.setValue("showQuizPoint5Caption", false);
-          ggbObject.setValue("showQuizPoint6Caption", false);
-          ggbObject.setValue("showQuizPoint7Caption", false);
-          ggbObject.setValue("showQuizPoint8Caption", false);
-          ggbObject.setValue("line1Selected", false);
-          ggbObject.setValue("line2Selected", false);
-          ggbObject.setValue("pressSpaceCounter", 0);
-
-          ggbObject.setValue("frogInFocus", false);
-          ggbObject.setValue("cheese1InFocus", false);
-          ggbObject.setValue("cheese2InFocus", false);
-          ggbObject.setValue("cheese3InFocus", false);
-
-          selectedObject = "";
-          // tabSelect = false;
-
-          // end 7
-          break;
-        case "dragEnd":
-          // console.warn("I'm in the dragEnd client event");
-          ggbObject.setValue("step", 1);
-          //read where the point is in relation to the frog and cheeses
-          if (
-            ggbObject.getValue("slide2") === 1 ||
-            ggbObject.getValue("slide3") === 1 ||
-            ggbObject.getValue("slide14") === 1 ||
-            ggbObject.getValue("slide15") === 1
-          ) {
-            if (
-              ggbObject.getObjectType(selectedObject) === "point" ||
-              ggbObject.getObjectType(selectedObject) === "image"
-            ) {
-              readPointDragText();
-            }
-          }
-          break;
-        case "mouseDown":
-          tabSelect = false;
-          break;
-      }
-    }
-
-    function clickListenerFunction(a) {
-      styleIt(a);
-      // console.log("*counter before:", ggbObject.getValue("pressSpaceCounter"));
-      switch (a) {
-        case "AAppletStatus":
-          if (
-            ggbObject.getValue("slide2") === 1 ||
-            ggbObject.getValue("slide3") === 1 ||
-            ggbObject.getValue("slide14") === 1
-          ) {
-            // count the number of spacebar presses to read the proper alt text - prompt, followed by frog and cheese locations, after last cheese location, cycle back to prompt.
-            if (ggbObject.getValue("pressSpaceCounter") == 5) {
-              ggbObject.setValue("pressSpaceCounter", 1);
-            } else {
-              ggbObject.setValue("pressSpaceCounter", ggbObject.getValue("pressSpaceCounter") + 1);
-            }
-          }
-          setTimeout(function () {
-            ggbObject.evalCommand("ReadText(promptText)");
-          }, 300);
-          break;
-      }
-      // console.log("*counter after:", ggbObject.getValue("pressSpaceCounter"));
-    }
-
-    function keyit(event) {
-      // console.log("In keyit function. event key: ");
-      // console.log(event.key);
-      switch (event.key) {
-        // case "KeyK":
-        //   // toggle keyboard instructions, read new value
-        //   const KIBool = ggbObject.getValue("showKeyboardInstructions");
-        //   const KIText =
-        //     "Keyboard instructions " + (KIBool ? "hidden" : "shown") + ".";
-        //   ggbReadText(KIText);
-        //   ggbObject.setValue("showKeyboardInstructions", !KIBool);
-        //   break;
-        // // uncomment if you have >5 selectable objects
-        // case "KeyX":
-        //   ggbObject.evalCommand("SelectObjects(AAppletStatus)");
-        //   break;
-        case "Tab":
-          tabSelect = true;
-          break;
-      }
-      if (event.key.includes("Arrow")) {
-        // console.warn("I'm in the arrow keyit event");
-        readPointDragText();
-      }
-    }
-
-    function styleIt(a) {
-      if (points.includes(a)) {
-        // var step = ggbObject.getValue("step");
-        ggbObject.setValue("step", ggbObject.getValue("nextStep"));
-        ggbReadText("stepText", true);
-        // updateKeyboardInstructions(a);
-      }
-      if (objects.includes(a)) {
-        // var step = ggbObject.getValue("step");
-        ggbObject.setValue("step", ggbObject.getValue("nextStep"));
-        ggbReadText("stepFrogCheeseText", true);
-        // updateKeyboardInstructions(a);
-      }
-      if (ggbObject.getValue("slide8") === 1) {
-        if (quizPoints.includes(a)) {
-          const clickedQuizPoint = a;
-          pointNumber = ggbObject.getValueString(clickedQuizPoint).substr(9, 1);
-          // console.log("pointNumber on click of point", pointNumber);
-
-          pointStyle = ggbObject.getPointStyle(clickedQuizPoint);
-          // updateKeyboardInstructions(clickedQuizPoint);
-
-          switch (pointStyle) {
-            case 3: //blank grid intersection
-              ggbObject.setPointStyle(clickedQuizPoint, 10);
-              ggbObject.setColor(clickedQuizPoint, 0, 0, 0);
-              ggbObject.setValue("answer" + pointNumber + "Selected", true);
-              currentPointStyleText = dot;
-              nextPointStyleText = ex;
-              if (!quizPointsOnALine.includes(clickedQuizPoint)) {
-                ggbObject.setVisible("quizPoint" + pointNumber + "Contrast1X", false);
-                ggbObject.setVisible("quizPoint" + pointNumber + "Contrast2X", false);
-              }
-              ggbObject.evalCommand("SelectObjects(QuizPoint" + pointNumber + ")");
-
-              break;
-            case -1: //default point style
-              ggbObject.setPointStyle(clickedQuizPoint, 1);
-
-              currentPointStyleText = ex;
-              nextPointStyleText = gridInt;
-              if (quizPointsOnALine.includes(clickedQuizPoint)) {
-                ggbObject.setVisible("quizPoint" + pointNumber + "Contrast1X", true);
-                ggbObject.setVisible("quizPoint" + pointNumber + "Contrast2X", true);
-              }
-              ggbObject.evalCommand("SelectObjects(QuizPoint" + pointNumber + ")");
-
-              break;
-            case 10: //dot point style
-              ggbObject.setPointStyle(clickedQuizPoint, 1);
-              currentPointStyleText = ex;
-              nextPointStyleText = gridInt;
-              if (quizPointsOnALine.includes(clickedQuizPoint)) {
-                ggbObject.setVisible("quizPoint" + pointNumber + "Contrast1X", true);
-                ggbObject.setVisible("quizPoint" + pointNumber + "Contrast2X", true);
-              }
-              ggbObject.evalCommand("SelectObjects(QuizPoint" + pointNumber + ")");
-
-              break;
-            case 1: // X point style
-              ggbObject.setPointStyle(clickedQuizPoint, 3);
-              ggbObject.setColor(clickedQuizPoint, 128, 128, 128);
-              ggbObject.setValue("answer" + pointNumber + "Selected", false);
-              currentPointStyleText = gridInt;
-              nextPointStyleText = dot;
-              // updateKeyboardInstructions(clickedQuizPoint);
-              ggbObject.setVisible("quizPoint" + pointNumber + "Contrast1X", false);
-              ggbObject.setVisible("quizPoint" + pointNumber + "Contrast2X", false);
-              ggbObject.evalCommand("SelectObjects(QuizPoint" + pointNumber + ")");
-
-              break;
-          }
-          // updateKeyboardInstructions(clickedQuizPoint);
         }
-        // updateKeyboardInstructions(a);
-      }
-      if (ggbObject.getValue("slide9") === 1) {
-        ggbObject.setValue("showQuizPoint" + pointNumber + "Caption", true);
-      }
-
-      if (ggbObject.getObjectType(a) == "line") {
-        if (ggbObject.getLineStyle(a) == 0) {
-          ggbObject.setLineStyle(a, 1); //set to dashed
-          switch (a) {
-            case "line1":
-              ggbObject.evalCommand("RunClickScript(inequality1EqualNotEqualToggle)");
-              // updateKeyboardInstructions(a);
-              break;
-            case "line2":
-              ggbObject.evalCommand("RunClickScript(inequality2EqualNotEqualToggle)");
-              // updateKeyboardInstructions(a);
-              break;
+        //if we have a second number
+        for (let i = 0, L = num2Array.length; i < L; i++) {
+          //create a point in that region named by the region name (from array above) and attached to that box
+          for (let j = 0, K = num2Array[i]; j < K; j++) {
+            ggbObject.evalCommand(regions[i] + "PointB" + (j + 1) + "=PointIn(box" + (i + 1) + ")");
+            ggbObject.setCoords(
+              regions[i] + "PointB" + (j + 1),
+              starterX[i] + (j % 5),
+              3 - Math.floor(j / 5) - Math.floor(j / 10)
+            );
+            prettyPoints(regions[i] + "PointB" + (j + 1), i);
           }
+        }
+      }
+    }
+  }
+
+  //makes the points into the desired style
+  function prettyPoints(pointName, regionNumber = 0) {
+    ggbObject.setPointStyle(pointName, 0);
+    ggbObject.setPointSize(pointName, 8);
+    ggbObject.setVisible(pointName, true);
+    ggbObject.setLayer(pointName, 1);
+    console.log("Points set to 1");
+    ggbObject.evalCommand("SetColor(" + pointName + ',"' + regionColors[regionNumber] + '")');
+  }
+
+  //move all of the points into the fewest number of rows of 5
+  function organize() {
+    let totalNumArray = howManyPoints();
+    reset();
+    for (let i = 0, L = totalNumArray.length; i < L; i++) {
+      //create a point in that region named by the region name (from array above) and attached to that box
+      for (let j = 0, K = totalNumArray[i]; j < K; j++) {
+        if (i == 0) {
+          ggbObject.evalCommand(regions[i] + "Point" + (j + 1) + "=PointIn(box" + (i + 1) + ")");
         } else {
-          ggbObject.setLineStyle(a, 0);
-          switch (a) {
-            case "line1":
-              ggbObject.evalCommand("RunClickScript(inequality1EqualNotEqualToggle)");
-              // updateKeyboardInstructions(a);
-              ggbReadText("objectsInInequality1", true);
-              break;
-            case "line2":
-              ggbObject.evalCommand("RunClickScript(inequality2EqualNotEqualToggle)");
-              // updateKeyboardInstructions(a);
-              ggbReadText("objectsInInequality2", true);
-              break;
-          }
+          ggbObject.evalCommand(regions[i] + "Point" + (j + 1) + "=PointIn(Union(box" + (i + 1) + ",box" + i + "))");
         }
-        ggbObject.evalCommand("SelectObjects(" + a + ")");
-      }
-
-      if (ggbObject.getObjectType(a) == "vector") {
-        // console.warn("vector clicked. selectedObject: ", selectedObject);
-        // console.warn("vector clicked. tabSelect: ", tabSelect);
-        switch (a) {
-          case "Line1Vector1":
-            if (ggbObject.getValue("line1Greater") === 0) {
-              ggbObject.setValue("line1Greater", 1);
-              // updateKeyboardInstructions(a);
-              ggbReadText("line1VectorClickText", true);
-            } else {
-              ggbObject.setValue("line1Greater", 0);
-              // updateKeyboardInstructions(a);
-              ggbReadText("line1VectorClickText", true);
-            }
-            break;
-          case "Line1Vector2":
-            if (ggbObject.getValue("line1Greater") === 0) {
-              ggbObject.setValue("line1Greater", 1);
-              ggbReadText("line1VectorClickText", true);
-            } else {
-              ggbObject.setValue("line1Greater", 0);
-              ggbReadText("line1VectorClickText", true);
-            }
-            break;
-          case "Line2Vector1":
-            if (ggbObject.getValue("line2Greater") === 0) {
-              ggbObject.setValue("line2Greater", 1);
-              // updateKeyboardInstructions(a);
-              ggbReadText("line2VectorClickText", true);
-            } else {
-              ggbObject.setValue("line2Greater", 0);
-              // updateKeyboardInstructions(a);
-              ggbReadText("line2VectorClickText", true);
-            }
-            break;
-          case "Line2Vector2":
-            if (ggbObject.getValue("line2Greater") === 0) {
-              ggbObject.setValue("line2Greater", 1);
-              ggbReadText("line2VectorClickText", true);
-            } else {
-              ggbObject.setValue("line2Greater", 0);
-              ggbReadText("line2VectorClickText", true);
-            }
-            break;
-        }
-        ggbObject.evalCommand("SelectObjects(" + a + ")");
+        ggbObject.setCoords(
+          regions[i] + "Point" + (j + 1),
+          starterX[i] + (j % 5),
+          starterY[i] - Math.floor(j / 5) - Math.floor(j / 10)
+        );
+        prettyPoints(regions[i] + "Point" + (j + 1), i);
       }
     }
-
-    function readQuizPointSelectText() {
-      let quizPointLocationText = "";
-      let combinedPointStyleText = "";
-      const truncatedNextPointStyleText = nextPointStyleText.replace(/is /, "");
-      // console.log("truncatedNextPointStyleText", truncatedNextPointStyleText);
-
-      if (ggbObject.getValue("slide8") === 1) {
-        pressSpaceText = " Press space to change the point to " + truncatedNextPointStyleText + ". ";
-        // console.log("pressSpaceText in if statement slide 8 readQuizPointFunction:", pressSpaceText);
+    totalNumArray = howManyPoints();
+    console.log(totalNumArray);
+    totalNumArray.every(function (element) {
+      if (element >= 10) {
+        enableButton(3, true);
+        return false;
       } else {
-        pressSpaceText = "";
+        enableButton(3, false);
+        return true;
       }
+    });
+  }
 
-      switch (pointNumber) {
-        case "1":
-          quizPointLocationText =
-            "at open parenthesis 4 comma 4 close parenthesis. The point is in the dark shaded overlapping region of the two half planes above both boundary lines.";
-          break;
-        case "2":
-          quizPointLocationText =
-            "at open parenthesis 8 comma minus 2 close parenthesis. The point is in the region above the first boundary line and below the second boundary line.";
-          break;
-        case "3":
-          quizPointLocationText =
-            "at open parenthesis 10 comma 1 close parenthesis. The point is in the region above the first boundary line and on the second dashed boundary line.";
-          break;
-        case "4":
-          quizPointLocationText =
-            "at open parenthesis 2 comma minus 7 close parenthesis. The point is in the region below the first boundary line and on the second dashed boundary line.";
-          break;
-        case "5":
-          quizPointLocationText =
-            "at open parenthesis minus 5 comma minus 3 close parenthesis. The point is in the region below the first boundary line and above the second boundary line.";
-          break;
-        case "6":
-          quizPointLocationText =
-            "at open parenthesis minus 3 comma 8 close parenthesis. The point is on the first solid boundary line and in the region above the second boundary line.";
-          break;
-        case "7":
-          quizPointLocationText =
-            "at open parenthesis 9 comma minus 4 close parenthesis. The point is on the first solid boundary line and in the region below the second boundary line.";
-          break;
-        case "8":
-          quizPointLocationText =
-            "at open parenthesis 6 comma minus 8 close parenthesis. The point is in the unshaded region below the first boundary line and below the second boundary line.";
-          break;
-      }
-
-      combinedPointStyleText = currentPointStyleText.concat(" ", quizPointLocationText, " ", pressSpaceText);
-      // console.log("combinedPointStyleText", combinedPointStyleText);
-      quizPointCaption = combinedPointStyleText;
-      // console.log("quizPointCaption", quizPointCaption);
-    }
-
-    function readPointDragText() {
-      //combine & read text for point drag/keyup for various slides (ineq 1 only, ineq2 only, both ineq, and/or frog and cheese showing)
-      setTimeout(function () {
-        //if points coincide, don't read normal dragEnd/keyup text
-        if (ggbObject.getValue("line1IsLine") === 0) {
-          ggbReadText("line1Status", true);
-        } else if (ggbObject.getValue("line2IsLine") === 0) {
-          ggbReadText("line2Status", true);
-          //if inequalities are showing normally, read normal dragEnd/keyup text
-        } else {
-          switch (selectedObject) {
-            case "P1A":
-              pointReadText = ggbObject.getValueString("p1ASelectText");
-              break;
-            case "P1B":
-              pointReadText = ggbObject.getValueString("p1BSelectText");
-              break;
-            case "P2A":
-              pointReadText = ggbObject.getValueString("p2ASelectText");
-              break;
-            case "P2B":
-              pointReadText = ggbObject.getValueString("p2BSelectText");
-              break;
-            case "cheese1SVG":
-              pointReadText = ggbObject.getValueString("cheese1SelectText");
-              break;
-            case "cheese2SVG":
-              pointReadText = ggbObject.getValueString("cheese2SelectText");
-              break;
-            case "cheese3SVG":
-              pointReadText = ggbObject.getValueString("cheese3SelectText");
-              break;
-            case "frogSVG":
-              pointReadText = ggbObject.getValueString("frogSelectText");
-              break;
-          }
-
-          const objectsIneq1 = ggbObject.getValueString("objectsInInequality1");
-          const objectsSolution = ggbObject.getValueString("frogCheeseInSolutionText");
-
-          //Slides that have point A, B, C, D selectable: #2-5,10, 14
-          //Slide 2 - Ineq 1 + frog and cheese
-          if (ggbObject.getValue("slide2") === 1) {
-            keyUpReadText = pointReadText.concat(objectsIneq1);
-            //Slide 3 - Ineq 1 & 2- + frog and cheese - slide 3
-          } else if (ggbObject.getValue("slide3") === 1) {
-            keyUpReadText = pointReadText.concat(objectsSolution);
-            //slides 4, 5, 10, 14 -  Ineq 1 & 2 - no frog and cheese
-          } else {
-            keyUpReadText = pointReadText;
-          }
-          setTimeout(function () {
-            ggbReadText(keyUpReadText);
-          }, 400);
+  function howManyPoints() {
+    let totalNumArray = [];
+    let allPoints = ggbObject.getAllObjectNames("point");
+    let count = 0;
+    for (let i = 0, L = numRegions; i < L; i++) {
+      allPoints.forEach((element) => {
+        if (element.startsWith(regions[i] + "Point") && ggbObject.getVisible(element) == true) {
+          count++;
         }
-      }, 400);
+      });
+      totalNumArray.push(count);
+      count = 0;
+    }
+    return totalNumArray;
+  }
+
+  let selectedItem;
+
+  //this function creates a draggable ten frame
+  function bundle() {
+    organize();
+    let totalNumArray = howManyPoints();
+    totalNumArray.every((element, i) => {
+      //highlight one or more tens frames
+      if (element >= 10 && i <= numRegions - 1) {
+        let x1 = ggbObject.getXcoord(regions[i] + "Point1"); //change this to be the first point showing
+        let y1 = ggbObject.getYcoord(regions[i] + "Point1"); //change this to be the first point showing
+        let x2 = x1 + 4;
+        let y2 = y1 - 1;
+        //makes draggable tens frame and sets properties
+        ggbObject.evalCommand(
+          regions[i] +
+            "TensFrame=Polygon((" +
+            (x1 - 0.5) +
+            "," +
+            (y1 + 0.5) +
+            "),(" +
+            (x2 + 0.5) +
+            "," +
+            (y1 + 0.5) +
+            "),(" +
+            (x2 + 0.5) +
+            "," +
+            (y2 - 0.5) +
+            "),(" +
+            (x1 - 0.5) +
+            "," +
+            (y2 - 0.5) +
+            "))"
+        );
+        ggbObject.setColor(regions[i] + "TensFrame", 255, 255, 255);
+        ggbObject.setFilling(regions[i] + "TensFrame", 1);
+        ggbObject.setFixed(regions[i] + "TensFrame", false, true);
+        ggbObject.setLayer(regions[i] + "TensFrame", 2);
+        console.log("frame set to", ggbObject.getLayer(regions[i] + "TensFrame"));
+        ggbObject.deleteObject("tabOrder");
+        ggbObject.evalCommand(
+          "tabOrder={ggbButton3," + regions[i] + "TensFrame,ggbButton3,ggbButton4,ggbButton1,ggbButton2}"
+        );
+        //copies tens frame to make outline and sets properties
+        ggbObject.evalCommand(regions[i] + "TensFrameOutline=" + regions[i] + "TensFrame");
+        ggbObject.setColor(regions[i] + "TensFrameOutline", 0, 0, 0);
+        ggbObject.setFilling(regions[i] + "TensFrameOutline", 0);
+        ggbObject.setVisible(regions[i] + "TensFrameOutline", true);
+        ggbObject.setFixed(regions[i] + "TensFrameOutline", true, false);
+        ggbObject.setLayer(regions[i] + "TensFrameOutline", 3);
+        console.log("outline set to", ggbObject.getLayer(regions[i] + "TensFrameOutline"));
+
+        //makes corner so that points can be made based off of tens frame position
+        ggbObject.evalCommand(regions[i] + "TenFrameCorner=Corner(" + regions[i] + "TensFrameOutline,1)");
+        ggbObject.setVisible(regions[i] + "TenFrameCorner", false);
+
+        //create points attached to that tens frame and sets properties
+        for (let j = 0, K = 10; j < K; j++) {
+          ggbObject.evalCommand(
+            "Moving" +
+              regions[i] +
+              "Point" +
+              (j + 1) +
+              "=" +
+              regions[i] +
+              "TenFrameCorner+(" +
+              ((j % 5) + 0.5) +
+              "," +
+              (-Math.floor(j / 5) - 0.5) +
+              ")"
+          );
+          prettyPoints("Moving" + regions[i] + "Point" + (j + 1), i);
+          ggbObject.setLayer("Moving" + regions[i] + "Point" + (j + 1), 4);
+          console.log("points set to", ggbObject.getLayer("Moving" + regions[i] + "Point" + (j + 1)));
+          ggbObject.setFixed("Moving" + regions[i] + "Point" + (j + 1), true, false);
+          ggbObject.setVisible(regions[i] + "Point" + (j + 1), false);
+        }
+        enableButton(3, false);
+        //changes number of points in each region
+        let first = totalNumArray[i];
+        let second = totalNumArray[i + 1];
+        totalNumArray[i] = first - 10;
+        totalNumArray[i + 1] = second + 1;
+        //leaves the loop early
+        return false;
+      } else {
+        //allows loop to continue
+        return true;
+      }
+    });
+  }
+
+  //bundles or unbundles, based on the case
+  function performSwap(totalNumArray) {
+    console.log(selectedItem, totalNumArray);
+    //figure out the type of point or tens frame that was grabbed by removing all but the region
+    let selectedItemRegion = selectedItem.replace(/(Point)\d+|(TensFrame)/g, "");
+    //gets the index of the region from the const array "regions"
+    let regionNum = regions.indexOf(selectedItemRegion);
+    console.log(selectedItem, selectedItemRegion, regionNum);
+    let bundling =
+      ggbObject.getXcoord(regions[regionNum] + "TenFrameCorner") <
+        (numRegions - regionNum - 1) * ggbObject.getValue("sectionWidth") && selectedItem.includes("Frame");
+    let unbundling =
+      selectedItem.includes("Point") &&
+      ggbObject.getXcoord(selectedItem) > (numRegions - regionNum) * ggbObject.getValue("sectionWidth");
+    switch (true) {
+      //moving tenframe (bundle)
+      case bundling:
+        console.log(
+          numRegions,
+          regionNum,
+          ggbObject.getValue("sectionWidth"),
+          (numRegions - regionNum) * ggbObject.getValue("sectionWidth")
+        );
+        //hide old tenframe
+        for (let j = 0, K = 10; j < K; j++) {
+          ggbObject.setVisible("Moving" + regions[regionNum] + "Point" + (j + 1), false);
+        }
+
+        ggbObject.setVisible(regions[regionNum] + "TensFrameOutline", false);
+        ggbObject.setVisible(regions[regionNum] + "TensFrame", false);
+
+        //create ten point in new region
+        let midPointX = ggbObject.getValue("sectionWidth") * (numRegions - regionNum - 2 + 0.5);
+        ggbObject.evalCommand(
+          regions[regionNum + 1] + "Point" + (totalNumArray[regionNum + 1] + 1) + "=PointIn(box" + (regionNum + 2) + ")"
+        );
+        ggbObject.setCoords(regions[regionNum + 1] + "Point" + (totalNumArray[regionNum + 1] + 1), midPointX, 1);
+        prettyPoints(regions[regionNum + 1] + "Point" + (totalNumArray[regionNum + 1] + 1), regionNum + 1);
+        carryArray.splice(regionNum + 1, 1, "\\scriptsize{1}");
+        ggbObject.evalCommand(
+          "SelectObjects(" + regions[regionNum + 1] + "Point" + (totalNumArray[regionNum + 1] + 1) + ")"
+        );
+        console.log(totalNumArray);
+        //reorganizes points after waiting half a second
+        setTimeout(function () {
+          organize();
+          ggbObject.evalCommand(
+            "SelectObjects(" + regions[regionNum + 1] + "Point" + (totalNumArray[regionNum + 1] + 1) + ")"
+          );
+          updateAlgorithmText(3);
+          ggbObject.deleteObject("tabOrder");
+          ggbObject.evalCommand(
+            "tabOrder={ggbButton3,ggbButton4,ggbButton1,ggbButton2,AAppletStatus,instructionsIcon,xIcon,FirstNumber,SecondNumber}"
+          );
+        }, 500);
+
+        break;
+      //moving point (unbundle)
+      case unbundling:
+        //hides the point that was dropped in a new region
+        ggbObject.setVisible(selectedItem, false);
+        //creates ten new points
+        for (let i = 0, L = 10; i < L; i++) {
+          //if you pulled a tens point, it can only go in the ones region
+          if (regionNum == 1) {
+            ggbObject.evalCommand(
+              regions[regionNum - 1] +
+                "Point" +
+                (totalNumArray[regionNum - 1] + i + 1) +
+                "=PointIn(box" +
+                regionNum +
+                ")"
+            );
+          }
+          //anything that's not a tens point needs to be able to unbundle again, so it needs two regions
+          else if (regionNum > 1) {
+            ggbObject.evalCommand(
+              regions[regionNum - 1] +
+                "Point" +
+                (totalNumArray[regionNum - 1] + i + 1) +
+                "=PointIn(Union(box" +
+                regionNum +
+                ",box" +
+                (regionNum - 1) +
+                "))"
+            );
+          }
+          //sets the coordinates of the new points
+          ggbObject.setCoords(
+            regions[regionNum - 1] + "Point" + (totalNumArray[regionNum - 1] + i + 1),
+            starterX[regionNum - 1] + (i % 5),
+            ggbObject.getYcoord(regions[regionNum - 1] + "Point" + totalNumArray[regionNum - 1]) -
+              2 -
+              Math.floor(i / 5) -
+              Math.floor(i / 10)
+          );
+          //starterY[regionNum - 1] -
+          //make the points the right color, size, style
+          prettyPoints(regions[regionNum - 1] + "Point" + (totalNumArray[regionNum - 1] + i + 1), regionNum - 1);
+          console.log(regions[regionNum - 1] + "Point" + (totalNumArray[regionNum - 1] + i + 1));
+        }
+        //update the array that tracks the number of points in each region
+        totalNumArray = howManyPoints();
+        updateAlgorithmText(3);
+        break;
+    }
+  }
+
+  function reset() {
+    ggbObject.setAnimating();
+    ggbObject.setValue("time", 0);
+    let deletablePoints = ggbObject.getAllObjectNames("point").filter(function (value) {
+      return (
+        !value.includes("Starter") &&
+        !value.includes("corner") &&
+        !value.includes("Bar") &&
+        !value.includes("Export") &&
+        !value.includes("Icon") &&
+        !value.includes("Instructions")
+      );
+    });
+    deletablePoints.forEach(function (element) {
+      ggbObject.deleteObject(element);
+    });
+    let deletablePolys = ggbObject.getAllObjectNames("quadrilateral").filter(function (value) {
+      return !value.includes("box") && !value.includes("Bar") && !value.includes("Box");
+    });
+
+    deletablePolys.forEach(function (element) {
+      ggbObject.deleteObject(element);
+    });
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  function updateAlgorithmText(textStep = "0") {
+    //show the vinculum and plus sign
+    ggbObject.setVisible("f", true);
+    ggbObject.setVisible("text11", true);
+    //get all pertinent numbers and turn them into arrays
+    let number1 = ggbObject.getValue("number");
+    let number2 = ggbObject.getValue("number2");
+    let num1Array = pulverize(number1);
+    let num2Array = pulverize(number2);
+    let answerArray = howManyPoints();
+
+    //if one of the arrays is shorter than the other, add empty elements to make them align correctly
+    switch (true) {
+      case num1Array.length > num2Array.length:
+        while (num1Array.length != num2Array.length) {
+          num2Array.push("");
+        }
+        break;
+      case num1Array.length < num2Array.length:
+        while (num1Array.length != num2Array.length) {
+          num1Array.push("");
+        }
+        break;
+      default:
+        break;
     }
 
-    function setObjectLayer() {
-      // console.log("in setObjectLayerFunction");
-      const stGraphVisible = ggbObject.getValue("showStudentInequality1 && showOrigGraph || showStudentGraphVectors"); // if this doesn't update at the right time, consider passing a true/false
-      // console.log("in setObjectLayerFunction, stGraphVisible:", stGraphVisible);
-      //value to this function based on what button was clicked
-      const objects = [
-        "polyCheese1",
-        "polyCheese2",
-        "polyCheese3",
-        "cheese1SVG",
-        "cheese2SVG",
-        "cheese3SVG",
-        "frogSVG",
-        "stink1SVG",
-        "stink2SVG",
-        "stink3SVG",
-        "frogOutline",
-      ];
-      const origLayers = [0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 3];
-      const newLayers = [6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 8];
-      // if st Graphs are visible, take the nth element in objects and change its layer to the nth element in newLayer, else change its layer to the nth element in origLayer
-      for (let i = 0; i < objects.length; i++) {
-        const object = objects[i];
+    //set up each of the strings that will be used in the matrix
+    let firstNumberString = "";
+    let secondNumberString = "";
+    let carryString = "";
+    let answerString = "";
 
-        const layer = stGraphVisible ? newLayers[i] : origLayers[i];
-        ggbObject.setLayer(object, layer);
+    //change arrays into strings with appropriate columns and commas
+    firstNumberString = convertArraysIntoStrings(num1Array);
+    secondNumberString = convertArraysIntoStrings(num2Array);
+    answerString = convertArraysIntoStrings(answerArray);
+    carryString = convertArraysIntoStrings(carryArray, false);
+
+    // //figure out where something has been carried and append that to the carry string where necessary
+    // answerArray.forEach(function (element, index) {
+    // 	switch (true) {
+    // 		case num1Array[index] + num2Array[index] < element && num1Array[index] + num2Array[index] < 10 && index == answerArray.length - 1:
+    // 			carryString = "\\scriptsize{1}" + carryString;
+    // 			break;
+    // 		case num1Array[index] + num2Array[index] < element && num1Array[index] + num2Array[index] < 10:
+    // 			carryString = "\\scriptsize{1} &" + carryString;
+    // 			break;
+    // 		default:
+    // 			carryString = "\\phantom{\\scriptsize{1}} &" + carryString;
+    // 			break;
+    // 	}
+    // 	console.log(carryString);
+    // });
+
+    //set the value of the text string based on which step of the addition process you're on
+    switch (textStep) {
+      case 0: //reset, starting point, no text
+        ggbObject.setTextValue("algorithmText", "");
+        break;
+      case 1: //show first two numbers only, first button press
+        ggbObject.setTextValue(
+          "algorithmText",
+          "\\begin{array}{} " + firstNumberString + " \\\\" + secondNumberString + " \\\\	\\end{array}"
+        );
+        break;
+      case 2: //show sum of the numbers when putting dots together in a region, second button press
+        ggbObject.setTextValue(
+          "algorithmText",
+          "\\begin{array}{} " +
+            firstNumberString +
+            " \\\\" +
+            secondNumberString +
+            " \\\\ \\\\ \\phantom{\\scriptsize{1}} \\\\" +
+            answerString +
+            " \\\\  \\end{array}"
+        );
+        break;
+      case 3: //bundling - this one's fun, changes a lot, third button press AND performSwap
+        ggbObject.setTextValue(
+          "algorithmText",
+          "\\begin{array}{} " +
+            firstNumberString +
+            " \\\\" +
+            secondNumberString +
+            " \\\\ \\\\ " +
+            carryString +
+            " \\\\" +
+            answerString +
+            " \\\\ \\end{array}"
+        );
+        break;
+      default:
+        break;
+    }
+
+    //concatenate the numbers such that each single digit number gets a column in the matrix
+    //add a comma where necessary, and don't add an empty column (&) at the end
+    function convertArraysIntoStrings(numArray, commas = "true") {
+      let nameString = "";
+      numArray.forEach(function (element, index) {
+        if (commas) {
+          switch (true) {
+            case index == numArray.length - 1:
+              nameString = nameString + numArray[numArray.length - index - 1].toString();
+              break;
+            case index == numArray.length - 4:
+            case index == numArray.length - 7:
+              if (numArray[numArray.length - index - 1].toString() != "") {
+                nameString = nameString + numArray[numArray.length - index - 1].toString() + "," + "&";
+              } else {
+                nameString = nameString + numArray[numArray.length - index - 1].toString() + "&";
+              }
+              break;
+            case index < numArray.length - 1:
+              nameString = nameString + numArray[numArray.length - index - 1].toString() + "&";
+              break;
+            default:
+              break;
+          }
+        } else {
+          switch (true) {
+            case index == numArray.length - 1:
+              nameString = nameString + numArray[numArray.length - index - 1].toString();
+              break;
+            case index < numArray.length - 1:
+              nameString = nameString + numArray[numArray.length - index - 1].toString() + "&";
+              break;
+            default:
+              break;
+          }
+        }
+      });
+      return nameString;
+    }
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  function updateReadText() {
+    let regionString = "";
+    for (let i = 0, L = 6; i < L; i++) {
+      if (i == L - 1) {
+        regionString = regionString + "and " + regions[i];
+      } else {
+        regionString = regionString + regions[i] + ", ";
       }
     }
-  }); // All code above here
+    ggbObject.setTextValue("AAppletStatus", "A place value chart shows " + regionString + ".");
+  }
 
-  /*
-   * IGNORE BELOW
-   */
-  function loadUtils() {
-    function parseJS(JSString) {
-      return Function("" + JSString)();
+  //sets aria-label and removes role
+  const getCanvas = function (name) {
+    var allCanvases = document.querySelectorAll("canvas");
+    for (i = 0; i < allCanvases.length; i++) {
+      var ggbDiv = allCanvases[i].closest("div.appletParameters,div.notranslate");
+      if (ggbDiv) {
+        var parameterID = ggbDiv.getAttribute("id");
+        var canvasID = "canvas" + parameterID;
+        allCanvases[i].setAttribute("id", canvasID);
+        var parameterRole = ggbDiv.querySelectorAll('[role="application"]');
+        if (parameterRole) {
+          for (i = 0; i < parameterRole.length; i++) {
+            parameterRole[i].setAttribute("role", "");
+          }
+        }
+      }
     }
-    if (!window.didUtils || !window.didUtils.setupGGB) {
-      return fetch("https://cdn.digital.greatminds.org/did-utils/latest/index.js", {
-        cache: "no-cache",
-      })
-        .then(function (response) {
-          return response.text();
-        })
-        .then(function (codingText) {
-          parseJS(codingText);
-        })
-        .then(function () {
-          return window.didUtils.setupGGB;
-        });
+    var id = "canvas" + name;
+    var ggbcanvas = document.getElementById(id);
+    return ggbcanvas;
+  };
+
+  const setAriaLabel = function (arialabel, canvas) {
+    if (canvas) {
+      canvas.setAttribute("aria-label", arialabel);
     }
-    return Promise.resolve(window.didUtils.setupGGB);
+  };
+  const ggbcanvas = getCanvas(name);
+
+  //CHANGE ARIA LABEL HERE
+  setAriaLabel("Place Value Interactive", ggbcanvas);
+
+  function button1Click() {
+    // button 1 code here
+    enableButton(1, false);
+    enableButton(2, true);
+    enableButton(3, false);
+    enableButton(4, true);
+    updateAlgorithmText(1);
+    popul8();
+    ggbReadText("What happens when the button is clicked?");
+  }
+
+  function button2Click() {
+    // button 2 code here
+    updateAlgorithmText(2);
+    organize();
+    enableButton(1, false);
+    enableButton(2, false);
+    //enableButton(3, true);
+    enableButton(4, true);
+  }
+
+  function button3Click() {
+    // button 3 code here
+    updateAlgorithmText(3);
+    bundle();
+    enableButton(1, false);
+    enableButton(2, false);
+    //enableButton(3, true);
+    enableButton(4, true);
+  }
+
+  function button4Click() {
+    // button 4 code here
+    updateAlgorithmText(0);
+    ggbObject.setVisible("f", false);
+    ggbObject.setVisible("text11", false);
+
+    carryArray = [
+      "\\phantom{\\scriptsize{1}}",
+      "\\phantom{\\scriptsize{1}}",
+      "\\phantom{\\scriptsize{1}}",
+      "\\phantom{\\scriptsize{1}}",
+      "\\phantom{\\scriptsize{1}}",
+      "\\phantom{\\scriptsize{1}}",
+      "\\phantom{\\scriptsize{1}}",
+    ];
+    reset();
+    enableButton(1, true);
+    enableButton(2, false);
+    enableButton(3, false);
+    enableButton(4, true);
+  }
+
+  function button5Click() {
+    // button 5 code here
+  }
+
+  // required replacement 2: replaces readButtonText and keyboardInstructions
+  function defineKeyboardInstructions(obj) {
+    // takes a GGB object name as an argument, returns its keyboard text.
+    var unavailableButtonText = "This button is unavailable.";
+    var keyboardInstructions = {
+      // object you shouldn't need to change
+      AAppletStatus: "Press tab to select next object.",
+      instructionsIcon: "Keyboard instructions enabled",
+      xIcon: "Keyboard instructions enabled",
+      // static text objects
+      /* A: "Press the arrow keys to move this point.", // example for a point */
+      // dynamic text objects
+      ggbButton1: ggbObject.getValue("ggbButton1Enabled") ? "Press space to populate." : unavailableButtonText,
+      ggbButton2: ggbObject.getValue("ggbButton2Enabled") ? "Press space to organize." : unavailableButtonText,
+      ggbButton3: ggbObject.getValue("ggbButton3Enabled") ? "Press space to bundle." : unavailableButtonText,
+      ggbButton4: ggbObject.getValue("ggbButton4Enabled") ? "Press space to reset." : unavailableButtonText,
+      ggbButton5: ggbObject.getValue("ggbButton5Enabled") ? "Press space to _____." : unavailableButtonText,
+    };
+    // if obj is a key in keyboardInstructions, then return the value. If not, then return the default string.
+    return keyboardInstructions[obj] || "Keyboard instructions enabled.";
+  }
+  // end 2
+
+  // optional name changes:
+  ggbObject.registerClientListener(clientFunction);
+  ggbObject.registerClickListener(clickListenerFunction);
+  ggbObject.registerObjectUpdateListener("number", quickChange);
+  ggbObject.registerObjectUpdateListener("number2", quickChange);
+  ggbObject.registerObjectUpdateListener("FirstNumber", quickChange);
+  ggbObject.registerObjectUpdateListener("SecondNumber", quickChange);
+  ggbcanvas.addEventListener("keyup", keyit);
+  ggbObject.registerAddListener(hideSegments);
+
+  function quickChange() {
+    updateAlgorithmText(0);
+    ggbObject.setVisible("f", false);
+    ggbObject.setVisible("text11", false);
+    carryArray = [
+      "\\phantom{\\scriptsize{1}}",
+      "\\phantom{\\scriptsize{1}}",
+      "\\phantom{\\scriptsize{1}}",
+      "\\phantom{\\scriptsize{1}}",
+      "\\phantom{\\scriptsize{1}}",
+      "\\phantom{\\scriptsize{1}}",
+      "\\phantom{\\scriptsize{1}}",
+    ];
+    reset();
+    enableButton(1, true);
+    enableButton(2, false);
+    enableButton(3, false);
+    enableButton(4, true);
+  }
+
+  function hideSegments(added) {
+    if (ggbObject.getObjectType(added) == "segment") {
+      ggbObject.setVisible(added, false);
+      ggbObject.setFixed(added, true, false);
+    }
+  }
+
+  // // required replacement 3: replaces enableButton
+  // call when you want to read what the keyboard instructions say, pass in an object
+  function readKeyboardInstructions(obj) {
+    var readIt = defineKeyboardInstructions(obj);
+    ggbReadText(readIt);
+  }
+
+  // call when you want to show keyboard instructions for current object
+  function updateKeyboardInstructions(obj = "") {
+    var showIt = defineKeyboardInstructions(obj);
+    ggbObject.setTextValue("keyboardInstructions", "\\text{" + showIt + "}");
+  }
+
+  // screen reader function
+  // if readString is the name of a GGB text object, include true as a second argument
+  function ggbReadText(readString, isGGBTextObj = false) {
+    var addQuotes = isGGBTextObj ? "" : '"';
+    ggbObject.evalCommand("ReadText(" + addQuotes + readString + addQuotes + ")");
+  }
+
+  // button state function
+  function enableButton(buttonNum, boolean) {
+    var enableOrDisable = boolean ? "enable" : "disable";
+    ggbObject.evalCommand("Execute(" + enableOrDisable + "BarButton, ggbButton" + buttonNum + ")");
+  }
+  // end 3
+
+  var barButtons = ["ggbButton1", "ggbButton2", "ggbButton3", "ggbButton4", "ggbButton5"];
+
+  function clientFunction(a) {
+    var clientTarget = a.target;
+    switch (a.type) {
+      case "select":
+        selectedItem = clientTarget;
+        // // required addition 4
+        // on select always: update the keyboard instructions
+        updateKeyboardInstructions(clientTarget);
+        // if input box selected, show the keyboard instructions temporarily
+        var forceKeyboardInstructions = ["textfield"];
+        if (forceKeyboardInstructions.includes(ggbObject.getObjectType(clientTarget))) {
+          ggbObject.setValue("showKeyboardInstructionsTemporarily", true);
+        }
+        if (clientTarget.includes("Frame")) {
+          showSelection(clientTarget);
+        }
+        // end 4
+        switch (clientTarget) {
+          // // required deletion 5
+          // end 5
+          case "AAppletStatus":
+            // if status selected, don't read out escape text more than once
+            ggbObject.setValue("escTextCount", ggbObject.getValue("escTextCount") + 1);
+            break;
+          default:
+            // if button selected, read out its keyboard instructions
+            if (barButtons.includes(clientTarget)) {
+              // // required replacement 6
+              readKeyboardInstructions(clientTarget);
+              // end 6
+            }
+        }
+        break;
+      case "dragEnd":
+        console.log("dragged");
+        showSelection();
+        let totalNumArray = howManyPoints();
+        performSwap(totalNumArray);
+        break;
+      case "deselect":
+        // on deselect always: stop showing keyboard instructions temporarily, update keyboard instructions
+        // // required replacement 7
+        showSelection();
+        ggbObject.setValue("showKeyboardInstructionsTemporarily", false);
+        updateKeyboardInstructions();
+        // end 7
+        break;
+    }
+  }
+
+  // optional name change
+  function clickListenerFunction(a) {
+    switch (a) {
+      case "instructionsIcon":
+        // show instructions, read out instructions, select xIcon
+        var rawInstructions = ggbObject.getLaTeXString("instructionsText");
+        var trimmedInstructions = rawInstructions.substr(6, rawInstructions.length - 7);
+        var finalInstructions = trimmedInstructions.concat(" Press space to close the instructions.");
+        // // required deletion 8: focus indicator
+        // end 8
+        ggbObject.setValue("showInstructions", true);
+        ggbReadText(finalInstructions);
+        ggbObject.evalCommand("SelectObjects(xIcon)");
+        break;
+      case "xIcon":
+        // hide instructions, select instructionsIcon
+        // // required deletion 9: focus indicator
+        // end 9
+        ggbObject.setValue("showInstructions", false);
+        ggbObject.evalCommand("SelectObjects(instructionsIcon)");
+        break;
+      default:
+        if (barButtons.includes(a)) {
+          // clicked button: run its function if it's enabled, read its text otherwise; always update keyboard instructions
+          var buttonFunctions = {
+            ggbButton1: button1Click,
+            ggbButton2: button2Click,
+            ggbButton3: button3Click,
+            ggbButton4: button4Click,
+            ggbButton5: button5Click,
+          };
+          if (buttonFunctions[a] && ggbObject.getValue(a + "Enabled")) {
+            buttonFunctions[a]();
+          } else {
+            // // required replacement 10
+            readKeyboardInstructions(a);
+            // end 10
+          }
+          // required addition 11
+          updateKeyboardInstructions(a);
+          // end 11
+        }
+    }
+  }
+
+  // // required addition 12
+  function keyit(event) {
+    console.log(event);
+    console.log(selectedItem);
+    switch (true) {
+      case event.code === "KeyK":
+        // toggle keyboard instructions, read new value
+        var KIBool = ggbObject.getValue("showKeyboardInstructions");
+        var KIText = "Keyboard instructions " + (KIBool ? "hidden" : "shown") + ".";
+        ggbReadText(KIText);
+        ggbObject.setValue("showKeyboardInstructions", !KIBool);
+        break;
+      case event.code.includes("ArrowLeft") && selectedItem.includes("Frame"):
+        totalNumArray = howManyPoints();
+        performSwap(totalNumArray);
+        break;
+      case event.code.includes("ArrowRight") && selectedItem.includes("Point"):
+        totalNumArray = howManyPoints();
+        performSwap(totalNumArray);
+      // uncomment if you have >5 selectable objects
+      /* case "KeyX":
+    ggbObject.evalCommand("SelectObjects(AAppletStatus)");
+    break; */
+    }
+  }
+
+  function showSelection(target) {
+    var thingsToIgnore = ["instructionsIcon", "xIcon"];
+    if (thingsToIgnore.includes(target)) {
+      return;
+    }
+    // delete previous selection objects
+    var allObjects = ggbObject.getAllObjectNames();
+    for (var i = 0, L = allObjects.length; i < L; i++) {
+      var obj = allObjects[i];
+      if (ggbObject.getCaption(obj) === "selectionIndicator") {
+        ggbObject.deleteObject(obj);
+      }
+    }
+    if (!target) {
+      return;
+    }
+    // create selection indicator object depending on type
+    if (isPoly(target)) {
+      var vertString = ggbObject.evalCommandGetLabels("Vertex(" + target + ")");
+      var vertArr = vertString.split(",");
+      hidePieces(vertArr);
+      var selPoly = ggbObject.evalCommandGetLabels("Polygon({" + vertString + "})");
+      styleSelection(selPoly, target);
+    } else if (ggbObject.getObjectType(target) === "circle") {
+      var newName = target.concat("selection");
+      ggbObject.evalCommand(newName + " = " + target);
+      styleSelection(newName, target);
+    }
+  }
+
+  function styleSelection(obj, originalObj) {
+    var color = [0, 0, 0];
+    ggbObject.setFixed(obj, false, false);
+    ggbObject.setColor(obj, ...color);
+    ggbObject.setFilling(obj, 0);
+    ggbObject.setLineThickness(obj, 8);
+    ggbObject.setLayer(obj, ggbObject.getLayer(originalObj) + 1);
+    ggbObject.setCaption(obj, "selectionIndicator");
+  }
+
+  function hidePieces(arr) {
+    for (var i = 0, L = arr.length; i < L; i++) {
+      var obj = arr[i];
+      ggbObject.setVisible(obj, false);
+      ggbObject.setCaption(obj, "selectionIndicator");
+    }
+  }
+
+  function isPoly(thing) {
+    var polyTypes = ["polygon", "triangle", "quadrilateral", "pentagon", "hexagon"];
+    return polyTypes.includes(ggbObject.getObjectType(thing));
   }
 }

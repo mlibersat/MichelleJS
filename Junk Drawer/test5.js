@@ -18,6 +18,8 @@ function ggbOnInit(name, ggbObject) {
       registerSafeObjectClickListener,
       registerHoverListener,
       unavailableButtonText,
+      setTabOrder,
+      manageAddedList,
     } = setupGGB({
       name,
       ggbObject,
@@ -32,111 +34,308 @@ function ggbOnInit(name, ggbObject) {
      * EDIT below
      */
 
-    setAriaLabel(ggbcanvas, "Reflections Interactive");
+    setAriaLabel(ggbcanvas, "Actividad interactiva de El arte de cerca");
+
     //global-ish variables
-
-    var imageName = "";
-    var thingsToIgnore = ["instructionsIcon", "xIcon"];
-    var binTopY = ggbObject.getValue("binTopY");
-    var binHeight = ggbObject.getValue("binHeight");
-    var colors = [
-      [0, 127, 175],
-      [218, 41, 28],
-      [0, 129, 57],
-      [130, 63, 152],
-      [242, 106, 54],
-      [237, 178, 32],
-    ]; // blue, red, green, purple, orange, and yellow
-    var sketchToolObjects = [];
-    //variables for sketch tool with ggb toolbar
-    var storedTool = ggbObject.getMode();
-
-    var testObject = {};
-
-    var imageArray = ["Car", "Fish", "Shoe"];
-    // var imageWidth = []; // [2, 2, 2]
-    var imagePointNames = ["Start", "End", "RefX", "RefY"];
-    // var imageMinX = -6;
-    // var imageMaxX = 6;
-    // var imageMinY = -4.5;
-    // var imageMaxY = 4.5;
-
-    imageArray.forEach(function (el1) {
-      // get image widths
-      // imageWidth.push(ggbObject.getValue(el1.concat('Width')));
-      // console.log(imageWidth);
-      // set points to anchor
-      var tempAnchorName = el1.concat("Anchor");
-      var tempXBL = ggbObject.getXcoord(tempAnchorName);
-      var tempXBR = tempXBL + ggbObject.getValue(el1.concat("Width"));
-      var tempY = ggbObject.getYcoord(tempAnchorName);
-      imagePointNames.forEach(function (el2) {
-        ggbObject.setCoords(el1.concat(el2, "BL"), tempXBL, tempY);
-        ggbObject.setCoords(el1.concat(el2, "BR"), tempXBR, tempY);
-      });
+    let selectedObject = "";
+    const stayVis = ["buttonBar", "instructionsBox", "picReg", "c"];
+    const shapes = [
+      ...ggbObject.getAllObjectNames("circle"),
+      ...ggbObject.getAllObjectNames("quadrilateral"),
+      ...ggbObject.getAllObjectNames("triangle"),
+    ].filter(function (name) {
+      if (!stayVis.includes(name)) {
+        return name;
+      }
     });
-    if (ggbObject.getValue("pictureTool") === 1) {
-      showPictureTool();
-    } else {
-      showSketchTool();
-    }
+
+    // object used for alt text
+    const shape3 = "Una figura con 3 lados.";
+    // const shape3 = "A shape with 3 sides.";
+    const shape4 = "Una figura con 4 lados.";
+    // const shape4 = "A shape with 4 sides.";
+    const sameSize = "Todos los lados de la figura parecen ser del mismo tamaño.";
+    // const sameSize = "All sides of the shape appear to be the same size.";
+    const someSameSize = "Algunos lados de la figura parecen ser del mismo tamaño, pero otros son diferentes.";
+    // const someSameSize = "Some sides of the shape appear to be the same size while others are different.";
+    const diffSize = "Todos los lados de la figura parecen ser de diferentes tamaños.";
+    // const diffSize = "All sides of the shape appear to be different sizes.";
+    const altText = {
+      sun: {
+        shapeDesc: "Un círculo.",
+        // const altText = {
+        //   sun: {
+        //     shapeDesc: "A circle.",
+        sideDesc: "",
+      },
+      q24: {
+        shapeDesc: shape4,
+        sideDesc: sameSize,
+      },
+      t33: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      t34: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      q17: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+      t22: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      t21: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      q12: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+      q16: {
+        shapeDesc: shape4,
+        sideDesc: sameSize,
+      },
+      t19: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      t20: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      t14: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      t16: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      t15: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      t27: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      t28: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      q13: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+      q10: {
+        shapeDesc: shape4,
+        sideDesc: sameSize,
+      },
+      q11: {
+        shapeDesc: shape4,
+        sideDesc: sameSize,
+      },
+      q20: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+      q21: {
+        shapeDesc: shape4,
+        sideDesc: sameSize,
+      },
+      q22: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+      t31: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      t32: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      q6: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+      t11: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      t12: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      q8: {
+        shapeDesc: shape4,
+        sideDesc: sameSize,
+      },
+      q9: {
+        shapeDesc: shape4,
+        sideDesc: sameSize,
+      },
+      q7: {
+        shapeDesc: shape4,
+        sideDesc: sameSize,
+      },
+      t10: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      t6: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      t13: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      t17: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      t25: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      q18: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+      t26: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      t24: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      q23: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+      t8: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      t9: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      t7: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      q5: {
+        shapeDesc: shape4,
+        sideDesc: sameSize,
+      },
+      q4: {
+        shapeDesc: shape4,
+        sideDesc: sameSize,
+      },
+      t5: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      t18: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      q14: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+      t23: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      t30: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      t29: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      t1: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      q1: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+      q2: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+      q3: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+      t2: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      t4: {
+        shapeDesc: shape3,
+        sideDesc: someSameSize,
+      },
+      t3: {
+        shapeDesc: shape3,
+        sideDesc: diffSize,
+      },
+      q15: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+      q19: {
+        shapeDesc: shape4,
+        sideDesc: someSameSize,
+      },
+    };
+
+    //register my listeners
+    registerSafeObjectUpdateListener("time", setSpeed);
 
     function defineStatusName() {
       // put the name of your GGB status text object here
       return "AAppletStatus";
     }
-
     // listeners here; keep these, add your own as needed
     ggbObject.registerClientListener(function (a) {
       clientFunction(a);
       libClientFunction(a);
     });
-
     ggbObject.registerClickListener(function (a) {
       clickListenerFunction(a);
       libClickFunction(a);
     });
-
     ggbcanvas.addEventListener("keyup", function (event) {
       keyit(event);
       libKeyFunction(event);
     });
-
-    ggbObject.registerAddListener(views);
-
-    // registerSafeObjectUpdateListener("displayedKeyboardInstructions", function () {
-    // });
 
     function defineButtonClickScripts() {
       // defines button scripts
       // keep this function, but you can delete anything/everything inside it
       return {
         ggbButton1: function () {
-          //show the sketch tool
-          showSketchTool();
           enableButton(1, false);
           enableButton(2, true);
-          ggbReadText(
-            "The Sketch Tool has not been optimized for accessibility. For the accessible version of this learning experience navigate to the Picture Tool."
-          );
-          ggbObject.setValue("pictureTool", false); //keeps track of which tool they are using
         },
         ggbButton2: function () {
-          console.log("ggbButton2");
-          //show the picture tool
-          showPictureTool();
           enableButton(1, true);
           enableButton(2, false);
-          console.log("picture tool before");
-          console.log(ggbObject.getValue("pictureTool"));
-          ggbObject.setValue("pictureTool", true);
-          console.log("picture tool after");
-          console.log(ggbObject.getValue("pictureTool"));
-          //keeps track of which tool they are using
         },
-        ggbButton3: function () {
-          reset();
-        },
+        ggbButton3: function () {},
         ggbButton4: function () {},
         ggbButton5: function () {},
       };
@@ -144,381 +343,166 @@ function ggbOnInit(name, ggbObject) {
 
     function defineKeyboardInstructions(obj) {
       // takes a GGB object name as an argument, returns its keyboard text.
-      // if the reflections are showing AND above the bin "Use the arrow keys to move the image."
-      // if the reflections are showing AND below the bin "Use the arrow keys to move the image. Press space to reset the image."
-      // if reflections are not shown AND above the bin "Use the arrow keys to move the image. Press space to reflect the image."
-      // if reflections are not shown AND below the bin "Image is in bin. Use the arrow keys to move the image."
-      if (ggbObject.getObjectType(obj) === "image") {
-        //return "Use the arrow keys to move the image.";
-        var ReflectionsShowing = ggbObject.getValue("show".concat(obj, "Reflections")) === 1;
-        var isAboveBin = ggbObject.getYcoord(obj.concat("EndBL")) >= binTopY;
-        var inBinString = "Image is in bin. ";
-        var useArrowKeyString = "Use the arrow keys to move the image. ";
-        var resetString = "Press space to reset the image. ";
-        var reflectString = "Press space to reflect the image. ";
-
-        return "".concat(
-          isAboveBin ? inBinString : "",
-          useArrowKeyString,
-          ReflectionsShowing && !isAboveBin ? resetString : !ReflectionsShowing && isAboveBin ? reflectString : ""
-        );
+      if (shapes.includes(obj)) {
+        return ggbObject.getValue("time") === 0
+          ? "Presiona la barra de espacio para ampliar esta figura."
+          : // return ggbObject.getValue("time") === 0 ? "Press space to zoom in on this shape."
+            "Presiona la barra de espacio para reducirla.";
+        // : "Press space to zoom out.";
       }
+
       const keyboardInstructions = {
-        ggbButton1: ggbObject.getValue("ggbButton1Enabled")
-          ? "Press space to use the Sketch Tool."
-          : unavailableButtonText,
-        ggbButton2: ggbObject.getValue("ggbButton2Enabled")
-          ? "Press space to use the Picture Tool."
-          : unavailableButtonText,
-        ggbButton3: ggbObject.getValue("ggbButton3Enabled") ? "Press space to reset your work." : unavailableButtonText,
+        // A: "Press the arrow keys to move this point.", // example for a point
+        ggbButton1: ggbObject.getValue("ggbButton1Enabled") ? "Press space to ___." : unavailableButtonText,
+        ggbButton2: ggbObject.getValue("ggbButton2Enabled") ? "Press space to ___." : unavailableButtonText,
+        ggbButton3: ggbObject.getValue("ggbButton3Enabled") ? "Press space to ___." : unavailableButtonText,
         ggbButton4: ggbObject.getValue("ggbButton4Enabled") ? "Press space to ___." : unavailableButtonText,
         ggbButton5: ggbObject.getValue("ggbButton5Enabled") ? "Press space to ___." : unavailableButtonText,
       };
       return keyboardInstructions[obj];
     }
 
-    var selectedObject = "";
-
-    function checkForMaxMinDragSituation() {
-      const selectedObjectXCoord = ggbObject.getXcoord(selectedObject);
-      const selectedObjectYCoord = ggbObject.getYcoord(selectedObject);
-
-      const atMinX = selectedObjectXCoord === ggbObject.getValue("imageMinX");
-      const atMaxX = selectedObjectXCoord === ggbObject.getValue("imageMaxX2");
-      const atMinY = selectedObjectYCoord === ggbObject.getValue("imageMinY");
-      const atMaxY = selectedObjectYCoord === ggbObject.getValue("imageMaxY");
-
-      const atXMinOrMax = atMinX || atMaxX;
-      const atYMinOrMax = atMinY || atMaxY;
-
-      const situation =
-        !atXMinOrMax && !atYMinOrMax
-          ? "neither"
-          : atXMinOrMax && !atYMinOrMax
-          ? atMinX
-            ? "atMinX"
-            : "atMaxX"
-          : !atXMinOrMax && atYMinOrMax
-          ? atMinY
-            ? "atMinY"
-            : "atMaxY"
-          : "at".concat(atMinX ? "MinX" : "MaxX", "and", atMinY ? "MinY" : "MaxY");
-      console.log(situation);
-
-      const stemObj = {
-        atMinX: "minimum x",
-        atMaxX: "maximum x",
-        atMinY: "minimum y",
-        atMaxY: "maximum y",
-        atMinXandMinY: "minimum x and y",
-        atMinXandMaxY: "minimum x value and maximum y",
-        atMaxXandMinY: "maximum x value and minimum y",
-        atMaxXandMaxY: "maximum x and y",
-      };
-
-      return situation === "neither"
-        ? ""
-        : " This point is at its ".concat(stemObj[situation], " value for this interactive.");
-    }
-
-    //client listener function that creates new images when they're pulled out of the bin and deletes them when they're put back in
-    function clientFunction(event) {
-      // var clientTarget = event.target && !"instructionsIcon" && !"xIcon";
-      // var ggbReadTextStringStarter = ggbObject.getValueString(
-      //   clientTarget.concat("Text")
-      // );
-      // var minMaxLanguageString = checkForMaxMinDragSituation();
-      switch (event.type) {
+    function clientFunction(a) {
+      switch (a.type) {
         case "select": {
-          if (thingsToIgnore.includes(event.target)) {
-            return;
+          selectedObject = a.target;
+
+          if (selectedObject === "AAppletStatus") {
+            updateStatus();
           }
-          imageName = event.target;
-          imageReadText();
+
+          //set the caption of the shape when selected - depends on whether thew whole picture is shown or just the single shape.
+          if (shapes.includes(selectedObject)) {
+            const singleShapeBool = ggbObject.getValue("singleShape");
+            if (singleShapeBool) {
+              //only shape on screen
+              ggbObject.setCaption(
+                selectedObject,
+                altText[selectedObject].shapeDesc.concat(" Presiona la barra de espacio para ampliar toda la imagen.")
+              );
+            } else {
+              //whole picture
+              ggbObject.setCaption(
+                selectedObject,
+                altText[selectedObject].shapeDesc.concat(" Presiona la barra de espacio para reducir la figura.")
+              );
+            }
+          }
           break;
         }
         case "deselect":
-          deselectDragEndOrSpace();
+          selectedObject = "";
           break;
-        case "dragEnd":
-          //need to know if object is in the bin or not.
-          deselectDragEndOrSpace();
-          // selectedObject == clientTarget;
-          // if (imageArray.includes(clientTarget)) {
-          //   ggbReadText(ggbReadTextStringStarter.concat(minMaxLanguageString));
-          // }
-          break;
-      }
-    }
-
-    function goHomeReadText() {
-      ggbReadText("inBinDeselect".concat(imageName));
-    }
-
-    function deselectDragEndOrSpace() {
-      if (imageArray.includes(imageName)) {
-        if (ggbObject.getYcoord(imageName.concat("EndBL")) >= binTopY) {
-          //imageAboveBin(imageName);
-          ggbObject.setValue("show".concat(imageName, "Reflections"), 1);
-          imageReadText();
-        } else {
-          goHomeReadText();
-          imageBelowBin(imageName);
-        }
-      }
-    }
-
-    function imageReadText() {
-      console.log("in imageReadText");
-      console.log("imageName");
-      console.log(imageName);
-      //"[image] is at (,). [Image] reflected across the x axis is at (,) and across the y axis at (,)."
-      //"[image] is in the bin. Press space to reset the image."
-      //"[image] is at (,). Press space to reflect the image across the x and y axis." (not activated)
-      var xOfStart = ggbObject.getXcoord(imageName.concat("StartBL"));
-      var xOfEnd = ggbObject.getXcoord(imageName.concat("EndBL"));
-      var yOfStart = ggbObject.getYcoord(imageName.concat("StartBL"));
-      var yOfEnd = ggbObject.getYcoord(imageName.concat("EndBL"));
-      if (xOfStart === xOfEnd && yOfStart === yOfEnd) {
-        console.log("in true of if statement; image is at start");
-        //if at start
-        ggbReadText("inBinSelect".concat(imageName));
-      } else {
-        console.log("in false of if statement; image is not at start");
-
-        var inBin = ggbObject.getValue(imageName.concat("InBin")) === 1;
-        var reflectionShown = ggbObject.getValue("show".concat(imageName, "Reflections")) === 1;
-        var switchStatementConditions = inBin ? "inBin" : reflectionShown ? "reflections shown" : "no reflection";
-        switch (switchStatementConditions) {
-          case "inBin": {
-            ggbReadText("text".concat(imageName));
-            break;
-          }
-          case "reflections shown": {
-            ggbReadText("reflectText".concat(imageName));
-            break;
-          }
-          case "no reflection": {
-            ggbReadText("text".concat(imageName));
-            break;
-          }
-          default: {
-            console.log("error in imageReadText switch statement");
-            break;
-          }
-        }
       }
     }
 
     function clickListenerFunction(a) {
-      // switch (a) {}
+      console.log("click listener:", a);
+      if (shapes.includes(a)) {
+        zoom(a);
+      }
+    }
+
+    function updateStatus() {
+      const singleShapeBool = ggbObject.getValue("singleShape");
+      const escText = ggbObject.getValueString("escText");
+      let statusText = "";
+      if (singleShapeBool) {
+        //single shape on screen
+        const singleShape = ggbObject.getAllObjectNames().filter(function (name) {
+          if (ggbObject.getVisible(name) && shapes.includes(name) && !name.includes("Outline")) {
+            return name;
+          }
+        });
+        statusText = altText[singleShape].shapeDesc.concat(" ", altText[singleShape].sideDesc);
+      } else {
+        //whole picture on screen
+        statusText =
+          "Una imagen creada con distintas figuras. Hay un círculo. Hay algunas figuras con 4 lados. Hay algunas figuras con 3 lados. Algunas figuras comparten lados con otras figuras.";
+        // "A picture made up of different shapes. There is 1 circle. There are some shapes with 4 sides. There are some shapes with 3 sides. Some shapes share sides with other shapes.";
+      }
+      ggbObject.setTextValue("AAppletStatus", statusText.concat(" ", escText));
     }
 
     function keyit(event) {
-      console.log(event);
-      // you clicked a key while fish, car, or shoe is selected
-      if (imageArray.includes(imageName)) {
-        // var tempPointNameBL = imageName.concat('EndBL');
-        // var tempPointNameBR = imageName.concat('EndBR');
-        // var tempX = ggbObject.getXcoord(tempPointNameBL);
-        // var tempY = ggbObject.getYcoord(tempPointNameBL);
-        switch (event.code) {
-          case "ArrowUp":
-            // if (ggbObject.getValue(imageName.concat('InBin')) === 1) {
-            //   var tempYAdjustedHeight = tempY + binHeight;
-            //   console.log('in arrow up function');
-            //   ggbObject.setCoords(tempPointNameBL, tempX, tempYAdjustedHeight);
-            //   ggbObject.setCoords(
-            //     tempPointNameBR,
-            //     tempX + imageWidth[imageArray.indexOf(imageName)],
-            //     tempYAdjustedHeight
-            //   );
-            // } else {
-            //   console.log('not in bin');
-            // }
-
-            console.log("in ArrowUp");
-            console.log("imageName");
-            console.log(imageName);
-            imageReadText();
-            break;
-          case "ArrowDown":
-            console.log("in ArrowDown");
-            imageReadText();
-            break;
-          case "ArrowLeft":
-            console.log("in ArrowLeft");
-            imageReadText();
-            // if (tempX <= imageMinX) {
-            //   ggbObject.setCoords(tempPointNameBL, imageMinX, tempY);
-            //   ggbObject.setCoords(
-            //     tempPointNameBR,
-            //     imageMinX + imageWidth[imageArray.indexOf(imageName)],
-            //     tempY
-            //   );
-            // }
-            break;
-          case "ArrowRight":
-            console.log("in ArrowRight");
-            imageReadText();
-            // var tempAdjustedX =
-            //   imageMaxX - imageWidth[imageArray.indexOf(imageName)];
-            // if (tempX >= tempAdjustedX) {
-            //   ggbObject.setCoords(tempPointNameBL, tempAdjustedX, tempY);
-            //   ggbObject.setCoords(tempPointNameBR, imageMaxX, tempY);
-            // }
-            break;
-          case "Space":
-            console.log("in Space");
-            deselectDragEndOrSpace();
-            break;
-          case "Tab":
-            console.log("in Tab");
-            break;
-
-          default:
-            console.log("in default");
-            break;
-        }
+      // feel free to use event.key instead
+      // switch (event.code) {}
+      if (event.code === "Space" && shapes.includes(selectedObject)) {
+        zoom(selectedObject);
       }
     }
 
-    function views(a) {
-      //a is "penstroke1"
-      //Fires when addListener fires, something is added to GeoGebra - a is the new object added
-      var myTempArray = ["reflectx".concat(a), "reflecty".concat(a)];
-      //myTempArray=["reflectXPenstroke1", "reflectYPenstroke1"]
-      if (!a.includes("reflect") && ggbObject.getObjectType(a) == "penstroke") {
-        ggbObject.setLayer(a, 1);
-        myTempArray.forEach(function (el, index) {
-          var myIndex = index === 0;
-          //reflectXPenstroke1= Reflect
-          ggbObject.evalCommand(el.concat("=Reflect(", a, ", ", myIndex ? "x" : "y", "Axis)"));
-          ggbObject.setLineStyle(el, myIndex ? 1 : 3);
-          ggbObject.setColor(el, ...colors[myIndex ? 0 : 1]);
-          ggbObject.setFixed(el, false, false);
-          ggbObject.setLayer(el, 0);
-        });
-      }
-    }
-
-    //function that gets the vertical order of images on the screen if they contain the word "Movable"
-    function determineImageOrder() {
-      //gets all of the visible images with "Movable" in their name
-      var allInits = ggbObject.getAllObjectNames("image").filter(function (element) {
-        return element.startsWith("Movable") && ggbObject.getVisible(element);
-      });
-      //sorts the images from the previous array based on their y-coordinate
-      var sortedInits = allInits.sort(function (a, b) {
-        //cuts off the "Movable" part of the name so that we can find the coordinate of a related point
-        let aName = a.slice(7);
-        let bName = b.slice(7);
-        //determines which y-coord is bigger and returns a number accordingly to tell the sort which order they go in
-        if (ggbObject.getYcoord(aName.concat("StartBL")) > ggbObject.getYcoord(bName.concat("StartBL"))) {
-          return -1;
-        }
-        if (ggbObject.getYcoord(aName.concat("StartBL")) < ggbObject.getYcoord(bName.concat("StartBL"))) {
-          return 1;
-        }
-        // a must be equal to b
-        return 0;
-      });
-      var initList = sortedInits.join(",").concat(",");
-      return initList;
-    }
-
-    // function imageAboveBin(tempImageName) {
-    //   ggbObject.setVisible(tempImageName.concat("RefX"), true);
-    //   ggbObject.setVisible(tempImageName.concat("RefY"), true);
-    // }
-
-    function imageBelowBin(tempImageName) {
-      ggbObject.setValue("show".concat(tempImageName, "Reflections"), 0);
-      var tempStartBL = tempImageName.concat("StartBL");
-      var tempStartBR = tempImageName.concat("StartBR");
-      ggbObject.setCoords(
-        tempImageName.concat("EndBL"),
-        ggbObject.getXcoord(tempStartBL),
-        ggbObject.getYcoord(tempStartBL)
-      );
-      ggbObject.setCoords(
-        tempImageName.concat("EndBR"),
-        ggbObject.getXcoord(tempStartBR),
-        ggbObject.getYcoord(tempStartBR)
-      );
-      imageName = "";
-    }
-
-    function reset() {
-      if (ggbObject.getValue("pictureTool") === 1) {
-        //user is on pictureTool
-        imageArray.forEach(function (el) {
-          imageBelowBin(el);
-        });
+    function zoom(a) {
+      let readOutText = "";
+      //set the vertList in GGB equal to its verticies so that zoom locations are accurate
+      ggbApplet.evalCommand("vertList = {Vertex(".concat(a, ")}"));
+      //depending on value of speed, hide or show the other shapes
+      if (ggbObject.getValue("speed") === 6) {
+        //zooming in
+        //hide other shapes
+        hideOrShow(false);
+        const tempShape =
+          selectedObject === "sun"
+            ? "el círculo"
+            : ggbObject.getObjectType(selectedObject) === "triangle"
+            ? "la figura con 3 lados"
+            : "la figura con 4 lados";
+        // ? "circle"
+        // ? "3 sided shape"
+        // : "4 sided shape";
+        // readOutText = "The picture zooms in to only show the ".concat(
+        readOutText = "La imagen se reduce para mostrar sólo ".concat(
+          // readOutText = "The picture zooms in to only show the ".concat(
+          tempShape,
+          ". ",
+          altText[selectedObject].sideDesc,
+          "Presiona la barra de espacio para ampliar toda la imagen."
+          // " Press space to zoom out to show the whole picture."
+        );
       } else {
-        //user is on sketchTool
-        if (sketchToolObjects.length > 0) {
-          sketchToolObjects.forEach(function (el) {
-            ggbObject.deleteObject(el);
-            ggbObject.setMode(62);
-          });
-        }
-        sketchToolObjects = [];
+        //zooming out
+        //show other shapes
+        hideOrShow(true);
+        // readOutText =
+        // "The shape zooms out to show the whole picture with all the shapes. Press space to zoom in on this shape.";
+        readOutText =
+          "La figura se amplía para mostrar la imagen completa con todas las figuras. Presiona la barra de espacio para ampliar esta figura.";
       }
-      //setTabOrder(initList, "");
-    }
+      //start the zooming animation
+      ggbObject.setAnimating("time", true);
+      ggbObject.startAnimation();
 
-    function showSketchTool() {
-      //called on button click
-      //this function will need to hide all of the objects used for the picture tool (bin, images, segments, etc.) and then show any saved sketches and the toolbar
-      imageArray.forEach(function (el) {
-        ggbObject.setVisible(el, false);
-        ggbObject.setVisible(el.concat("RefX"), false);
-        ggbObject.setVisible(el.concat("RefY"), false);
-      });
-      ggbObject.setVisible("bin", false);
-      ggbObject.setVisible("binBorder", false);
-      if (sketchToolObjects.length > 0) {
-        sketchToolObjects.forEach(function (element) {
-          ggbObject.setVisible(element, true);
+      ggbReadText(readOutText);
+
+      function hideOrShow(show) {
+        shapes.forEach(function (el) {
+          if (el !== selectedObject && el !== selectedObject.concat("Outline")) {
+            ggbObject.setVisible(el, show);
+          }
         });
       }
-      ggbObject.showToolBar(true);
-      ggbObject.setMode(62);
-      ggbObject.registerAddListener(addedSketch);
-      storedTool = ggbObject.getMode(); //will be 0
-      // ggbObject.registerObjectUpdateListener("Follow", getYCoord);
     }
 
-    function showPictureTool() {
-      //called on button click
-      //this function will need to hide all of the objects used for the sketch tool (toolbar and sketches) and then show objects used for the picture tool (bin, images, etc.)
-      ggbObject.unregisterAddListener(addedSketch);
-      if (sketchToolObjects.length > 0) {
-        sketchToolObjects.forEach(function (element) {
-          ggbObject.setVisible(element, false);
-        });
-      }
-      ggbObject.showToolBar(false);
-      ggbObject.setMode(0);
-      imageArray.forEach(function (el) {
-        ggbObject.setVisible(el, true);
-        if (ggbObject.getYcoord(el.concat("EndBL")) >= binTopY) {
-          // imageAboveBin(el);
-          // ggbObject.setValue("show".concat(imageName,"Reflections"), 1);
-        }
-      });
-      ggbObject.setVisible("bin", true);
-      ggbObject.setVisible("binBorder", true);
-    }
-
-    function addedSketch(a) {
-      if (ggbObject.getObjectType(a) === "penstroke") {
-        sketchToolObjects.push(a);
+    function setSpeed() {
+      // set's the speed to positive or negative based on the value of time
+      const currentTime = ggbObject.getValue("time");
+      switch (currentTime) {
+        case 0:
+          ggbObject.stopAnimation();
+          ggbObject.setAnimating("time", false);
+          ggbObject.setValue("speed", 6);
+          updateKeyboardInstructions(selectedObject);
+          break;
+        case 1:
+          ggbObject.stopAnimation();
+          ggbObject.setAnimating("time", false);
+          ggbObject.setValue("speed", -6);
+          updateKeyboardInstructions(selectedObject);
+          break;
       }
     }
 
-    //all new functions above this line
+    //add new stuff above this line
   });
 
   /*
@@ -526,7 +510,7 @@ function ggbOnInit(name, ggbObject) {
    */
   function loadUtils() {
     function parseJS(JSString) {
-      return Function("".concat(JSString))();
+      return Function("" + JSString)();
     }
     if (!window.didUtils || !window.didUtils.setupGGB) {
       return fetch("https://cdn.digital.greatminds.org/did-utils/latest/index.js", {

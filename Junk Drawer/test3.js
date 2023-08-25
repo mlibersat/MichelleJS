@@ -1,6 +1,10 @@
-/* eslint-disable no-mixed-operators */
+// ISSUE: Bundle tens frams can be dragged outside the PVC (currently snaps back, but should be constrained)
+
+// TODO: Could: Instead of using kerning and phantom characters in the convertArraysIntoStrings function to reduce array colum width, find a way to set column width, if possible
+
 /* eslint-disable id-length */
-/* eslint-disable one-var */
+/* eslint-disable no-mixed-operators */
+
 // PVC appears in grades 2 through 6
 // this PVC covers population for addition and multiplication at the moment
 
@@ -8,33 +12,33 @@
 //  starter points at the beginning of each region that are named StarterPoint# in order right to left
 function ggbOnInit(name, ggbObject) {
   loadUtils().then(function (setupGGB) {
-    const buttonClicks = defineButtonClickScripts(),
-      {
-        getCanvas,
-        setAriaLabel,
-        readKeyboardInstructions,
-        updateKeyboardInstructions,
-        ggbReadText,
-        enableButton,
-        libClientFunction,
-        libClickFunction,
-        libKeyFunction,
-        registerSafeObjectUpdateListener,
-        registerSafeObjectClickListener,
-        registerHoverListener,
-        unavailableButtonText,
-        setTabOrder,
-        manageAddedList,
-        // editXML,
-        // selectedObject,
-      } = setupGGB({
-        name,
-        ggbObject,
-        defineKeyboardInstructions,
-        buttonClicks,
-        statusName: "AAppletStatus",
-      }),
-      ggbcanvas = getCanvas();
+    const buttonClicks = defineButtonClickScripts();
+    const {
+      getCanvas,
+      setAriaLabel,
+      readKeyboardInstructions,
+      updateKeyboardInstructions,
+      ggbReadText,
+      enableButton,
+      libClientFunction,
+      libClickFunction,
+      libKeyFunction,
+      registerSafeObjectUpdateListener,
+      registerSafeObjectClickListener,
+      registerHoverListener,
+      unavailableButtonText,
+      setTabOrder,
+      manageAddedList,
+      // editXML,
+      // selectedObject,
+    } = setupGGB({
+      name,
+      ggbObject,
+      defineKeyboardInstructions,
+      buttonClicks,
+      statusName: "AAppletStatus",
+    });
+    const ggbcanvas = getCanvas();
 
     /*
      * IGNORE above
@@ -48,10 +52,15 @@ function ggbOnInit(name, ggbObject) {
     let preYCoord = 0;
     let previousSelectedObject = "";
     let regionUnbundledFrom = "";
-    let selectedPointDeleted = false;
+    // let selectedPointDeleted = false;
     let selectedObject = "";
     let unbundling = false;
     let snapBack = false;
+
+    // used for snapping back points and bundle polygons if the target region is full
+    const regionFullNum = 41;
+    // used for scaling the algorithm text box if students type in inputs resulting in text11 going off the screen. Redefined in cases of updateAlgorithm
+    const boxScale = 1;
 
     const numRegions = ggbObject.getValue("requiredRegions");
     const regions = ["One", "Ten", "Hundred", "Thousand", "TenThousand", "HundredThousand", "Million"];
@@ -76,15 +85,16 @@ function ggbOnInit(name, ggbObject) {
     const starterY = starterArray.map(function (element) {
       return ggbObject.getYcoord(element);
     });
-    let carryArray = [
-      "\\phantom{\\scriptsize{1}}",
-      "\\phantom{\\scriptsize{1}}",
-      "\\phantom{\\scriptsize{1}}",
-      "\\phantom{\\scriptsize{1}}",
-      "\\phantom{\\scriptsize{1}}",
-      "\\phantom{\\scriptsize{1}}",
-      "\\phantom{\\scriptsize{1}}",
-    ];
+    let carryArray = [];
+    // let carryArray = [
+    //     "\\phantom{\\scriptsize{1}}",
+    //     "\\phantom{\\scriptsize{1}}",
+    //     "\\phantom{\\scriptsize{1}}",
+    //     "\\phantom{\\scriptsize{1}}",
+    //     "\\phantom{\\scriptsize{1}}",
+    //     "\\phantom{\\scriptsize{1}}",
+    //     "\\phantom{\\scriptsize{1}}",
+    // ];
     // selectedObject,
     let oldNum;
     let oldNum2;
@@ -108,6 +118,7 @@ function ggbOnInit(name, ggbObject) {
     registerSafeObjectUpdateListener("number2", quickChange);
     registerSafeObjectUpdateListener("FirstNumber", quickChange);
     registerSafeObjectUpdateListener("SecondNumber", quickChange);
+    // registerSafeObjectUpdateListener("AlgorithmTextCorner", scaleTextBox);
 
     ggbObject.registerAddListener(hideSegments);
 
@@ -124,6 +135,7 @@ function ggbOnInit(name, ggbObject) {
     }
 
     function quickChange() {
+      // console.log("In quickChange - boxScale:", boxScale);
       // Used to check if the value has changed
       const newNum = ggbObject.getValue("number");
       const newNum2 = ggbObject.getValue("number2");
@@ -139,15 +151,16 @@ function ggbOnInit(name, ggbObject) {
         updateAlgorithmText(0);
         ggbObject.setVisible("f", false);
         ggbObject.setVisible("text11", false);
-        carryArray = [
-          "\\phantom{\\scriptsize{1}}",
-          "\\phantom{\\scriptsize{1}}",
-          "\\phantom{\\scriptsize{1}}",
-          "\\phantom{\\scriptsize{1}}",
-          "\\phantom{\\scriptsize{1}}",
-          "\\phantom{\\scriptsize{1}}",
-          "\\phantom{\\scriptsize{1}}",
-        ];
+        carryArray = [];
+        // carryArray = [
+        //   "\\phantom{\\scriptsize{1}}",
+        //   "\\phantom{\\scriptsize{1}}",
+        //   "\\phantom{\\scriptsize{1}}",
+        //   "\\phantom{\\scriptsize{1}}",
+        //   "\\phantom{\\scriptsize{1}}",
+        //   "\\phantom{\\scriptsize{1}}",
+        //   "\\phantom{\\scriptsize{1}}",
+        // ];
         reset();
 
         if (validateInputs()) {
@@ -164,7 +177,9 @@ function ggbOnInit(name, ggbObject) {
       }
     }
 
+    // Set maximum allowed number for the student inputs nad check whether the input can be added with the algorithm
     function validateInputs() {
+      ggbObject.setValue("maxAllowedNumber", 4999999);
       const newNum = ggbObject.getValue("number");
       const newNum2 = ggbObject.getValue("number2");
 
@@ -185,7 +200,7 @@ function ggbOnInit(name, ggbObject) {
     function reset() {
       // console.log("selectedObject in reset", selectedObject);
       previousSelectedObject = selectedObject;
-      console.log("preResetSelObj:", previousSelectedObject);
+      // console.log("preResetSelObj:", previousSelectedObject);
 
       ggbObject.setAnimating();
       ggbObject.setValue("time", 0);
@@ -196,7 +211,8 @@ function ggbOnInit(name, ggbObject) {
           !value.includes("Bar") &&
           !value.includes("Export") &&
           !value.includes("Icon") &&
-          !value.includes("Instructions")
+          !value.includes("Instructions") &&
+          !value.includes("Algorithm")
         );
       });
       deletablePoints.forEach(function (element) {
@@ -204,8 +220,8 @@ function ggbOnInit(name, ggbObject) {
         // console.log("element: %o", element);
         // If a point was selected and will now be deleted, flag that so it can be later re-selected after points are recreated and organized
         if (element === previousSelectedObject) {
-          selectedPointDeleted = true;
-          console.log("selectedObject (Point) was deleted and deselected.");
+          // selectedPointDeleted = true;
+          // console.log("selectedObject (Point) was deleted and deselected.");
         }
       });
       // console.log(
@@ -233,8 +249,8 @@ function ggbOnInit(name, ggbObject) {
     }
 
     function howManyPoints() {
-      const totalNumArray = [],
-        allPoints = ggbObject.getAllObjectNames("point");
+      const totalNumArray = [];
+      const allPoints = ggbObject.getAllObjectNames("point");
       let count = 0;
       for (let i = 0, L = numRegions; i < L; i++) {
         allPoints.forEach(function (element) {
@@ -301,7 +317,7 @@ function ggbOnInit(name, ggbObject) {
           lastPointsAllRegions.forEach(function (element) {
             if (isInRegionUnbundlingTo) {
               lastPointInNewRegion = element;
-              console.log("lastPointInNewRegion:", lastPointInNewRegion);
+              // console.log("lastPointInNewRegion:", lastPointInNewRegion);
             }
           });
           lastPointsAllRegions = [];
@@ -318,39 +334,60 @@ function ggbOnInit(name, ggbObject) {
         return true;
       });
 
-      const pointDeleted = selectedPointDeleted && ggbObject.getObjectType(previousSelectedObject) === "point";
-      console.log(
-        "Points have been re-created and the previously-selected point is selected. Please. I hope.\\snapBack: %o, pointDeleted: %o, preResetSelObj: %o, lastPointInNewRegion: %o",
-        snapBack,
-        pointDeleted,
-        previousSelectedObject,
-        lastPointInNewRegion
-      );
+      // const pointDeleted =
+      //   selectedPointDeleted &&
+      //   ggbObject.getObjectType(previousSelectedObject) === "point";
+      // console.log(
+      //   "Points have been re-created and the previously-selected point is selected. Please. I hope.\\snapBack: %o, pointDeleted: %o, preResetSelObj: %o, lastPointInNewRegion: %o",
+      //   snapBack,
+      //   pointDeleted,
+      //   previousSelectedObject,
+      //   lastPointInNewRegion
+      // );
       // if (snapBack || (preResetSelObj !== "" && pointDeleted)) {
       // If a point is unbundling, select the last point in region. If a point was selected but was deleted during reset(), re-select it here
       snapBack
         ? ggbObject.evalCommand("SelectObjects(" + previousSelectedObject + ")")
         : ggbObject.evalCommand("SelectObjects(" + lastPointInNewRegion + ")");
       if (snapBack) {
-        console.warn("SnapBack detected. SelectObject:", previousSelectedObject);
-      } else console.warn("Unbundling or Bundling detected. SelectObject:", lastPointInNewRegion);
+        // console.log(
+        //   "SnapBack detected. SelectObject:",
+        //   previousSelectedObject
+        // );
+      } else {
+        // console.log(
+        //   "Unbundling or Bundling detected. SelectObject:",
+        //   lastPointInNewRegion
+        // );
+      }
       // }
       snapBack = false;
-      selectedPointDeleted = false;
+      // selectedPointDeleted = false;
     }
 
     function updateAlgorithmText(textStep = "0") {
+      console.log("In updateAlgorithm - textStep:", textStep);
+
       // show the vinculum and plus sign
       ggbObject.setVisible("f", true);
       ggbObject.setVisible("text11", true);
       // get all pertinent numbers and turn them into arrays
-      const number1 = ggbObject.getValue("number"),
-        number2 = ggbObject.getValue("number2"),
-        num1Array = pulverize(number1),
-        num2Array = pulverize(number2),
-        answerArray = howManyPoints();
+      const number1 = ggbObject.getValue("number");
+      const number2 = ggbObject.getValue("number2");
+      const num1Array = pulverize(number1);
+      const num2Array = pulverize(number2);
+      let answerArray = howManyPoints();
 
-      console.log("updateAlgorithm. numArrays", num1Array, num2Array, answerArray);
+      // Note: \colsep adjusts space/separation to the beginning of the table column.
+      // FIXME: Find a way to set the horizontal width of the column - currently using phantom characters - not fun!
+      const beginArrayString = "\\setlength{\\tabcolsep}{-3pt}\\begin{array}{} ";
+
+      console.log("answerArray before", answerArray);
+      // removes preceeding zeros from answerArray when there are no points in the region
+      if (textStep === 2) {
+        removeZeros();
+      }
+      console.log("answerArray after", answerArray);
 
       // if one of the arrays is shorter than the other, add empty elements to make them align correctly
       switch (true) {
@@ -381,9 +418,21 @@ function ggbOnInit(name, ggbObject) {
       firstNumberString = convertArraysIntoStrings(num1Array);
       secondNumberString = convertArraysIntoStrings(num2Array);
       answerString = convertArraysIntoStrings(answerArray);
+      if (textStep === 3) {
+        makeCarryArray();
+      }
       carryString = convertArraysIntoStrings(carryArray, false);
 
-      console.log("updateAlgorithm 2: strings:", firstNumberString, secondNumberString, carryString, answerString);
+      function makeCarryArray() {
+        console.log("In makeCarryArray. answ:", answerArray);
+        const length = answerArray.length;
+        const carryString = "\\phantom{\\scriptsize{1}}";
+        // add as many phantom 1's as there are elements in answerArray
+        // for (let i = 0; carryArray.length < length; i++) {
+        //   carryArray.push(carryString);
+        // }
+        console.log("carry:", carryArray);
+      }
 
       // // TEST
       // // figure out where something has been carried and append that to the carry string where necessary
@@ -409,50 +458,49 @@ function ggbOnInit(name, ggbObject) {
       switch (textStep) {
         // reset, starting point, no text
         case 0:
-          console.warn("Case 0. alg Text: ", "");
+          // console.warn("Case 0. alg Text: ", "");
           ggbObject.setTextValue("algorithmText", "");
           break;
-        // show first two numbers only, first button press
+        // show first two addends only, first button press
         case 1:
-          console.warn(
-            "Case 1. alg Text: ",
-            "\\begin{array}{} " + firstNumberString + " \\\\" + secondNumberString + " \\\\	\\end{array}"
-          );
-
           ggbObject.setTextValue(
             "algorithmText",
-            "\\begin{array}{} " + firstNumberString + " \\\\" + secondNumberString + " \\\\	\\end{array}"
+            "\\setlength{\\tabcolsep}{-3pt}\\begin{array}{} " +
+              firstNumberString +
+              " \\\\" +
+              secondNumberString +
+              " \\\\	\\end{array}"
           );
           break;
         // show sum of the numbers when putting dots together in a region, second button press
         case 2:
-          console.warn(
-            "Case 2. alg Text: ",
-            "\\begin{array}{} " +
-              firstNumberString +
-              " \\\\" +
-              secondNumberString +
-              " \\\\ \\\\ \\phantom{\\scriptsize{1}} \\\\" +
-              answerString +
-              " \\\\  \\end{array}"
-          );
+          {
+            // set text value, then check if the text goes off screen, if so rescale text to fit
+            // console.log("answer array in case 2", answerArray);
+            // console.log("answer array in case 2 - after removeZeros", answerArray);
 
-          ggbObject.setTextValue(
-            "algorithmText",
-            "\\begin{array}{} " +
-              firstNumberString +
-              " \\\\" +
-              secondNumberString +
-              " \\\\ \\\\ \\phantom{\\scriptsize{1}} \\\\" +
-              answerString +
-              " \\\\  \\end{array}"
-          );
+            ggbObject.setTextValue(
+              "algorithmText",
+              beginArrayString +
+                firstNumberString +
+                " \\\\" +
+                secondNumberString +
+                " \\\\ \\\\ \\phantom{\\scriptsize{1}} \\\\" +
+                answerString +
+                " \\\\  \\end{array}"
+            );
+          }
           break;
         // bundling - this one's fun, changes a lot, third button press AND performSwap
         case 3:
-          console.warn(
-            "Case 3. alg Text: ",
-            "\\begin{array}{} " +
+          // set text value, then check if the text goes off screen, if so rescale text to fit
+          // console.log("answer array in case 3", answerArray);
+
+          // removeZeros();
+
+          ggbObject.setTextValue(
+            "algorithmText",
+            beginArrayString +
               firstNumberString +
               " \\\\" +
               secondNumberString +
@@ -463,104 +511,244 @@ function ggbOnInit(name, ggbObject) {
               " \\\\ \\end{array}"
           );
 
-          ggbObject.setTextValue(
-            "algorithmText",
-            "\\begin{array}{} " +
-              firstNumberString +
-              " \\\\" +
-              secondNumberString +
-              " \\\\ \\\\ " +
-              carryString +
-              " \\\\" +
-              answerString +
-              " \\\\ \\end{array}"
-          );
           break;
         default:
           break;
+      }
+
+      // removes leftmost (preceeding) zero's from answerArray
+      function removeZeros() {
+        let tempArray = [];
+        const reversedArray = answerArray.reverse();
+        console.log("reversedArray with zeros", reversedArray);
+
+        let numZerosToErase = 0;
+        for (let index = 0, L = reversedArray.length; index < L; index++) {
+          const element = reversedArray[index];
+          if (element === 0) {
+            console.log("finding elements to erase: element:%o, index: %o", element, index);
+            numZerosToErase++;
+          } else {
+            break;
+          }
+        }
+        console.log("numZerosToErase", numZerosToErase);
+        console.log("reversedArray,", reversedArray);
+        console.log("reversedArray,", reversedArray.slice(numZerosToErase, reversedArray.length));
+        tempArray = [...reversedArray.slice(numZerosToErase, reversedArray.length)];
+        // tempArray = [...reversedArray.slice(numZerosToErase, reversedArray.length)];
+        // tempArray = [...reversedArray.slice(numZerosToErase, reversedArray.length)];
+        console.log("reversedArray without zeros", tempArray);
+        answerArray = tempArray.reverse();
+        const unReversedArray = answerArray;
+
+        // answerArray = [...reversedArray.slice(numZerosToErase, reversedArray.length)];
+
+        console.log("unReversedArray", unReversedArray);
+        // answerString = convertArraysIntoStrings(answerArray);
+
+        // console.log("NEW answerArray", answerArray, "NEW answerString", answerString);
       }
 
       // concatenate the numbers such that each single digit number gets a column in the matrix
       // add a comma where necessary, and don't add an empty column (&) at the end
       function convertArraysIntoStrings(numArray, commas = "true") {
         // TEST indentedString
-        let nameString = "";
-        numArray.forEach(function (element, index) {
-          if (commas) {
-            let indentString = "";
-            const numTotalDigits = ggbObject.getValue("requiredRegions");
-            const addSpaceToBeginning = !showShortStrings && numArray.length - 1 < numTotalDigits;
-            const numSpacesToAdd = numTotalDigits - (numArray.length - 1);
-            let ampArray = [];
-            switch (true) {
-              case index === numArray.length - 1:
-                nameString = nameString + numArray[numArray.length - index - 1].toString();
-                console.log(
-                  "case last digit from the right. index:%o, numArray[index]:%o, numArray:%o, nameString:%o",
-                  index,
-                  numArray[index],
-                  numArray,
-                  nameString
-                );
-                ///COME BACK TO THIS ///////////////////////////////////////////////////////////////////////////
 
-                // if numArray.length - 1 is less than numTotalDigits, push "&" signs to ampArray. loop (as many as numSpacesToAdd) - convert it to a string
+        let nameString = "";
+        let kernString = "";
+        const kernedNumArray = [];
+        // Creates a phantom comma height that will be concatinated with each number string so that the Carry string (1's) always align with the vinculum bar
+        const phantomCommaStr = "\\vphantom{,}";
+
+        // numArray.forEach(function (element, index) {
+        //   kernedNumArray.push(kernString + element);
+        // });
+
+        numArray.forEach(function (element) {
+          // kern each string so that there is less space between columns
+          kernString = "\\kern{-6pt}";
+
+          // If element in the string is one character long, add a phantom character in front so that the columns don't bounce
+
+          if (element.toString().length === 1) {
+            kernString = "\\phantom{1}" + kernString;
+          }
+          kernedNumArray.push(kernString + element);
+        });
+
+        // Used to reduce the width between array columns
+        // TODO: Find a way to set the width of the column while also right justifying. Currently using kerning and phantom characters
+        kernedNumArray.forEach(function (elementKern, indexKern) {
+          if (commas) {
+            // const indentString = "";
+            const numTotalDigits = answerArray.length;
+            const addSpaceToBeginning = !showShortStrings && kernedNumArray.length - 1 < numTotalDigits;
+            const numSpacesToAdd = numTotalDigits - (kernedNumArray.length - 1) - 1;
+            // const numSpacesToAdd = answerArray.length - kernedNumArray.length;
+            switch (true) {
+              case indexKern === kernedNumArray.length - 1:
+                nameString = nameString + kernedNumArray[kernedNumArray.length - indexKern - 1].toString();
+
+                // aligns the digits to the right by adding space ("&" signs) to the front of the string
                 if (addSpaceToBeginning) {
                   for (let i = 0, L = numSpacesToAdd; i < L; i++) {
-                    // ampArray.push("&");
-                    // nameString += "&";
                     nameString = "&".concat(nameString);
                   }
-                  // indentString = ampArray.toString().concat(nameString);
-                  // nameString = indentString;
                 }
-                console.warn("nameString: %o, ampArray: %o indentedString:%o", nameString, ampArray, indentString);
-                ampArray = [];
-                break;
-              case index === numArray.length - 4:
 
-              case index === numArray.length - 7:
-                if (numArray[numArray.length - index - 1].toString() !== "") {
-                  nameString = nameString + numArray[numArray.length - index - 1].toString() + "," + "&";
-                } else {
-                  nameString = nameString + numArray[numArray.length - index - 1].toString() + "&";
-                }
-                console.log(
-                  "case 4th to last digit or 7th to last digit from the right (add commas). index:%o, numArray[index]:%o, numArray:%o, nameString:%o",
-                  index,
-                  numArray[index],
-                  numArray,
-                  nameString
-                );
                 break;
-              case index < numArray.length - 1:
-                nameString = nameString + numArray[numArray.length - index - 1].toString() + "&";
-                console.log(
-                  "case other than first digit, or comma digit. index:%o, numArray[index]:%o, numArray:%o, nameString:%o",
-                  index,
-                  numArray[index],
-                  numArray,
-                  nameString
-                );
+              case indexKern === kernedNumArray.length - 4:
+
+              // eslint-disable-next-line no-fallthrough
+              case indexKern === kernedNumArray.length - 7:
+                if (
+                  kernedNumArray[kernedNumArray.length - indexKern - 1].toString() !== "" &&
+                  kernedNumArray[kernedNumArray.length - indexKern - 1].toString() !== kernString
+                ) {
+                  nameString =
+                    nameString + kernedNumArray[kernedNumArray.length - indexKern - 1].toString() + "," + "&";
+                } else {
+                  nameString = nameString + kernedNumArray[kernedNumArray.length - indexKern - 1].toString() + "&";
+                }
+
+                break;
+
+              case indexKern === kernedNumArray.length - 3:
+              case indexKern === kernedNumArray.length - 6:
+                nameString = nameString + kernedNumArray[kernedNumArray.length - indexKern - 1].toString() + "&";
+
+                break;
+              case indexKern < kernedNumArray.length - 1:
+                nameString = nameString + kernedNumArray[kernedNumArray.length - indexKern - 1].toString() + "&";
+
                 break;
               default:
                 break;
             }
+            if (!nameString.includes(",")) {
+              nameString = nameString + phantomCommaStr;
+            }
           } else {
+            // Carry String, no commas
             switch (true) {
-              case index === numArray.length - 1:
-                nameString = nameString + numArray[numArray.length - index - 1].toString();
+              case indexKern === kernedNumArray.length - 1:
+                nameString = nameString + kernedNumArray[kernedNumArray.length - indexKern - 1].toString();
+                // console.log("Carry string, no commas. 1st case", nameString);
                 break;
-              case index < numArray.length - 1:
-                nameString = nameString + numArray[numArray.length - index - 1].toString() + "&";
+              case indexKern < kernedNumArray.length - 1:
+                nameString = nameString + kernedNumArray[kernedNumArray.length - indexKern - 1].toString() + "&";
+                // console.log("Carry string, no commas. 2nd case", nameString);
                 break;
               default:
                 break;
             }
           }
         });
+        // console.log("nameString", nameString);
         return nameString;
       }
+
+      // function convertArraysIntoStrings(numArray, commas = "true") {
+      //   // TEST indentedString
+      //   let nameString = "";
+      //   numArray.forEach(function (element, index) {
+      //     if (commas) {
+      //       // const indentString = "";
+      //       const numTotalDigits = ggbObject.getValue("requiredRegions");
+      //       const addSpaceToBeginning =
+      //         !showShortStrings && numArray.length - 1 < numTotalDigits;
+      //       const numSpacesToAdd = numTotalDigits - (numArray.length - 1);
+      //       let ampArray = [];
+      //       switch (true) {
+      //         case index === numArray.length - 1:
+      //           nameString =
+      //             nameString + numArray[numArray.length - index - 1].toString();
+      //           console.log(
+      //             "case last digit from the right. index:%o, numArray[index]:%o, numArray:%o, nameString:%o",
+      //             index,
+      //             numArray[index],
+      //             numArray,
+      //             nameString
+      //           );
+      //           // /COME BACK TO THIS ///////////////////////////////////////////////////////////////////////////
+
+      //           // if numArray.length - 1 is less than numTotalDigits, push "&" signs to ampArray. loop (as many as numSpacesToAdd) - convert it to a string
+      //           if (addSpaceToBeginning) {
+      //             for (let i = 0, L = numSpacesToAdd; i < L; i++) {
+      //               // ampArray.push("&");
+      //               // nameString += "&";
+      //               nameString = "&".concat(nameString);
+      //             }
+      //             // indentString = ampArray.toString().concat(nameString);
+      //             // nameString = indentString;
+      //           }
+      //           console.warn(
+      //             "nameString: %o, ampArray: %o ",
+      //             nameString,
+      //             ampArray
+      //           );
+      //           ampArray = [];
+      //           break;
+      //         case index === numArray.length - 4:
+
+      //         // eslint-disable-next-line no-fallthrough
+      //         case index === numArray.length - 7:
+      //           if (numArray[numArray.length - index - 1].toString() !== "") {
+      //             nameString =
+      //               nameString +
+      //               numArray[numArray.length - index - 1].toString() +
+      //               "," +
+      //               "&";
+      //           } else {
+      //             nameString =
+      //               nameString +
+      //               numArray[numArray.length - index - 1].toString() +
+      //               "&";
+      //           }
+      //           console.log(
+      //             "case 4th to last digit or 7th to last digit from the right (add commas). index:%o, numArray[index]:%o, numArray:%o, nameString:%o",
+      //             index,
+      //             numArray[index],
+      //             numArray,
+      //             nameString
+      //           );
+      //           break;
+      //         case index < numArray.length - 1:
+      //           nameString =
+      //             nameString +
+      //             numArray[numArray.length - index - 1].toString() +
+      //             "&";
+      //           console.log(
+      //             "case other than first digit, or comma digit. index:%o, numArray[index]:%o, numArray:%o, nameString:%o",
+      //             index,
+      //             numArray[index],
+      //             numArray,
+      //             nameString
+      //           );
+      //           break;
+      //         default:
+      //           break;
+      //       }
+      //     } else {
+      //       switch (true) {
+      //         case index === numArray.length - 1:
+      //           nameString =
+      //             nameString + numArray[numArray.length - index - 1].toString();
+      //           break;
+      //         case index < numArray.length - 1:
+      //           nameString =
+      //             nameString +
+      //             numArray[numArray.length - index - 1].toString() +
+      //             "&";
+      //           break;
+      //         default:
+      //           break;
+      //       }
+      //     }
+      //   });
+      //   return nameString;
+      // }
     }
 
     // creates max two rows of five with this configuration, but does contain spacer parameter Math.floor(j/10) in line 67
@@ -568,12 +756,12 @@ function ggbOnInit(name, ggbObject) {
     function popul8() {
       reset();
       // pull data from inputs (GGB or Platform)
-      const number1 = ggbObject.getValue("number"),
-        number2 = ggbObject.getValue("number2"),
-        multiplier = ggbObject.getValue("multiplier"),
-        // break down into digits
-        num1Array = pulverize(number1),
-        num2Array = pulverize(number2);
+      const number1 = ggbObject.getValue("number");
+      const number2 = ggbObject.getValue("number2");
+      const multiplier = ggbObject.getValue("multiplier");
+      // break down into digits
+      const num1Array = pulverize(number1);
+      const num2Array = pulverize(number2);
 
       // for as many multiples exist
       for (let k = 0; k < multiplier; k++) {
@@ -620,7 +808,8 @@ function ggbOnInit(name, ggbObject) {
     // makes the points into the desired style
     function prettyPoints(pointName, regionNumber = 0) {
       ggbObject.setPointStyle(pointName, 0);
-      ggbObject.setPointSize(pointName, 8);
+      ggbObject.setPointSize(pointName, 7);
+      // ggbObject.setPointSize(pointName, 8);
       ggbObject.setVisible(pointName, true);
       ggbObject.setLayer(pointName, 1);
       // console.log("Points set to 1");
@@ -645,19 +834,19 @@ function ggbOnInit(name, ggbObject) {
 
         // if (totalNumArray[regionNum + 1] < 41) {
 
-        const nextRegionIsFull = totalNumArray[i + 1] > 40;
-        console.log(
-          "In Bundle. Check if next region is full!! element: %o, nextRegionIsFull: %o",
-          element,
-          nextRegionIsFull
-        );
+        const nextRegionIsFull = totalNumArray[i + 1] > regionFullNum - 1;
+        // console.log(
+        //   "In Bundle. Check if next region is full!! element: %o, nextRegionIsFull: %o",
+        //   element,
+        //   nextRegionIsFull
+        // );
+        const x1 = ggbObject.getXcoord(regions[i] + "Point1");
+        // change this to be the first point showing
+        const y1 = ggbObject.getYcoord(regions[i] + "Point1");
+        const x2 = x1 + 4;
+        const y2 = y1 - 1;
         if (element >= 10 && i <= numRegions - 1 && !nextRegionIsFull) {
           // change this to be the first point showing
-          const x1 = ggbObject.getXcoord(regions[i] + "Point1"),
-            // change this to be the first point showing
-            y1 = ggbObject.getYcoord(regions[i] + "Point1"),
-            x2 = x1 + 4,
-            y2 = y1 - 1;
           // makes draggable tens frame and sets properties
           ggbObject.evalCommand(
             regions[i] +
@@ -736,14 +925,19 @@ function ggbOnInit(name, ggbObject) {
           }
           enableButton(3, false);
           // changes number of points in each region
-          const first = totalNumArray[i],
-            second = totalNumArray[i + 1];
+          const first = totalNumArray[i];
+          const second = totalNumArray[i + 1];
           totalNumArray[i] = first - 10;
           totalNumArray[i + 1] = second + 1;
           // leaves the loop early
           return false;
         }
         // allows loop to continue
+        // eslint-disable-next-line no-else-return
+        else {
+          // console.log("bundle not in region");
+        }
+
         return true;
       });
       // make all visible points nonselectable so students can't move dots before completing the bundle
@@ -752,7 +946,7 @@ function ggbOnInit(name, ggbObject) {
 
     // bundles or unbundles, based on the case
     function performSwap(totalNumArray) {
-      console.log("in performSwap", selectedObject, totalNumArray);
+      // console.log("in performSwap", selectedObject, totalNumArray);
       // figure out the type of point or tens frame that was grabbed by removing all but the region
       const selectedObjectRegion = selectedObject.replace(/(Point)\d+|(TensFrame)/g, "");
       // gets the index of the region from the const array "regions"
@@ -789,7 +983,7 @@ function ggbOnInit(name, ggbObject) {
           );
           ggbObject.setCoords(regions[regionNum + 1] + "Point" + (totalNumArray[regionNum + 1] + 1), midPointX, 1);
           prettyPoints(regions[regionNum + 1] + "Point" + (totalNumArray[regionNum + 1] + 1), regionNum + 1);
-          carryArray.splice(regionNum + 1, 1, "\\scriptsize{1}");
+          // carryArray.splice(regionNum + 1, 1, "\\scriptsize{1}");
           ggbObject.evalCommand(
             "SelectObjects(" + regions[regionNum + 1] + "Point" + (totalNumArray[regionNum + 1] + 1) + ")"
           );
@@ -820,7 +1014,7 @@ function ggbOnInit(name, ggbObject) {
           regionUnbundledFrom = regionNum + 1;
 
           // If the region being unbundled TO has room, allow it to unbundle, otherwise snap the point back
-          if (totalNumArray[regionNum - 1] < 41) {
+          if (totalNumArray[regionNum - 1] < regionFullNum) {
             // Do all the stuff that unbundling does
 
             // hides the point that was dropped in a new region
@@ -878,7 +1072,7 @@ function ggbOnInit(name, ggbObject) {
             }, 500);
             break;
           } else {
-            console.log("Region Unbundling TO is full. Snap back!");
+            // console.log("Region Unbundling TO is full. Snap back!");
             snapItBack();
           }
       }
@@ -966,15 +1160,16 @@ function ggbOnInit(name, ggbObject) {
           ggbObject.setVisible("f", false);
           ggbObject.setVisible("text11", false);
 
-          carryArray = [
-            "\\phantom{\\scriptsize{1}}",
-            "\\phantom{\\scriptsize{1}}",
-            "\\phantom{\\scriptsize{1}}",
-            "\\phantom{\\scriptsize{1}}",
-            "\\phantom{\\scriptsize{1}}",
-            "\\phantom{\\scriptsize{1}}",
-            "\\phantom{\\scriptsize{1}}",
-          ];
+          carryArray = [];
+          // carryArray = [
+          //   "\\phantom{\\scriptsize{1}}",
+          //   "\\phantom{\\scriptsize{1}}",
+          //   "\\phantom{\\scriptsize{1}}",
+          //   "\\phantom{\\scriptsize{1}}",
+          //   "\\phantom{\\scriptsize{1}}",
+          //   "\\phantom{\\scriptsize{1}}",
+          //   "\\phantom{\\scriptsize{1}}",
+          // ];
           reset();
           // only enable button if there are legit values in the input boxes
           if (validateInputs()) {
@@ -1065,9 +1260,10 @@ function ggbOnInit(name, ggbObject) {
       }
     }
 
-    function clickListenerFunction(a) {
+    // eslint-disable-next-line no-unused-vars
+    function clickListenerFunction(clicked) {
       // console.log("in clickListener");
-      // switch (a) {}
+      // switch (clicked) {}
     }
 
     function keyit(event) {

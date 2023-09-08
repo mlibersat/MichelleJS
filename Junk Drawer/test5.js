@@ -1,531 +1,658 @@
+// Dane's PVC subtraction
+
 function ggbOnInit(name, ggbObject) {
-  loadUtils().then(function (setupGGB) {
-    const buttonClicks = defineButtonClickScripts();
-    // you may replace the following function call with the name of your status text object as a string
-    // if you do, you can delete the function defineStatusName
-    const statusName = defineStatusName();
-    const {
-      getCanvas,
-      setAriaLabel,
-      readKeyboardInstructions,
-      updateKeyboardInstructions,
-      ggbReadText,
-      enableButton,
-      libClientFunction,
-      libClickFunction,
-      libKeyFunction,
-      registerSafeObjectUpdateListener,
-      registerSafeObjectClickListener,
-      registerHoverListener,
-      unavailableButtonText,
-      setTabOrder,
-      manageAddedList,
-    } = setupGGB({
-      name,
-      ggbObject,
-      defineKeyboardInstructions,
-      buttonClicks,
-      statusName,
-    });
-    const ggbcanvas = getCanvas(name);
+  loadUtils().then(function(setupGGB) {
+      const buttonClicks = defineButtonClickScripts();
+      // you may replace the following function call with the name of your status text object as a string
+      // if you do, you can delete the function defineStatusName
+      const statusName = defineStatusName();
+      const {
+          getCanvas,
+          setAriaLabel,
+          readKeyboardInstructions,
+          updateKeyboardInstructions,
+          ggbReadText,
+          enableButton,
+          libClientFunction,
+          libClickFunction,
+          libKeyFunction,
+          registerSafeObjectUpdateListener,
+          registerSafeObjectClickListener,
+          registerHoverListener,
+          unavailableButtonText,
+          setTabOrder,
+          manageAddedList,
+          editXML,
+      } = setupGGB({
+          name,
+          ggbObject,
+          defineKeyboardInstructions,
+          buttonClicks,
+          statusName,
+      });
+      const ggbcanvas = getCanvas(name);
 
-    /*
-     * IGNORE above
-     * EDIT below
-     */
+      /*
+       * IGNORE above
+       * EDIT below
+       */
 
-    setAriaLabel(ggbcanvas, "Actividad interactiva de El arte de cerca");
+      setAriaLabel(ggbcanvas, "Place Value Chart Interactive");
 
-    //global-ish variables
-    let selectedObject = "";
-    const stayVis = ["buttonBar", "instructionsBox", "picReg", "c"];
-    const shapes = [
-      ...ggbObject.getAllObjectNames("circle"),
-      ...ggbObject.getAllObjectNames("quadrilateral"),
-      ...ggbObject.getAllObjectNames("triangle"),
-    ].filter(function (name) {
-      if (!stayVis.includes(name)) {
-        return name;
-      }
-    });
+      var selectedObject = "";
 
-    // object used for alt text
-    const shape3 = "Una figura con 3 lados.";
-    // const shape3 = "A shape with 3 sides.";
-    const shape4 = "Una figura con 4 lados.";
-    // const shape4 = "A shape with 4 sides.";
-    const sameSize = "Todos los lados de la figura parecen ser del mismo tamaño.";
-    // const sameSize = "All sides of the shape appear to be the same size.";
-    const someSameSize = "Algunos lados de la figura parecen ser del mismo tamaño, pero otros son diferentes.";
-    // const someSameSize = "Some sides of the shape appear to be the same size while others are different.";
-    const diffSize = "Todos los lados de la figura parecen ser de diferentes tamaños.";
-    // const diffSize = "All sides of the shape appear to be different sizes.";
-    const altText = {
-      sun: {
-        shapeDesc: "Un círculo.",
-        // const altText = {
-        //   sun: {
-        //     shapeDesc: "A circle.",
-        sideDesc: "",
-      },
-      q24: {
-        shapeDesc: shape4,
-        sideDesc: sameSize,
-      },
-      t33: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      t34: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      q17: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-      t22: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      t21: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      q12: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-      q16: {
-        shapeDesc: shape4,
-        sideDesc: sameSize,
-      },
-      t19: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      t20: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      t14: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      t16: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      t15: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      t27: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      t28: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      q13: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-      q10: {
-        shapeDesc: shape4,
-        sideDesc: sameSize,
-      },
-      q11: {
-        shapeDesc: shape4,
-        sideDesc: sameSize,
-      },
-      q20: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-      q21: {
-        shapeDesc: shape4,
-        sideDesc: sameSize,
-      },
-      q22: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-      t31: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      t32: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      q6: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-      t11: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      t12: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      q8: {
-        shapeDesc: shape4,
-        sideDesc: sameSize,
-      },
-      q9: {
-        shapeDesc: shape4,
-        sideDesc: sameSize,
-      },
-      q7: {
-        shapeDesc: shape4,
-        sideDesc: sameSize,
-      },
-      t10: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      t6: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      t13: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      t17: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      t25: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      q18: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-      t26: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      t24: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      q23: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-      t8: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      t9: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      t7: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      q5: {
-        shapeDesc: shape4,
-        sideDesc: sameSize,
-      },
-      q4: {
-        shapeDesc: shape4,
-        sideDesc: sameSize,
-      },
-      t5: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      t18: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      q14: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-      t23: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      t30: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      t29: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      t1: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      q1: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-      q2: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-      q3: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-      t2: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      t4: {
-        shapeDesc: shape3,
-        sideDesc: someSameSize,
-      },
-      t3: {
-        shapeDesc: shape3,
-        sideDesc: diffSize,
-      },
-      q15: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-      q19: {
-        shapeDesc: shape4,
-        sideDesc: someSameSize,
-      },
-    };
+      //all of the global variables
+      let rowAdderOnes = 0;
+      let rowAdderTens = 0;
+      let rowAdderHuns = 0;
+      let labelHuns = ggbObject.getValue("hunsCount");
+      let labelTens = ggbObject.getValue("tensCount");
+      let labelOnes = ggbObject.getValue("onesCount");
+      let labelHuns2 = ggbObject.getValue("hunsCount2");
+      let labelTens2 = ggbObject.getValue("tensCount2");
+      let labelOnes2 = ggbObject.getValue("onesCount2");
+      let unbundledHuns = 0;
+      let unbundledTens = 0;
+      let unbundledOnes = 0;
+      let pointsH = [];
+      let pointsT = [];
+      let pointsO = [];
+      let click = 0;
 
-    //register my listeners
-    registerSafeObjectUpdateListener("time", setSpeed);
+      let number1 = 417;
+      let number2 = 228;
+      let regex = /\d+/;
+      let regex2 = /\-\d+/;
 
-    function defineStatusName() {
-      // put the name of your GGB status text object here
-      return "AAppletStatus";
-    }
-    // listeners here; keep these, add your own as needed
-    ggbObject.registerClientListener(function (a) {
-      clientFunction(a);
-      libClientFunction(a);
-    });
-    ggbObject.registerClickListener(function (a) {
-      clickListenerFunction(a);
-      libClickFunction(a);
-    });
-    ggbcanvas.addEventListener("keyup", function (event) {
-      keyit(event);
-      libKeyFunction(event);
-    });
+      var initList = "InputBox4";
+      var addedList = "";
+      var enders = "ggbButton1, ggbButton2, ggbButton3";
 
-    function defineButtonClickScripts() {
-      // defines button scripts
-      // keep this function, but you can delete anything/everything inside it
-      return {
-        ggbButton1: function () {
-          enableButton(1, false);
-          enableButton(2, true);
-        },
-        ggbButton2: function () {
-          enableButton(1, true);
-          enableButton(2, false);
-        },
-        ggbButton3: function () {},
-        ggbButton4: function () {},
-        ggbButton5: function () {},
-      };
-    }
-
-    function defineKeyboardInstructions(obj) {
-      // takes a GGB object name as an argument, returns its keyboard text.
-      if (shapes.includes(obj)) {
-        return ggbObject.getValue("time") === 0
-          ? "Presiona la barra de espacio para ampliar esta figura."
-          : // return ggbObject.getValue("time") === 0 ? "Press space to zoom in on this shape."
-            "Presiona la barra de espacio para reducirla.";
-        // : "Press space to zoom out.";
+      // Needed for going forward and back a slide
+      if (ggbObject.getValue("Length(tabOrder)") === 0) {
+          setTabOrder(initList, addedList, enders);
       }
 
-      const keyboardInstructions = {
-        // A: "Press the arrow keys to move this point.", // example for a point
-        ggbButton1: ggbObject.getValue("ggbButton1Enabled") ? "Press space to ___." : unavailableButtonText,
-        ggbButton2: ggbObject.getValue("ggbButton2Enabled") ? "Press space to ___." : unavailableButtonText,
-        ggbButton3: ggbObject.getValue("ggbButton3Enabled") ? "Press space to ___." : unavailableButtonText,
-        ggbButton4: ggbObject.getValue("ggbButton4Enabled") ? "Press space to ___." : unavailableButtonText,
-        ggbButton5: ggbObject.getValue("ggbButton5Enabled") ? "Press space to ___." : unavailableButtonText,
-      };
-      return keyboardInstructions[obj];
-    }
+      function defineStatusName() {
+          // put the name of your GGB status text object here
+          return "AAppletStatus";
+      }
+      // listeners here; keep these, add your own as needed
+      ggbObject.registerClientListener(function(a) {
+          clientFunction(a);
+          libClientFunction(a);
+      });
+      ggbObject.registerClickListener(function(a) {
+          clickListenerFunction(a);
+          libClickFunction(a);
+      });
+      ggbcanvas.addEventListener("keyup", function(event) {
+          keyit(event);
+          libKeyFunction(event);
+      });
 
-    function clientFunction(a) {
-      switch (a.type) {
-        case "select": {
-          selectedObject = a.target;
+      registerSafeObjectUpdateListener("step", hup234);
+      registerSafeObjectUpdateListener("subtractReady", subtractReadyUpdate);
+      registerSafeObjectUpdateListener("inputBoxText", inputBoxTextUpdate);
 
-          if (selectedObject === "AAppletStatus") {
-            updateStatus();
+      function hup234() {
+          if (ggbObject.getValue("step") == 1) {
+              popul8();
+          }
+          if (ggbObject.getValue("step") == 2) {
+              matchIt();
+          }
+          if (ggbObject.getValue("step") == 3) {
+              reset();
+          }
+      }
+
+      //creates the initial points
+      function popul8() {
+          reset();
+          click = click + 1;
+          labelHuns = ggbObject.getValue("hunsCount");
+          labelTens = ggbObject.getValue("tensCount");
+          labelOnes = ggbObject.getValue("onesCount");
+          labelHuns2 = ggbObject.getValue("hunsCount2");
+          labelTens2 = ggbObject.getValue("tensCount2");
+          labelOnes2 = ggbObject.getValue("onesCount2");
+          if (click == 1) {
+              //create points in hundreds region and add point name to list of points in that region
+              for (var popLoop = 0; popLoop < labelHuns; popLoop++) {
+                  ggbObject.evalCommand("HU_" + popLoop + "=PointIn(tenHunRegion)");
+                  ggbObject.setCoords(
+                      "HU_" + popLoop,
+                      ggbObject.getXcoord("ig5") + (popLoop % 5),
+                      ggbObject.getYcoord("ig5") - Math.floor(popLoop / 5)
+                  );
+                  ggbObject.setColor("HU_" + popLoop, 0, 127, 175);
+                  ggbObject.setLayer("HU_" + popLoop, 0);
+                  pointsH.push("HU_" + popLoop);
+              }
+              //create points in tens region and add point name to list of points in that region
+              for (var popLoop = 0; popLoop < labelTens; popLoop++) {
+                  ggbObject.evalCommand("TE_" + popLoop + "=PointIn(oneTenRegion)");
+                  ggbObject.setCoords(
+                      "TE_" + popLoop,
+                      ggbObject.getXcoord("ig6") + (popLoop % 5),
+                      ggbObject.getYcoord("ig6") - Math.floor(popLoop / 5)
+                  );
+                  ggbObject.setColor("TE_" + popLoop, 0, 0, 255);
+                  ggbObject.setLayer("TE_" + popLoop, 0);
+                  pointsT.push("TE_" + popLoop);
+              }
+              //create points in ones region and add point name to list of points in that region
+              for (var popLoop = 0; popLoop < labelOnes; popLoop++) {
+                  ggbObject.evalCommand("ZO_" + popLoop + "=PointIn(oneRegion)");
+                  ggbObject.setCoords(
+                      "ZO_" + popLoop,
+                      ggbObject.getXcoord("ig7") + (popLoop % 5),
+                      ggbObject.getYcoord("ig7") - Math.floor(popLoop / 5)
+                  );
+                  ggbObject.setColor("ZO_" + popLoop, 127, 0, 255);
+                  ggbObject.setLayer("ZO_" + popLoop, 0);
+                  pointsO.push("ZO_" + popLoop);
+              }
+              ggbObject.setValue("onesCount3", pointsO.length);
+              ggbObject.setValue("tensCount3", pointsT.length);
+              ggbObject.setValue("hunsCount3", pointsH.length);
           }
 
-          //set the caption of the shape when selected - depends on whether thew whole picture is shown or just the single shape.
-          if (shapes.includes(selectedObject)) {
-            const singleShapeBool = ggbObject.getValue("singleShape");
-            if (singleShapeBool) {
-              //only shape on screen
-              ggbObject.setCaption(
-                selectedObject,
-                altText[selectedObject].shapeDesc.concat(" Presiona la barra de espacio para ampliar toda la imagen.")
-              );
-            } else {
-              //whole picture
-              ggbObject.setCaption(
-                selectedObject,
-                altText[selectedObject].shapeDesc.concat(" Presiona la barra de espacio para reducir la figura.")
-              );
-            }
+          let newPointNames = ggbObject.getAllObjectNames("point");
+          for (let i = 0, L = newPointNames.length; i < L; i++) {
+              if (newPointNames[i].includes("ZO_")) {
+                  editXML(newPointNames[i], "dynamicCaption", "val", "onesCaption");
+              } else if (newPointNames[i].includes("TE_")) {
+                  editXML(newPointNames[i], "dynamicCaption", "val", "tensCaption");
+              } else if (newPointNames[i].includes("HU_")) {
+                  editXML(newPointNames[i], "dynamicCaption", "val", "hunsCaption");
+              }
           }
-          break;
-        }
-        case "deselect":
-          selectedObject = "";
-          break;
-      }
-    }
-
-    function clickListenerFunction(a) {
-      console.log("click listener:", a);
-      if (shapes.includes(a)) {
-        zoom(a);
-      }
-    }
-
-    function updateStatus() {
-      const singleShapeBool = ggbObject.getValue("singleShape");
-      const escText = ggbObject.getValueString("escText");
-      let statusText = "";
-      if (singleShapeBool) {
-        //single shape on screen
-        const singleShape = ggbObject.getAllObjectNames().filter(function (name) {
-          if (ggbObject.getVisible(name) && shapes.includes(name) && !name.includes("Outline")) {
-            return name;
+          if (
+              ggbObject.getValue("onesCount3") > 0 ||
+              ggbObject.getValue("tensCount3") > 0 ||
+              ggbObject.getValue("hunsCount3") > 0
+          ) {
+              sortPointNames();
           }
-        });
-        statusText = altText[singleShape].shapeDesc.concat(" ", altText[singleShape].sideDesc);
-      } else {
-        //whole picture on screen
-        statusText =
-          "Una imagen creada con distintas figuras. Hay un círculo. Hay algunas figuras con 4 lados. Hay algunas figuras con 3 lados. Algunas figuras comparten lados con otras figuras.";
-        // "A picture made up of different shapes. There is 1 circle. There are some shapes with 4 sides. There are some shapes with 3 sides. Some shapes share sides with other shapes.";
       }
-      ggbObject.setTextValue("AAppletStatus", statusText.concat(" ", escText));
-    }
 
-    function keyit(event) {
-      // feel free to use event.key instead
-      // switch (event.code) {}
-      if (event.code === "Space" && shapes.includes(selectedObject)) {
-        zoom(selectedObject);
-      }
-    }
-
-    function zoom(a) {
-      let readOutText = "";
-      //set the vertList in GGB equal to its verticies so that zoom locations are accurate
-      ggbApplet.evalCommand("vertList = {Vertex(".concat(a, ")}"));
-      //depending on value of speed, hide or show the other shapes
-      if (ggbObject.getValue("speed") === 6) {
-        //zooming in
-        //hide other shapes
-        hideOrShow(false);
-        const tempShape =
-          selectedObject === "sun"
-            ? "el círculo"
-            : ggbObject.getObjectType(selectedObject) === "triangle"
-            ? "la figura con 3 lados"
-            : "la figura con 4 lados";
-        // ? "circle"
-        // ? "3 sided shape"
-        // : "4 sided shape";
-        // readOutText = "The picture zooms in to only show the ".concat(
-        readOutText = "La imagen se reduce para mostrar sólo ".concat(
-          // readOutText = "The picture zooms in to only show the ".concat(
-          tempShape,
-          ". ",
-          altText[selectedObject].sideDesc,
-          "Presiona la barra de espacio para ampliar toda la imagen."
-          // " Press space to zoom out to show the whole picture."
-        );
-      } else {
-        //zooming out
-        //show other shapes
-        hideOrShow(true);
-        // readOutText =
-        // "The shape zooms out to show the whole picture with all the shapes. Press space to zoom in on this shape.";
-        readOutText =
-          "La figura se amplía para mostrar la imagen completa con todas las figuras. Presiona la barra de espacio para ampliar esta figura.";
-      }
-      //start the zooming animation
-      ggbObject.setAnimating("time", true);
-      ggbObject.startAnimation();
-
-      ggbReadText(readOutText);
-
-      function hideOrShow(show) {
-        shapes.forEach(function (el) {
-          if (el !== selectedObject && el !== selectedObject.concat("Outline")) {
-            ggbObject.setVisible(el, show);
+      //If there are at least as many points at the top as the bottom, set the crosses on top of the dots for each region
+      function matchIt() {
+          ggbObject.setValue("crossesShown", true);
+          for (i = 0, L = pointsH.length; i < L; i++) {
+              ggbObject.setFixed(pointsH[i], true, false);
           }
-        });
+          for (i = 0, L = pointsT.length; i < L; i++) {
+              ggbObject.setFixed(pointsT[i], true, false);
+          }
+          for (i = 0, L = pointsO.length; i < L; i++) {
+              ggbObject.setFixed(pointsO[i], true, false);
+          }
+          if (pointsH.length >= labelHuns2) {
+              //create x points in hundreds region and add point name to list of points in that region
+              for (var popLoop = 0; popLoop < labelHuns2; popLoop++) {
+                  ggbObject.evalCommand("HB" + popLoop + "=PointIn(box)");
+                  ggbObject.setCoords(
+                      "HB" + popLoop,
+                      ggbObject.getXcoord(pointsH[popLoop]),
+                      ggbObject.getYcoord(pointsH[popLoop])
+                  );
+                  ggbObject.setVisible("HB" + popLoop, false);
+                  if (labelHuns2 == 1) {
+                      ggbObject.evalCommand(
+                          "HBCross" + popLoop + "=Segment(HB" + popLoop + "-(0.5,0.5),HB" + popLoop + "+(0.5,0.5))"
+                      );
+                      ggbObject.setLayer("HBCross" + popLoop, 2);
+                      ggbObject.setColor("HBCross" + popLoop, 0, 0, 0);
+                      ggbObject.setFixed("HBCross" + popLoop, true, false);
+                  } else {
+                      ggbObject.evalCommand(
+                          "HBCross" + popLoop + "=Segment(HB" + popLoop + "+(0.5,0),HB" + popLoop + "-(0.5,0))"
+                      );
+                      ggbObject.setLayer("HBCross" + popLoop, 2);
+                      ggbObject.setColor("HBCross" + popLoop, 0, 0, 0);
+                      ggbObject.setFixed("HBCross" + popLoop, true, false);
+                  }
+              }
+          }
+          if (pointsT.length >= labelTens2) {
+              //create x points in tens region and add point name to list of points in that region
+              for (var popLoop = 0; popLoop < labelTens2; popLoop++) {
+                  ggbObject.evalCommand("TB" + popLoop + "=PointIn(box)");
+                  ggbObject.setCoords(
+                      "TB" + popLoop,
+                      ggbObject.getXcoord(pointsT[popLoop]),
+                      ggbObject.getYcoord(pointsT[popLoop])
+                  );
+                  ggbObject.setVisible("TB" + popLoop, false);
+                  if (labelTens2 == 1) {
+                      ggbObject.evalCommand(
+                          "TBCross" + popLoop + "=Segment(TB" + popLoop + "-(0.5,0.5),TB" + popLoop + "+(0.5,0.5))"
+                      );
+                      ggbObject.setLayer("TBCross" + popLoop, 2);
+                      ggbObject.setColor("TBCross" + popLoop, 0, 0, 0);
+                      ggbObject.setFixed("TBCross" + popLoop, true, false);
+                  } else {
+                      ggbObject.evalCommand(
+                          "TBCross" + popLoop + "=Segment(TB" + popLoop + "+(0.5,0),TB" + popLoop + "-(0.5,0))"
+                      );
+                      ggbObject.setLayer("TBCross" + popLoop, 2);
+                      ggbObject.setColor("TBCross" + popLoop, 0, 0, 0);
+                      ggbObject.setFixed("TBCross" + popLoop, true, false);
+                  }
+              }
+          }
+          if (pointsO.length >= labelOnes2) {
+              //create x points in ones region and add point name to list of points in that region
+              for (var popLoop = 0; popLoop < labelOnes2; popLoop++) {
+                  ggbObject.evalCommand("OB" + popLoop + "=PointIn(box)");
+                  ggbObject.setCoords(
+                      "OB" + popLoop,
+                      ggbObject.getXcoord(pointsO[popLoop]),
+                      ggbObject.getYcoord(pointsO[popLoop])
+                  );
+                  ggbObject.setVisible("OB" + popLoop, false);
+                  if (labelOnes2 == 1) {
+                      ggbObject.evalCommand(
+                          "OBCross" + popLoop + "=Segment(OB" + popLoop + "-(0.5,0.5),OB" + popLoop + "+(0.5,0.5))"
+                      );
+                      ggbObject.setLayer("OBCross" + popLoop, 2);
+                      ggbObject.setColor("OBCross" + popLoop, 0, 0, 0);
+                  } else {
+                      ggbObject.evalCommand(
+                          "OBCross" + popLoop + "=Segment(OB" + popLoop + "+(0.5,0),OB" + popLoop + "-(0.5,0))"
+                      );
+                      ggbObject.setLayer("OBCross" + popLoop, 2);
+                      ggbObject.setColor("OBCross" + popLoop, 0, 0, 0);
+                      ggbObject.setFixed("OBCross" + popLoop, true, false);
+                  }
+              }
+          }
+          ggbObject.setValue("hunsCrossedOut", ggbObject.getValue("hunsCount2"));
+          ggbObject.setValue("tensCrossedOut", ggbObject.getValue("tensCount2"));
+          ggbObject.setValue("onesCrossedOut", ggbObject.getValue("onesCount2"));
       }
-    }
 
-    function setSpeed() {
-      // set's the speed to positive or negative based on the value of time
-      const currentTime = ggbObject.getValue("time");
-      switch (currentTime) {
-        case 0:
-          ggbObject.stopAnimation();
-          ggbObject.setAnimating("time", false);
-          ggbObject.setValue("speed", 6);
-          updateKeyboardInstructions(selectedObject);
-          break;
-        case 1:
-          ggbObject.stopAnimation();
-          ggbObject.setAnimating("time", false);
-          ggbObject.setValue("speed", -6);
-          updateKeyboardInstructions(selectedObject);
-          break;
+      //sets all values back to the start
+      function reset() {
+          initList = "InputBox4";
+          addedList = "";
+          enders = "ggbButton1, ggbButton2, ggbButton3";
+          ggbObject.setTextValue("addedList", "");
+          setTabOrder(initList, addedList, enders);
+
+          click = 0;
+          //set question button visible and subtract it button invisible
+          ggbObject.setValue("subtractReady", false);
+          rowAdderOnes = 0;
+          rowAdderTens = 0;
+          rowAdderHuns = 0;
+          unbundledHuns = 0;
+          unbundledTens = 0;
+          unbundledOnes = 0;
+          pointsH = [];
+          pointsT = [];
+          pointsO = [];
+          pointNames = [];
+
+          labelHuns = ggbObject.getValue("hunsCount");
+          labelTens = ggbObject.getValue("tensCount");
+          labelOnes = ggbObject.getValue("onesCount");
+
+          labelHuns2 = ggbObject.getValue("hunsCount2");
+          labelTens2 = ggbObject.getValue("tensCount2");
+          labelOnes2 = ggbObject.getValue("onesCount2");
+
+          ggbObject.setValue("hunBool", false);
+          ggbObject.setValue("tenBool", false);
+          ggbObject.setValue("oneBool", false);
+          ggbObject.setValue("crossesShown", false);
+
+          //determined what points where not integral to applet and deletes them
+          pointNames = ggbObject.getAllObjectNames("point");
+          lengthPointNames = pointNames.length;
+          for (iter9 = 0; iter9 < lengthPointNames; iter9++) {
+              if (!pointNames[iter9].includes("ig")) {
+                  ggbObject.deleteObject(pointNames[iter9]);
+              }
+          }
       }
-    }
 
-    //add new stuff above this line
+      function subtractReadyUpdate() {
+          if (ggbObject.getValue("subtractReady")) {
+              enableButton(1, false);
+              enableButton(2, true);
+          } else {
+              enableButton(1, true);
+              enableButton(2, false);
+          }
+      }
+
+      function inputBoxTextUpdate() {
+          if (ggbObject.getValueString("inputBoxText").match(regex) != null) {
+              number1 = ggbObject.getValueString("inputBoxText").match(regex);
+          }
+          if (ggbObject.getValueString("inputBoxText").match(regex2) != null) {
+              number2 = -1 * ggbObject.getValueString("inputBoxText").match(regex2);
+          }
+      }
+
+      function dragEndKeyUpHotKeyCheck() {
+          if (ggbObject.getObjectType(selectedObject) == "point") {
+              if (
+                  selectedObject.includes("HU_") &&
+                  ggbObject.getXcoord(selectedObject) > -3 &&
+                  ggbObject.getYcoord(selectedObject) > -10
+              ) {
+                  var choppingBlock = pointsH.indexOf(selectedObject);
+                  pointsH.splice(choppingBlock, 1);
+                  ggbObject.setVisible(selectedObject, false);
+                  for (var column = 0; column < 2; column++) {
+                      for (var row = 0; row < 5; row++) {
+                          ggbObject.evalCommand("TE_" + labelTens + " =PointIn(oneTenRegion)");
+                          ggbObject.setCoords(
+                              "TE_" + labelTens,
+                              ggbObject.getXcoord("ig6") + row,
+                              ggbObject.getYcoord("ig6") - 3 - column - 2 * rowAdderTens
+                          );
+                          ggbObject.setColor("TE_" + labelTens, 0, 0, 255);
+                          ggbObject.setLayer("TE_" + labelTens, 0);
+                          pointsT.push("TE_" + labelTens);
+                          ggbObject.setValue("hunsCount3", pointsH.length);
+                          ggbObject.setValue("tensCount3", pointsT.length);
+                          ggbObject.setVisible("t_1", true);
+                          ggbObject.setVisible("a_1", true);
+                          ggbObject.setValue("hunBool", true);
+                          ggbObject.setValue("tenBool", true);
+                          labelTens++;
+                      }
+                  }
+                  rowAdderTens = rowAdderTens + 1;
+                  unbundledTens = unbundledTens + 1;
+                  let beginningReadText = "This dot has been unbundled. ";
+                  let finalReadText = beginningReadText.concat(ggbObject.getValueString("updateText"));
+                  ggbReadText(finalReadText);
+                  sortPointNames();
+              }
+          }
+
+          if (ggbObject.getObjectType(selectedObject) == "point") {
+              if (
+                  selectedObject.includes("TE_") &&
+                  ggbObject.getXcoord(selectedObject) > 3 &&
+                  ggbObject.getYcoord(selectedObject) > -10
+              ) {
+                  var choppingBlock = pointsT.indexOf(selectedObject);
+                  pointsT.splice(choppingBlock, 1);
+                  ggbObject.setVisible(selectedObject, false);
+                  for (var column = 0; column < 2; column++) {
+                      for (var row = 0; row < 5; row++) {
+                          ggbObject.evalCommand("ZO_" + labelOnes + "=PointIn(oneRegion)");
+                          ggbObject.setCoords(
+                              "ZO_" + labelOnes,
+                              ggbObject.getXcoord("ig7") + row,
+                              ggbObject.getYcoord("ig7") - 3 - column - 2 * rowAdderOnes
+                          );
+                          ggbObject.setColor("ZO_" + labelOnes, 127, 0, 255);
+                          ggbObject.setLayer("ZO_" + labelOnes, 0);
+                          pointsO.push("ZO_" + labelOnes);
+                          ggbObject.setValue("tensCount3", pointsT.length);
+                          ggbObject.setValue("onesCount3", pointsO.length);
+                          ggbObject.setVisible("a_1", true);
+                          ggbObject.setVisible("b_1", true);
+                          ggbObject.setValue("tenBool", true);
+                          ggbObject.setValue("oneBool", true);
+                          labelOnes++;
+                      }
+                  }
+                  rowAdderOnes = rowAdderOnes + 1;
+                  unbundledOnes = unbundledOnes + 1;
+                  let beginningReadText = "This dot has been unbundled. ";
+                  let finalReadText = beginningReadText.concat(ggbObject.getValueString("updateText"));
+                  ggbReadText(finalReadText);
+                  sortPointNames();
+              }
+          }
+          if (pointsH.length >= labelHuns2 && pointsT.length >= labelTens2 && pointsO.length >= labelOnes2) {
+              //set question button invisible and subtract it button visible
+              ggbObject.setValue("subtractReady", true);
+          } else {
+              ggbObject.setValue("subtractReady", false);
+          }
+      }
+
+      function checkForMaxMinDragSituation() {
+          let selectedObjectXCoord = ggbObject.getXcoord(selectedObject);
+          let selectedObjectYCoord = ggbObject.getYcoord(selectedObject);
+          let appletMaxXCoord = 9;
+          let appletMaxYCoord = 5;
+          let appletMinXCoord = -9;
+          let appletMinYCoord = -10;
+
+          switch (true) {
+              case selectedObject.includes("ZO_"):
+                  appletMaxXCoord = 8.99;
+                  appletMinXCoord = 3.01;
+                  break;
+              case selectedObject.includes("TE_"):
+                  appletMinXCoord = -3;
+                  break;
+              case selectedObject.includes("HU_"):
+                  appletMaxXCoord = 3;
+                  appletMinXCoord = -9;
+                  break;
+          }
+
+          let minXOnly =
+              selectedObjectXCoord === appletMinXCoord &&
+              selectedObjectYCoord != appletMinYCoord &&
+              selectedObjectYCoord != appletMaxYCoord;
+          let maxXOnly =
+              selectedObjectXCoord === appletMaxXCoord &&
+              selectedObjectYCoord != appletMinYCoord &&
+              selectedObjectYCoord != appletMaxYCoord;
+
+          let minYOnly =
+              selectedObjectYCoord === appletMinYCoord &&
+              selectedObjectXCoord != appletMinXCoord &&
+              selectedObjectXCoord != appletMaxXCoord;
+          let maxYOnly =
+              selectedObjectYCoord === appletMaxYCoord &&
+              selectedObjectXCoord != appletMinXCoord &&
+              selectedObjectXCoord != appletMaxXCoord;
+
+          let minXAndMinY = selectedObjectXCoord === appletMinXCoord && selectedObjectYCoord === appletMinYCoord;
+          let maxXAndMinY = selectedObjectXCoord === appletMaxXCoord && selectedObjectYCoord === appletMinYCoord;
+          let maxXAndMaxY = selectedObjectXCoord === appletMaxXCoord && selectedObjectYCoord === appletMaxYCoord;
+          let minXAndMaxY = selectedObjectXCoord === appletMinXCoord && selectedObjectYCoord === appletMaxYCoord;
+
+          switch (true) {
+              case minXOnly:
+                  ggbReadText("This point is at its minimum x value for this interactive.");
+                  break;
+              case maxXOnly:
+                  ggbReadText("This point is at its maximum x value for this interactive.");
+                  break;
+              case minYOnly:
+                  ggbReadText("This point is at its minimum y value for this interactive.");
+                  break;
+              case maxYOnly:
+                  ggbReadText("This point is at its maximum y value for this interactive.");
+                  break;
+              case minXAndMinY:
+                  ggbReadText("This point is at its minimum x and y value for this interactive.");
+                  break;
+              case maxXAndMinY:
+                  ggbReadText("This point is at its maximum x value and minimum y value for this interactive.");
+                  break;
+              case maxXAndMaxY:
+                  ggbReadText("This point is at its maximum x and y value for this interactive.");
+                  break;
+              case minXAndMaxY:
+                  ggbReadText("This point is at its minimum x value and maximum y value for this interactive.");
+                  break;
+          }
+      }
+
+      function sortPointNames() {
+          initList = "InputBox4";
+          addedList = "";
+          enders = "ggbButton1, ggbButton2, ggbButton3";
+          ggbObject.setTextValue("addedList", "");
+          setTabOrder(initList, addedList, enders);
+
+          let newPointNamesToSort = ggbObject.getAllObjectNames("point");
+          let blankArray = [];
+          for (let i = 0, L = newPointNamesToSort.length; i < L; i++) {
+              if (
+                  newPointNamesToSort[i].includes("ZO_") ||
+                  newPointNamesToSort[i].includes("TE_") ||
+                  newPointNamesToSort[i].includes("HU_")
+              ) {
+                  blankArray.push(newPointNamesToSort[i]);
+              }
+          }
+          const sortAlphaNum = (a, b) =>
+              a.localeCompare(b, "en", {
+                  numeric: true,
+              });
+          // let sortedArray = blankArray.sort();
+          let sortedArray = blankArray.sort(sortAlphaNum);
+          for (let i = 0, L = sortedArray.length; i < L; i++) {
+              addedList = manageAddedList(sortedArray[i], true);
+              setTabOrder(initList, addedList, enders);
+          }
+      }
+
+      function defineButtonClickScripts() {
+          // defines button scripts
+          // keep this function, but you can delete anything/everything inside it
+          return {
+              ggbButton1: function() {
+                  ggbObject.setValue("subt1", number1);
+                  ggbObject.setValue("subt2", number2);
+                  popul8();
+                  ggbObject.setValue("step", 1);
+                  enableButton(3, true);
+                  if (number1 == number2) {
+                      ggbObject.setValue("subtractReady", true);
+                  }
+                  ggbReadText("updateText", true);
+              },
+              ggbButton2: function() {
+                  matchIt();
+                  ggbObject.setValue("step", 2);
+                  ggbReadText("updateText", true);
+              },
+              ggbButton3: function() {
+                  reset();
+                  ggbObject.setValue("step", 3);
+                  enableButton(3, false);
+                  ggbReadText("updateText", true);
+              },
+              ggbButton4: function() {},
+              ggbButton5: function() {},
+          };
+      }
+
+      function defineKeyboardInstructions(obj) {
+          // takes a GGB object name as an argument, returns its keyboard text.
+
+          if (ggbObject.getObjectType(obj) === "point") {
+              if (obj.includes("ZO_")) {
+                  return "Press the arrow keys to move this dot.";
+              } else {
+                  return "Press the arrow keys to move this dot.\\\\Press u to unbundle this dot.";
+              }
+          }
+
+          const keyboardInstructions = {
+              InputBox4: "Input a value and click the Display button to submit.",
+              ggbButton1: ggbObject.getValue("ggbButton1Enabled") ? "Press space to display the subtraction problem." : unavailableButtonText,
+              ggbButton2: ggbObject.getValue("ggbButton2Enabled") ? "Press space to subtract the dots." : unavailableButtonText,
+              ggbButton3: ggbObject.getValue("ggbButton3Enabled") ? "Press space to reset your work." : unavailableButtonText,
+              ggbButton4: ggbObject.getValue("ggbButton4Enabled") ? "Press space to ___." : unavailableButtonText,
+              ggbButton5: ggbObject.getValue("ggbButton5Enabled") ? "Press space to ___." : unavailableButtonText,
+          };
+          return keyboardInstructions[obj];
+      }
+
+      //unbundles points dragged into new regions
+      function clientFunction(a) {
+          switch (a.type) {
+              case "select":
+                  selectedObject = a.target;
+                  if (ggbObject.getObjectType(a.target) == "point") {
+                      xCoord = ggbObject.getXcoord(a.target);
+                      yCoord = ggbObject.getYcoord(a.target);
+                  }
+                  break;
+              case "deselect":
+                  selectedObject = "";
+                  break;
+              case "dragEnd":
+                  dragEndKeyUpHotKeyCheck();
+                  setTimeout(function() {
+                      checkForMaxMinDragSituation();
+                  }, 100);
+                  break;
+          }
+      }
+
+      function clickListenerFunction(a) {
+          // switch (a) {}
+      }
+
+      function keyit(event) {
+          // feel free to use event.key instead
+          switch (true) {
+              case event.key.includes("Arrow"):
+                  if (ggbObject.getObjectType(selectedObject) === "point" && ggbObject.getVisible(selectedObject)) {
+                      dragEndKeyUpHotKeyCheck();
+                  }
+                  setTimeout(function() {
+                      checkForMaxMinDragSituation();
+                  }, 100);
+                  break;
+              case event.key === "u" && !selectedObject.includes("ZO_"):
+                  if (ggbObject.getObjectType(selectedObject) === "point" && ggbObject.getVisible(selectedObject)) {
+                      ggbObject.setCoords(
+                          selectedObject,
+                          ggbObject.getXcoord(selectedObject) + 6.5,
+                          ggbObject.getYcoord(selectedObject)
+                      );
+                      dragEndKeyUpHotKeyCheck();
+                  }
+                  break;
+          }
+      }
+
+      //add new stuff above this line
   });
 
   /*
    * IGNORE BELOW
    */
   function loadUtils() {
-    function parseJS(JSString) {
-      return Function("" + JSString)();
-    }
-    if (!window.didUtils || !window.didUtils.setupGGB) {
-      return fetch("https://cdn.digital.greatminds.org/did-utils/latest/index.js", {
-        cache: "no-cache",
-      })
-        .then(function (response) {
-          return response.text();
-        })
-        .then(function (codingText) {
-          parseJS(codingText);
-        })
-        .then(function () {
-          return window.didUtils.setupGGB;
-        });
-    }
-    return Promise.resolve(window.didUtils.setupGGB);
+      function parseJS(JSString) {
+          return Function("" + JSString)();
+      }
+      if (!window.didUtils || !window.didUtils.setupGGB) {
+          return fetch("https://cdn.digital.greatminds.org/did-utils/latest/index.js", {
+              cache: "no-cache",
+          })
+              .then(function(response) {
+                  return response.text();
+              })
+              .then(function(codingText) {
+                  parseJS(codingText);
+              })
+              .then(function() {
+                  return window.didUtils.setupGGB;
+              });
+      }
+      return Promise.resolve(window.didUtils.setupGGB);
   }
 }

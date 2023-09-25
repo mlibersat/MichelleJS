@@ -85,14 +85,14 @@ function checkForMaxMinDragSituation() {
 /////////////////////OPTION 3 RETURN STRING TO CONCAT//////////////
 
 function returnMinMaxString() {
-  let selectedObjectXCoord = ggbObject.getXcoord(selectedObject);
-  let selectedObjectYCoord = ggbObject.getYcoord(selectedObject);
-  let appletMaxXCoord = ggbObject.getValue("maxXPoint");
-  let appletMaxYCoord = ggbObject.getValue("maxYPoint");
-  let appletMinXCoord = ggbObject.getValue("minXPoint");
-  let appletMinYCoord = ggbObject.getValue("minYPoint");
+  const selectedObjectXCoord = ggbObject.getXcoord(selectedObject);
+  const selectedObjectYCoord = ggbObject.getYcoord(selectedObject);
+  const appletMaxXCoord = ggbObject.getValue("maxXPoint");
+  const appletMaxYCoord = ggbObject.getValue("maxYPoint");
+  const appletMinXCoord = ggbObject.getValue("minXPoint");
+  const appletMinYCoord = ggbObject.getValue("minYPoint");
   let readMinMax = "";
-  let pointLocationStr = "";
+  const pointLocationStr = "";
   // If using restrictFreePoint function
   // if (pointRestricted) {
   //   pointLocationStr = "The point moved to (".concat(
@@ -103,30 +103,30 @@ function returnMinMaxString() {
   //   );
   // }
 
-  let moveFurtherText = " To move this point further, first use the Zoom Out button to expand the zoom window. ";
+  const moveFurtherText = " To move this point further, first use the Zoom Out button to expand the zoom window. ";
 
-  let minXOnly =
+  const minXOnly =
     selectedObjectXCoord === appletMinXCoord &&
-    selectedObjectYCoord != appletMinYCoord &&
-    selectedObjectYCoord != appletMaxYCoord;
-  let maxXOnly =
+    selectedObjectYCoord !== appletMinYCoord &&
+    selectedObjectYCoord !== appletMaxYCoord;
+  const maxXOnly =
     selectedObjectXCoord === appletMaxXCoord &&
-    selectedObjectYCoord != appletMinYCoord &&
-    selectedObjectYCoord != appletMaxYCoord;
+    selectedObjectYCoord !== appletMinYCoord &&
+    selectedObjectYCoord !== appletMaxYCoord;
 
-  let minYOnly =
+  const minYOnly =
     selectedObjectYCoord === appletMinYCoord &&
-    selectedObjectXCoord != appletMinXCoord &&
-    selectedObjectXCoord != appletMaxXCoord;
-  let maxYOnly =
+    selectedObjectXCoord !== appletMinXCoord &&
+    selectedObjectXCoord !== appletMaxXCoord;
+  const maxYOnly =
     selectedObjectYCoord === appletMaxYCoord &&
-    selectedObjectXCoord != appletMinXCoord &&
-    selectedObjectXCoord != appletMaxXCoord;
+    selectedObjectXCoord !== appletMinXCoord &&
+    selectedObjectXCoord !== appletMaxXCoord;
 
-  let minXAndMinY = selectedObjectXCoord === appletMinXCoord && selectedObjectYCoord === appletMinYCoord;
-  let maxXAndMinY = selectedObjectXCoord === appletMaxXCoord && selectedObjectYCoord === appletMinYCoord;
-  let maxXAndMaxY = selectedObjectXCoord === appletMaxXCoord && selectedObjectYCoord === appletMaxYCoord;
-  let minXAndMaxY = selectedObjectXCoord === appletMinXCoord && selectedObjectYCoord === appletMaxYCoord;
+  const minXAndMinY = selectedObjectXCoord === appletMinXCoord && selectedObjectYCoord === appletMinYCoord;
+  const maxXAndMinY = selectedObjectXCoord === appletMaxXCoord && selectedObjectYCoord === appletMinYCoord;
+  const maxXAndMaxY = selectedObjectXCoord === appletMaxXCoord && selectedObjectYCoord === appletMaxYCoord;
+  const minXAndMaxY = selectedObjectXCoord === appletMinXCoord && selectedObjectYCoord === appletMaxYCoord;
 
   switch (true) {
     case minXOnly:

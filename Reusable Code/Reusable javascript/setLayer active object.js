@@ -1,3 +1,14 @@
+////////////////// Better function ////////////
+// example: call the object in the select or deselect case of the client listener
+
+// if(ggbObject.getObjectType(selectedObject)==="point"){bringSallyUpBringSallyDown(selectedObject, "up", 1);}
+
+function bringSallyUpBringSallyDown(obj, upOrDownString, numLayerChange = 1) {
+  const currentLayer = ggbObject.getLayer(obj);
+  const newLayer = upOrDownString === "up" ? currentLayer + numLayerChange : currentLayer - numLayerChange;
+  ggbObject.setLayer(obj, newLayer);
+}
+
 ////////////////// Simple case ////////////////
 
 function clientFunction(a) {
@@ -44,6 +55,7 @@ function clientFunction(a) {
 
 // When unlock is pressed, bring drag line to top layers, and move boundary line on bottom
 // Note: Layers/visiblity also affected by platform components
+const objectsToSetLayer = [];
 function bringSallyUp() {
   ggbObject.setLayer("dragLineWhite", 4);
   ggbObject.setLayer("DragPoint1", 7);
@@ -68,4 +80,10 @@ function bringSallyDown() {
   ggbObject.setLayer("eq1White", 5);
   ggbObject.setLayer("eq1", 6);
   ggbObject.setLayer("text1", 6);
+}
+
+function bringSallyUpBringSallyDown(obj, upOrDownString, numLayerChange = 1) {
+  const currentLayer = ggbObject.getLayer(obj);
+  const newLayer = upOrDownString === "up" ? currentLayer + numLayerChange : currentLayer - numLayerChange;
+  ggbObject.setLayer(obj, newLayer);
 }

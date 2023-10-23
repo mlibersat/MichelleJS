@@ -99,23 +99,23 @@ function ggbOnInit(name, ggbObject) {
     function setBoxWidth(imageName = "") {
       const currentBoxWidth = ggbObject.getValue("boxWidth");
       // Do not add any extra width if the object is being deselected - remove width
-      console.log("imageName :%o,  getWidthFromImageName: %o", imageName, getWidthFromImageName(imageName));
+      // console.log("imageName :%o,  getWidthFromImageName: %o", imageName, getWidthFromImageName(imageName));
       const objWidth = imageName === "" ? 0 : getWidthFromImageName(imageName);
       const numObjectsInBox = objectPointsInBox.length;
 
       const allGaps = (numObjectsInBox + 2) * snapGap;
       let sumWidths = 0;
-      console.warn("imageName", imageName, "objectPointsInBox before.", objectPointsInBox);
-      console.log("Is imageName %o in objectPointsInBox? %o", imageName, objectPointsInBox.includes(imageName));
+      // console.warn("imageName", imageName, "objectPointsInBox before.", objectPointsInBox);
+      // console.log("Is imageName %o in objectPointsInBox? %o", imageName, objectPointsInBox.includes(imageName));
       objectPointsInBox.forEach(function (pointInBox) {
         sumWidths += getWidthFromImageName(getImageNameFromPointName(pointInBox));
 
-        console.log(
-          "getWidthFromImageName(getImageNameFromPointName(%o)) %o + snapGap %o",
-          pointInBox,
-          getWidthFromImageName(getImageNameFromPointName(pointInBox)),
-          (numObjectsInBox - 1) * snapGap
-        );
+        // console.log(
+        //   "getWidthFromImageName(getImageNameFromPointName(%o)) %o + snapGap %o",
+        //   pointInBox,
+        //   getWidthFromImageName(getImageNameFromPointName(pointInBox)),
+        //   (numObjectsInBox - 1) * snapGap
+        // );
       });
       const neededWidth = sumWidths + allGaps + objWidth;
       const widthToSet =
@@ -127,21 +127,21 @@ function ggbOnInit(name, ggbObject) {
           ? neededWidth
           : currentBoxWidth;
 
-      console.log(
-        "neededWidth %o = \nsumWidths %o + \nobjWidth %o + \nsnapGap %o, \nneededWidth >= maxBoxWidth %o.  If True: %o , \nneededWidth <= minBoxWidth %o,  If True: %o  \nneededWidth >= currentBoxWidth %o,  If True: %o \nIf all false: currentBoxWidth %o.....\n>>> Width To Set: %o",
-        neededWidth,
-        sumWidths,
-        objWidth,
-        snapGap,
-        neededWidth >= maxBoxWidth,
-        maxBoxWidth,
-        neededWidth <= minBoxWidth,
-        minBoxWidth,
-        neededWidth >= currentBoxWidth,
-        neededWidth,
-        currentBoxWidth,
-        widthToSet
-      );
+      // console.log(
+      //   "neededWidth %o = \nsumWidths %o + \nobjWidth %o + \nsnapGap %o, \nneededWidth >= maxBoxWidth %o.  If True: %o , \nneededWidth <= minBoxWidth %o,  If True: %o  \nneededWidth >= currentBoxWidth %o,  If True: %o \nIf all false: currentBoxWidth %o.....\n>>> Width To Set: %o",
+      //   neededWidth,
+      //   sumWidths,
+      //   objWidth,
+      //   snapGap,
+      //   neededWidth >= maxBoxWidth,
+      //   maxBoxWidth,
+      //   neededWidth <= minBoxWidth,
+      //   minBoxWidth,
+      //   neededWidth >= currentBoxWidth,
+      //   neededWidth,
+      //   currentBoxWidth,
+      //   widthToSet
+      // );
 
       // if there is room for the currently selected object to fit inside the box, do not change the width. Otherwise make the width wide enough to accommodate the currently selected object, up until the maxBoxWidth
       ggbObject.setValue("boxWidth", widthToSet);
@@ -149,7 +149,7 @@ function ggbOnInit(name, ggbObject) {
     }
 
     function snapAllBoxObjects() {
-      console.warn("in snapAllBoxPoints", selectedObject);
+      // console.warn("in snapAllBoxPoints", selectedObject);
       const selectedPointName = getPointNameFromImageName(selectedObject);
       // (re)organize the objects in the box to fill in any gaps, & sort objectPointsInBox array from least to greatest x-coord
       let sortedObjects = [];
@@ -229,7 +229,7 @@ function ggbOnInit(name, ggbObject) {
           // console.warn("current Image Is Being Dragged - do not set coords");
         }
       });
-      console.log("End snapAllBoxPoints");
+      // console.log("End snapAllBoxPoints");
     }
 
     function getImageNameFromPointName(pointName) {
@@ -267,7 +267,7 @@ function ggbOnInit(name, ggbObject) {
     }
 
     function checkLocation(imageName) {
-      console.warn("In checkLocation", imageName, "dragging", dragging);
+      // console.warn("In checkLocation", imageName, "dragging", dragging);
       const shape = getShapeTypeFromImageName(imageName);
 
       const numTotalObjectsOfType = ggbObject.getValue("active" + shape);
@@ -302,6 +302,7 @@ function ggbOnInit(name, ggbObject) {
             makeCopy(shape);
           } else if (!dragging) {
             ggbObject.evalCommand("SelectObjects(movable" + shape + "+Pic)");
+            console.log("In checkLocation - selecting ", "movable", shape, "+Pic");
           }
           break;
         }
@@ -309,7 +310,7 @@ function ggbOnInit(name, ggbObject) {
           // If a student moves an image out of the box, delete the image
           if (!dragging) {
             deleteCopy(imageName);
-            console.log("movedOutOfBin && not dragging");
+            // console.log("movedOutOfBin && not dragging");
           }
           break;
         }
@@ -324,7 +325,7 @@ function ggbOnInit(name, ggbObject) {
     }
 
     function makeCopy(shape) {
-      console.log("In makeCopy. shape:", shape);
+      // console.log("In makeCopy. shape:", shape);
       const movableImageName = "movable" + shape + "Pic";
       const numTotalObjectsOfType = ggbObject.getValue("active" + shape);
       // console.log(selectedObject, objectPointsInBox);
@@ -366,6 +367,7 @@ function ggbOnInit(name, ggbObject) {
       // push the object name to the objectsInBox array
       if (!objectPointsInBox.includes(newShapePoint)) {
         objectPointsInBox.push(newShapePoint);
+        console.warn("adding ", newShapePoint, "to objects array");
       }
 
       // add 1 to the GGB object numObjectsInBox (when numObjectsInBox >=5, the movable pics will not be visible)
@@ -387,11 +389,11 @@ function ggbOnInit(name, ggbObject) {
 
     // if a bottom point of a newly created image is moved to the bin, delete the image
     function deleteCopy(imageName) {
-      console.log("in DeleteCopy,", imageName);
+      // console.log("in DeleteCopy,", imageName);
 
       const shape = getShapeTypeFromImageName(imageName);
       const indexBeforeDeletion = objectPointsInBox.indexOf(getPointNameFromImageName(imageName));
-      console.log("indexBeforeDeletion", indexBeforeDeletion);
+      // console.log("indexBeforeDeletion", indexBeforeDeletion);
       // delete the image
       ggbObject.deleteObject(imageName);
 
@@ -404,10 +406,13 @@ function ggbOnInit(name, ggbObject) {
       // update the value of the ggb numObjectsInBox counter for conditional visibility
       ggbObject.setValue("numObjectsInBox", newNumObjectsInBox);
 
+      console.warn("filtering objectPointsInBox. Before: ", objectPointsInBox);
+
       // remove the point from the objectPointsInBox array
       objectPointsInBox = objectPointsInBox.filter(function (el) {
         return el !== imageName + "Point";
       });
+      console.log("filtering objectPointsInBox. After: ", objectPointsInBox);
 
       // set the box width based on the remaining objects in the box
       // console.log("in deleteCopy - setBoxWidth()");
@@ -430,7 +435,7 @@ function ggbOnInit(name, ggbObject) {
         // const lastImageName = getImageNameFromPointName(lastObjectPoint);
         // console.log("In selectNext. Else - select lastImage", lastImageName);
         // ggbObject.evalCommand("SelectObjects(" + lastImageName + ")");
-        console.log("deletedImage", deletedImage, "indexBeforeDeletion", indexBeforeDeletion);
+        // console.log("deletedImage", deletedImage, "indexBeforeDeletion", indexBeforeDeletion);
 
         const nextShapeInBox = objectPointsInBox[indexBeforeDeletion];
         ggbObject.evalCommand("SelectObjects(" + getImageNameFromPointName(nextShapeInBox) + ")");
@@ -680,7 +685,7 @@ function ggbOnInit(name, ggbObject) {
           console.log("select ", selectedObject);
           // make the box wider if the student grabs an image (not on tabSelect to avoid the width changing while selectObject is happening)
           if (selectedObject.includes("movable")) {
-            console.log("in select IF - setBoxWidth(selObj)", selectedObject);
+            // console.log("in select IF - setBoxWidth(selObj)", selectedObject);
             setBoxWidth(selectedObject);
           }
           // if (tabSelect && selectedObject.includes("movable")) { //////////////////////////////// COME BACK
@@ -688,7 +693,7 @@ function ggbOnInit(name, ggbObject) {
           //   setBoxWidth(selectedObject);
           // }
           else {
-            console.log("in select ELSE - setBoxWidth()");
+            // console.log("in select ELSE - setBoxWidth()");
             setBoxWidth();
           }
           break;
@@ -721,8 +726,8 @@ function ggbOnInit(name, ggbObject) {
         }
         case "deselect": {
           // tabSelect = false;
+          console.warn("deselect");
           moveBinImageToBox = false;
-          console.error("deselect");
           // console.log("in deselect - setBoxWidth()");
           selectedObject = "";
           setBoxWidth();
@@ -733,7 +738,7 @@ function ggbOnInit(name, ggbObject) {
 
     function clickListenerFunction(clickedName) {
       // clickedName is a string
-      console.log("clickedName", clickedName);
+      // console.log("clickedName", clickedName);
       if (ggbObject.getObjectType(clickedName) === "image") {
         if (clickedName.includes("movable")) {
           // console.log("movable Pic clicked, -> check location");
@@ -741,21 +746,22 @@ function ggbOnInit(name, ggbObject) {
           // If an image in the bin was clicked, add it to the box above
           checkLocation(clickedName);
           // select the bin object if available, otherwise, select the play button
-          console.log(
-            "In click Listener - ggbObject.getVisible(clickedName: %o): %o  \nobjectPointsInBox.length === numAllowableShapes: %o",
-            clickedName,
-            ggbObject.getVisible(clickedName),
-            objectPointsInBox.length === numAllowableShapes
-          );
+          // console.log(
+          //   "In click Listener - ggbObject.getVisible(clickedName: %o): %o  \nobjectPointsInBox.length === numAllowableShapes: %o",
+          //   clickedName,
+          //   ggbObject.getVisible(clickedName),
+          //   objectPointsInBox.length === numAllowableShapes
+          // );
           // The clicked shape is able to be replicated again, select the clicked shape
           if (ggbObject.getVisible(clickedName)) {
+            console.log("In click listener - bin object is available - select ", clickedName);
             ggbObject.evalCommand("SelectObjects(" + clickedName + ")");
           } else if (objectPointsInBox.length === numAllowableShapes) {
             console.log("In click listener. Box is full - select play button");
             // All bin objects are disabled - the limit for the box has been reached, select the play button
             ggbObject.evalCommand("SelectObjects(ggbButton1)");
           } else {
-            console.log("In click listener - else statement");
+            // console.log("In click listener - else statement");
             // the clicked shape has reached it's limit for the box, but a different shape can be added
             const nextShapeInBin = shapes[shapes.indexOf(getShapeTypeFromImageName(clickedName)) + 1];
             ggbObject.evalCommand("SelectObjects(movable" + nextShapeInBin + "Pic)");
@@ -765,9 +771,11 @@ function ggbOnInit(name, ggbObject) {
         } else if (!imagesToIgnore.includes(clickedName)) {
           // If an image in the box was clicked, send it back to the bin and delete
           console.log("deleting Copy", clickedName);
+          // TODO: Maybe - before deleting copy, select the next object
           deleteCopy(clickedName);
         }
       }
+      console.log("End click listener funciton");
     }
 
     function keyit(keyEvent) {

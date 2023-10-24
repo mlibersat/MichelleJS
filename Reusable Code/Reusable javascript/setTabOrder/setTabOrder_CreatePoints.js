@@ -46,6 +46,11 @@ Objects in GGB are:
 Remove tabOrder and addedList from Graphics View 1 so they never show.
 */
 
+    /* 
+      If using your own starters (especially if your applet doesn't have an xIcon), use the default 4th variable for a string of starters
+      const starters = "instructionsIcon"
+      setTabOrder(initList, addedList, enders, starters);
+      */
     var initList = "A,B,C,D,E"; // A list of all things you want in the tabOrder when the applet initializes. One string, separated by commas. No need to add status name, instructionIcon or xIcon. Those are added in the library.
     var addedList = ""; // A list of all items added since the first initialization (e.g., objects created onthe fly). One string, separated by commas.
     var enders = "ggbButton1, ggbButton2"; // A list of all items that need to be at the end of the tabOrder list. One string, separated by commas.
@@ -56,6 +61,7 @@ Remove tabOrder and addedList from Graphics View 1 so they never show.
     // Needed for going forward and back a slide
     if (ggbObject.getValue("Length(tabOrder)") === 0) {
       setTabOrder(initList, addedList, enders);
+      console.log("tabOrder: ", ggbObject.getDefinitionString("tabOrder"));
     }
 
     function defineStatusName() {
@@ -137,6 +143,11 @@ Remove tabOrder and addedList from Graphics View 1 so they never show.
     // Optional/Recommended: If you want to be able to reset your applet to the initial number of objects on initialization, write a function that resets your lists to their initial state and sets the click count to 0
     // Ex: Call this funciton on a reset button
     function reset() {
+      /* 
+      If using your own starters (especially if your applet doesn't have an xIcon), use the default 4th variable for a string of starters
+      const starters = "instructionsIcon"
+      setTabOrder(initList, addedList, enders, starters);
+      */
       initList = "A,B,C,D,E"; // A list of all things on "stage" when applet initializes. One string, separated by commas
       addedList = ""; // A list of all items added since the first initialization (e.g., objects created onthe fly). One string, separated by commas.
       enders = "ggbButton1"; // A list of all items that need to be at the end of the tabOrder list. One string, separated by commas.

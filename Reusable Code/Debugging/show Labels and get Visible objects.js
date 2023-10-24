@@ -26,3 +26,20 @@ for (let i = 0, L = objectNames.length; i < L; i++) {
   }
   ggbApplet.setLabelVisible(objectNames[i], true);
 }
+
+// Add function to JS, if desired
+// Keep
+/*     // For console log - can delete after debugging
+    function logVisibleGGBObjectsOfType(typeString, labelBool = true) {
+      const objectNames = ggbObject.getAllObjectNames();
+      for (let i = 0, L = objectNames.length; i < L; i++) {
+        if (ggbObject.getObjectType(objectNames[i]) === typeString) {
+          console.log(
+            objectNames[i],
+            " visible: ",
+            ggbObject.getVisible(objectNames[i])
+          );
+          ggbObject.setLabelVisible(objectNames[i], labelBool);
+        }
+      }
+    } */

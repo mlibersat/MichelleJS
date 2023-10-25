@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Option 1 below - For a "simple" GGB List containing values or strings (not points or complex elements).  //
+// Option 1 below - For a "simple" GGB List containing values or strings (not points with coordinates or complex elements).  //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Function to push GeoGebra list values to a JavaScript array
 function pushGeoGebraListToJSArray(geoGebraListName, jsArray) {

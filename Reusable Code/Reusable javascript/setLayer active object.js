@@ -1,12 +1,19 @@
 ////////////////// Better function ////////////
-// example: call the object in the select or deselect case of the client listener
+/* 
+example: call the object in the select or deselect case of the client listener. Note: move the selected object back down before resetting the selectedobject variable
+in select case:
+   if(ggbObject.getObjectType(selectedObject)==="point"){bringSallyUpBringSallyDown(selectedObject, "up", 1);}
 
-// if(ggbObject.getObjectType(selectedObject)==="point"){bringSallyUpBringSallyDown(selectedObject, "up", 1);}
+in deselect"
+   bringSallyUpBringSallyDown(selectedObject, "down", 1);
+   selectedObject = ""; 
+*/
 
 function bringSallyUpBringSallyDown(obj, upOrDownString, numLayerChange = 1) {
   const currentLayer = ggbObject.getLayer(obj);
   const newLayer = upOrDownString === "up" ? currentLayer + numLayerChange : currentLayer - numLayerChange;
   ggbObject.setLayer(obj, newLayer);
+  //console.log("Object %o changed layer from %o to %o.", obj, currentLayer, newLayer);
 }
 
 ////////////////// Simple case ////////////////

@@ -1,8 +1,19 @@
 <!-- line below is usually optional - telling the site that this is an html doc if it doesn't already know. Has no closing tag-->
 <!-- HTML: hyper text markup language (ability ot have links) HTML displays and describes the structure of a webpage -->
 <!-- CSS: cascading style sheets-->
+<!-- Styling with CSS - https://www.w3schools.com/html/html_css.asp 
+  Ex(Stylesheet):
+<link rel="stylesheet" href="styles.css">
+"In-line CSS is frowned upon" ~Levi
+Ex (in-line): 
+<h1 style="color:blue;">A Blue Heading</h1>
+-->
+<!-- Classes start with a  dot .
+You can give classes to and element, which is global,
+you can give them ID's (maybe with the # sign), which only one particular thing gets that ID. -->
 <!-- XML: extensible markup language XML stores and transfers data-->
 <!-- JSON: Javascript Object Notation - has all the files and code that are needed to run the thing -->
+<!-- DOM = Document Object Model  -->
 <!-- In the globalJS can use GGb API to see everything in the GGB file - 
 example: 
 console.log(ggbObject.getXML());
@@ -12,11 +23,16 @@ console.log(ggbObject.getBase64());
 
 <!doctype html>
 <!-- html is an "element" -->
-<!-- lang is an "attribute" that can be applied "Globally" to the element html-->
+<!-- lang is an "attribute" that can be applied "Globally" to the element html
+we think "en" is the "value"?
+-->
 <!-- https://www.w3schools.com/tags/ref_attributes.asp -->
 <html lang="en">
   <!-- head is an "element" -->
   <head>
+    <!-- rel = relationship 
+         href = hypertext reference ?-->
+    <link rel="stylesheet" href="MyAwesomeStyle.css" />
     <meta charset="utf-8" />
     <style></style>
     <!-- This is the title in the tab in Chrome -->

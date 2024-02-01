@@ -1,3 +1,8 @@
 {
-  "eslint.run": "onSave"
+  "eslint.run": "onSave",
+
+  "editor.quickSuggestions": {
+    "other": true, // you need this if you want ctrl+space to work elsewhere.
+    "strings": true // this is your relevant option
+  }
 }

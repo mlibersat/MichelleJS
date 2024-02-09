@@ -23,9 +23,11 @@ javascript: (() => {
     const RTSReceivingSlides = [];
     const imagesNotInBynder = {};
     const imagesInBynder = {};
+    const uniqueGGBIDs = [];
     const oldCompSearchTypes = ["radiogroup", "checkbox", "table", "fillblank", "textbox"];
     const compTypesWithImages = ["image", "select", "categorization"];
     const targetedSearchTypes = ["complextable", "table"];
+
     data.slides.forEach((slide, index) => {
       const codingLayer = slide.code;
       const regTest = /slide.on\("firstload", \(\) => {.*didUtils.*}\)/gs;
@@ -44,6 +46,7 @@ javascript: (() => {
       tempContentsArray.forEach((content) => {
         const tempType = content.type;
         const tempName = content.name;
+        const tempConfig = content.config;
         if (
           oldCompSearchTypes.includes(tempType) &&
           !tempName.includes("cc_submit") &&
@@ -89,6 +92,9 @@ javascript: (() => {
             }
           }
         }
+        if (tempType === "geogebra" && !uniqueGGBIDs.includes(tempConfig.materialId)) {
+          uniqueGGBIDs.push(tempConfig.materialId);
+        }
       });
       if (tempSlideArrayOldComps.length !== 0) {
         compSwapsBySlide["Slide " + (index + 1)] = tempSlideArrayOldComps;
@@ -113,6 +119,7 @@ javascript: (() => {
       }
     });
     console.log("Slides with images not in Bynder:", imagesNotInBynder);
+    console.log("unique GGB Material IDs:", uniqueGGBIDs);
     console.log("Slides with Bynder images:", imagesInBynder);
     const targetedTypeString = targetedSearchTypes.join(", ");
     console.log("Slides that contain the targeted search terms ", targetedTypeString, ": \n", targetedCompsBySlide);

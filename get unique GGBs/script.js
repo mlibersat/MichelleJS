@@ -1,6 +1,6 @@
 // pull elements from document and name them
 const pastedJSON = document.getElementById("json-object");
-const filePicker = document.getElementById("upload");
+// const filePicker = document.getElementById("upload");
 const input1 = document.getElementById("lessonID");
 const button1 = document.getElementById("id-submit");
 const button2 = document.getElementById("pull-text");
@@ -15,7 +15,7 @@ const sleep = (ms = 0) =>
   });
 
 const link1 = document.getElementById("downloadJSON-link");
-filePicker.addEventListener("change", readFile, false);
+// filePicker.addEventListener("change", readFile, false);
 
 let workingJSON = {};
 // const language = "spanish";
@@ -27,39 +27,39 @@ let translatedSlides;
 let translatedApplet;
 let translatedGlobalJS;
 
-function readFile(event) {
-  while (pastedJSON.firstChild) {
-    pastedJSON.removeChild(pastedJSON.firstChild);
-  }
-  const uploadedFiles = event.target.files;
-  for (const singleFile of uploadedFiles) {
-    const reader = new FileReader();
-    const showFile = (file) => {
-      const fileNameLI = document.createElement("li");
-      fileNameLI.innerHTML = singleFile.name;
-      pastedJSON.appendChild(fileNameLI);
-      switch (true) {
-        case singleFile.name.includes("Slides"): {
-          translatedSlides = file.target.result;
-          break;
-        }
-        case singleFile.name.includes("Applet"): {
-          translatedApplet = file.target.result;
-          break;
-        }
-        case singleFile.name.includes("GlobalJS"): {
-          translatedGlobalJS = file.target.result;
-          break;
-        }
-      }
-    };
-    const handleLoadedFile = () => {
-      return showFile;
-    };
-    reader.onload = handleLoadedFile(singleFile);
-    reader.readAsText(singleFile);
-  }
-}
+// function readFile(event) {
+//   while (pastedJSON.firstChild) {
+//     pastedJSON.removeChild(pastedJSON.firstChild);
+//   }
+//   const uploadedFiles = event.target.files;
+//   for (const singleFile of uploadedFiles) {
+//     const reader = new FileReader();
+//     const showFile = (file) => {
+//       const fileNameLI = document.createElement("li");
+//       fileNameLI.innerHTML = singleFile.name;
+//       pastedJSON.appendChild(fileNameLI);
+//       switch (true) {
+//         case singleFile.name.includes("Slides"): {
+//           translatedSlides = file.target.result;
+//           break;
+//         }
+//         case singleFile.name.includes("Applet"): {
+//           translatedApplet = file.target.result;
+//           break;
+//         }
+//         case singleFile.name.includes("GlobalJS"): {
+//           translatedGlobalJS = file.target.result;
+//           break;
+//         }
+//       }
+//     };
+//     const handleLoadedFile = () => {
+//       return showFile;
+//     };
+//     reader.onload = handleLoadedFile(singleFile);
+//     reader.readAsText(singleFile);
+//   }
+// }
 
 function gatherData(download = false) {
   while (pastedJSON.firstChild) {
@@ -112,11 +112,11 @@ function gatherData(download = false) {
                 //   ggbApplet.remove();
                 // });
                 downloadedGGB.push(geoGebraMaterialId);
-                console.log(downloadedGGB);
               }
             }
           }
         }
+        console.log(downloadedGGB);
 
         bigObject.spanish = bigObject.english;
         if (document.querySelector(".applet_scaler")) {
@@ -126,15 +126,15 @@ function gatherData(download = false) {
           document.querySelector("#ggb-element").style = "height:0";
         }
         if (download) {
-          downloadData({
-            type: "Slides",
-            title: data.title,
-            level: data.level,
-            module: data.module,
-            topic: data.topic,
-            lesson: data.lesson,
-            data,
-          });
+          // downloadData({
+          //   type: "Slides",
+          //   title: data.title,
+          //   level: data.level,
+          //   module: data.module,
+          //   topic: data.topic,
+          //   lesson: data.lesson,
+          //   data,
+          // });
         } else {
           console.log(bigObject);
         }

@@ -1,0 +1,143 @@
+javascript: (() => {
+  const prelimData = prompt(
+    "1. Add to coding layer: console.log(utils.getCurrentLesson()); \n2. Copy JSON object from console and paste it here."
+  );
+  function getCompInfo(prelimData) {
+    const data = JSON.parse(prelimData);
+    console.log("JSON lesson data:", data);
+    const firstLoadIssueSlides = [];
+    const onInitIssueSlides = [];
+    const katexSlides = [];
+    const compSwapsBySlide = {};
+    const targetedCompsBySlide = {};
+    const getPrevCompSlides = [];
+    const RTSSendingSlides = [];
+    const RTSReceivingSlides = [];
+    const imagesNotInBynder = {};
+    const imagesInBynder = {};
+    const uniqueGGBIDs = [];
+    const oldCompSearchTypes = ["radiogroup", "checkbox", "table", "fillblank", "textbox"];
+    const compTypesWithImages = ["image", "select", "categorization"];
+    const targetedSearchTypes = ["complextable", "table"];
+    data.fetchedSlides.forEach((slide, index) => {
+      const codingLayer = slide.code;
+      const regTest = /slide.on\("firstload", \(\) => {.*didUtils.*}\)/gs;
+      if (regTest.test(codingLayer)) {
+        firstLoadIssueSlides.push("slide " + (index + 1));
+      }
+      const regTest2 = /didUtils.onInit\(\(\)=>{.*}\)/gs;
+      if (regTest2.test(codingLayer)) {
+        onInitIssueSlides.push("slide " + (index + 1));
+      }
+      const mathType = slide.mathRender;
+      if (mathType === "katex") {
+        katexSlides.push("slide " + (index + 1));
+      }
+      const tempContentsArray = slide.contents;
+      const tempSlideArrayOldComps = [];
+      const tempSlideArrayTargetedComps = [];
+      const tempImagesNotInBynder = [];
+      const tempImagesInBynder = [];
+      tempContentsArray.forEach((content) => {
+        const tempType = content.type;
+        const tempName = content.name;
+        const tempConfig = content.config;
+        if (
+          oldCompSearchTypes.includes(tempType) &&
+          !tempName.includes("cc_submit") &&
+          !tempName.includes("cc_sharewithclass")
+        ) {
+          tempSlideArrayOldComps.push("Comp Type: " + tempType + " Comp Name: " + tempName);
+        }
+        if (
+          targetedSearchTypes.includes(tempType) &&
+          !tempName.includes("cc_submit") &&
+          !tempName.includes("cc_sharewithclass")
+        ) {
+          tempSlideArrayTargetedComps.push("Comp Type: " + tempType + " Comp Name: " + tempName);
+        }
+        if (compTypesWithImages.includes(tempType)) {
+          switch (tempType) {
+            case "image":
+              if (content.data?.config?.workflowId === "" || typeof content.data.config === "undefined") {
+                tempImagesNotInBynder.push(tempName);
+              } else {
+                tempImagesInBynder.push(tempName);
+              }
+              break;
+            case "select": {
+              content.data.options.forEach(function (el, index) {
+                if (typeof el?.img !== "undefined" && !el?.img?.src.includes("bynder")) {
+                  tempImagesNotInBynder.push(tempName.concat(" option ", index + 1));
+                } else if (typeof el?.img !== "undefined" && el?.img?.src.includes("bynder")) {
+                  tempImagesInBynder.push(tempName.concat(" option ", index + 1));
+                }
+              });
+              break;
+            }
+            case "categorization": {
+              content.data.items.forEach(function (el, index) {
+                if (typeof el?.img !== "undefined" && !el?.img?.src.includes("bynder")) {
+                  tempImagesNotInBynder.push(tempName.concat(" item ", index + 1));
+                } else if (typeof el?.img !== "undefined" && el?.img?.src.includes("bynder")) {
+                  /* empty */
+                }
+                tempImagesInBynder.push(tempName.concat(" item ", index + 1));
+              });
+              break;
+            }
+          }
+        }
+        if (tempType === "geogebra" && !uniqueGGBIDs.includes(tempConfig.materialId)) {
+          uniqueGGBIDs.push(tempConfig.materialId);
+        }
+      });
+      if (tempSlideArrayOldComps.length !== 0) {
+        compSwapsBySlide["Slide " + (index + 1)] = tempSlideArrayOldComps;
+      }
+      if (tempSlideArrayTargetedComps.length !== 0) {
+        targetedCompsBySlide["Slide " + (index + 1)] = tempSlideArrayTargetedComps;
+      }
+      if (
+        slide.code.includes("getPrevComp") ||
+        (slide.code.includes("getFromSlide") && !slide.code.includes("getCompInfo"))
+      ) {
+        getPrevCompSlides.push("slide " + (index + 1));
+      }
+      if (slide.code.includes("utils.RTS.sendData") && !slide.code.includes("getCompInfo")) {
+        RTSSendingSlides.push("slide " + (index + 1));
+      }
+      if (slide.code.includes("utils.RTS.on(") && !slide.code.includes("getCompInfo")) {
+        RTSReceivingSlides.push("slide " + (index + 1));
+      }
+      if (tempImagesNotInBynder.length !== 0) {
+        imagesNotInBynder["Slide " + (index + 1)] = tempImagesNotInBynder;
+      }
+      if (tempImagesInBynder.length !== 0) {
+        imagesInBynder["Slide " + (index + 1)] = tempImagesInBynder;
+      }
+    });
+    console.log("Slides with images not in Bynder:", imagesNotInBynder);
+    console.log("unique GGB Material IDs:", uniqueGGBIDs);
+    console.log("Slides with Bynder images:", imagesInBynder);
+    const targetedTypeString = targetedSearchTypes.join(", ");
+    console.log("Slides that contain the targeted search terms ", targetedTypeString, ": \n", targetedCompsBySlide);
+    console.log("Slides with firstload and didUtils:", firstLoadIssueSlides);
+    console.log("Slides still in katex:", katexSlides);
+    console.log("Slides missing storage component for didUtils.onInit:", onInitIssueSlides);
+    console.log(
+      "Slides that have old fibs, regular tables, radios, checkboxes, or textboxes that are not part of share or submit components:",
+      compSwapsBySlide
+    );
+    console.log("slides with getPrevComp or getFromSlide:", getPrevCompSlides);
+    console.log(
+      "slides with possible RTS Sending Slides (Note: Manually check first slide) - view in classroom preview:",
+      RTSSendingSlides
+    );
+    console.log(
+      "slides with RTS Receiving Slides (Note: Manually check first slide) - view in classroom preview:",
+      RTSReceivingSlides
+    );
+  }
+  getCompInfo(prelimData);
+})();

@@ -1,8 +1,95 @@
 {
-  "eslint.run": "onSave",
+  "replacerules.rules": {
+    "replace English strings with Spanish": [
+      {
+        "find": "Press the arrow keys to move this point.",
+        "replace": "Presiona las teclas de flecha para mover este punto.",
+        "literal": true,
+      },
+      {
+        "find": "Press the left and right arrow keys to move this point.",
+        "replace": "Presiona las teclas de flecha izquierda y flecha derecha para mover este punto.",
+        "literal": true,
+      },
+      {
+        "find": "Press up and down arrow keys to change the slider value.",
+        "replace": "Presiona las teclas de flecha arriba y flecha abajo para cambiar el valor del control\\\\deslizante.",
+        "literal": true,
+      },
+      {
+        "find": "Use + or – to move this point",
+        "replace": "Usa las teclas más o menos para mover este punto.",
+        "literal": true,
+      },
+      {
+        "find": "Press space to open.",
+        "replace": "Presiona la barra de espacio para abrir.",
+        "literal": true,
+      },
+      {
+        "find": "Press space to open the instructions.",
+        "replace": "Presiona la barra de espacio para abrir las instrucciones.",
+        "literal": true,
+      },
+      {
+        "find": "Press space to read the prompt again.",
+        "replace": "Presiona la barra de espacio para volver a leer el planteamiento.",
+        "literal": true,
+      },
+      {
+        "find": "Input a value and press enter to submit.",
+        "replace": "Ingresa un valor y presiona la tecla intro para enviar.",
+        "literal": true,
+      },
+      {
+        "find": "Press the escape key to exit the interactive and return to the page.",
+        "replace": "Presiona la tecla de escape para salir de la actividad interactiva y regresar a la\\\\página.",
+        "literal": true,
+      },
+      {
+        "find": "Press space to open. Press up arrow and down arrow to go to different options. Press enter to select.",
+        "replace": "Presiona la barra de espacio para abrir. Presiona las teclas de flecha arriba y abajo\\\\para dirigirte a diferentes opciones. Presiona la tecla intro para seleccionar.",
+        "literal": true,
+      },
+      {
+        "find": "Press k to",
+        "replace": "Presiona k para",
+        "literal": true,
+      },
+      {
+        "find": "show keyboard instructions.",
+        "replace": "ocultar las instrucciones de teclado.",
+        "literal": true,
+      },
+      {
+        "find": "hide keyboard instructions.",
+        "replace": "mostrar las instrucciones de teclado.",
+        "literal": true,
+      },
+      {
+        "find": "Instructions. Press space to open the instructions.",
+        "replace": "Instrucciones. Presiona la barra de espacio para abrir las instrucciones.",
+        "literal": true,
+      },
+      {
+        "find": "Press x to restart the tab cycle.",
+        "replace": "Presiona x para reiniciar el ciclo de pestañas.",
+        "literal": true,
 
+      }
+    ]
+  },
+  "replacerules.rulesets": {
+    "replace English with Spanish": {
+        "rules": [
+            "replace English strings with Spanish",
+        ]
+    }
+  },
+  "eslint.run": "onSave",
   "editor.quickSuggestions": {
     "other": true, // you need this if you want ctrl+space to work elsewhere.
     "strings": true // this is your relevant option
-  }
+  },
+  
 }

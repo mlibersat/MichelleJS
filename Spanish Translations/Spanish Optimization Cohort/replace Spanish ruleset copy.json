@@ -1,0 +1,59 @@
+[
+  {
+    "engish": "Press the arrow keys to move this point.",
+    "spanish": "Presiona las teclas de flecha para mover este punto."
+  },
+  {
+    "engish": "Press the left and right arrow keys to move this point.",
+    "spanish": "Presiona las teclas de flecha izquierda y flecha derecha para mover este punto."
+  },
+  {
+    "engish": "Press up and down arrow keys to change the slider value.",
+    "spanish": "Presiona las teclas de flecha arriba y flecha abajo para cambiar el valor del control\\\\deslizante."
+  },
+  {
+    "engish": "Use + or – to move this point",
+    "spanish": "Usa las teclas más o menos para mover este punto."
+  },
+  {
+    "engish": "Press space to open.",
+    "spanish": "Presiona la barra de espacio para abrir."
+  },
+  {
+    "engish": "Press space to open the instructions.",
+    "spanish": "Presiona la barra de espacio para abrir las instrucciones."
+  },
+  {
+    "engish": "Press space to read the prompt again.",
+    "spanish": "Presiona la barra de espacio para volver a leer el planteamiento."
+  },
+  {
+    "engish": "Input a value and press enter to submit.",
+    "spanish": "Ingresa un valor y presiona la tecla intro para enviar."
+  },
+  {
+    "engish": "Press the escape key to exit the interactive and return to the page.",
+    "spanish": "Presiona la tecla de escape para salir de la actividad interactiva y regresar a la\\\\página."
+  },
+  {
+    "engish": "Press space to open. Press up arrow and down arrow to go to different options. Press enter to select.",
+    "spanish": "Presiona la barra de espacio para abrir. Presiona las teclas de flecha arriba y abajo\\\\para dirigirte a diferentes opciones. Presiona laspanishcla intro para seleccionar."
+  },
+  { "engish": "Press k to", "spanish": "Presiona k para" },
+  {
+    "engish": "show keyboard instructions.",
+    "spanish": "ocultar las instrucciones de teclado."
+  },
+  {
+    "engish": "hide keyboard instructions.",
+    "spanish": "mostrar las instrucciones de teclado."
+  },
+  {
+    "engish": "Instructions. Press space to open the instructions.",
+    "spanish": "Instrucciones. Presiona la barra de espacio para abrir las instrucciones."
+  },
+  {
+    "engish": "Press x to restart the tab cycle.",
+    "spanish": "Presiona x para reiniciar el ciclo de pestañas."
+  }
+]

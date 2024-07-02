@@ -1,0 +1,9 @@
+{
+  "materialID": "tb4kvsmh",
+  "english": {
+   "stateA": "\"Point A moved to \" + (x(A)) + \" \" + (y(A)) + \". \" + (If(x(A) ≟ xmax - 1, If(y(A) ≟ ymax - 1, \"This point is at its maximum x and y value.\", y(A) ≟ ymin + 1, \"This point is at its maximum x value and minimum y value.\", \"This point is at its maximum x value.\"), x(A) ≟ xmin + 1, If(y(A) ≟ ymax - 1, \"This point is at its minimum x and maximum y value.\", y(A) ≟ ymin + 1, \"This point is at its minimum x and y value.\", \"This point is at its minimum x value.\"), If(y(A) ≟ xmin + 1, \"This point is at its minimum y value.\", y(A) ≟ xmax - 1, \"This point is at its maximum y value.\", \"\"))) + \"\""
+  },
+  "spanish": {
+   "stateA": "\"Se movió el punto A, a \" + (If(x(A) < 0, abs(x(A)) + \" negativo\", x(A))) + \" \" + (If(y(A) < 0, abs(y(A)) + \" negativo\", y(A))) + \". \" + (If(If(x(A) < 0, abs(x(A)) + \" negativo\", x(A)) ≟ xmax - 1, If(If(y(A) < 0, abs(y(A)) + \" negativo\", y(A)) ≟ ymax - 1, \"Este punto está en su valor de x y ye máximo.\", If(y(A) < 0, abs(y(A)) + \" negativo\", y(A)) ≟ ymin + 1, \"Este punto está en su valor de x máximo y en su valor de ye mínimo.\", \"Este punto está en su valor de x máximo.\"), If(x(A) < 0, abs(x(A)) + \" negativo\", x(A)) ≟ xmin + 1, If(If(y(A) < 0, abs(y(A)) + \" negativo\", y(A)) ≟ ymax - 1, \"Este punto está en su valor de x mínimo y en su valor de ye máximo.\", If(y(A) < 0, abs(y(A)) + \" negativo\", y(A)) ≟ ymin + 1, \"Este punto está en su valor de x y ye mínimo.\", \"Este punto está en su valor de x mínimo.\"), If(If(y(A) < 0, abs(y(A)) + \" negativo\", y(A)) ≟ xmin + 1, \"Este punto está en su valor de ye mínimo.\", If(y(A) < 0, abs(y(A)) + \" negativo\", y(A)) ≟ xmax - 1, \"Este punto está en su valor de ye máximo.\", \"\"))) + \"\""
+  }
+  }

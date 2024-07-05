@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Format Instructions Text</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="instructions">
+        <h1>Format Instructions Text - SPANISH</h1>
+        <div class="instructions-info">
+          Type the text you want to format on the left. Choose options if needed
+          then click Format.<br>The definition for Spanish
+          <code>instructionsText</code> will appear on the right.
+        </div>
+      </div>
+      <div class="input-output">
+        <textarea
+          class="input-text"
+          id="input-text"
+          aria-label="Type text to be formatted here"
+        >
+Lorem ipsum dolor, sit amet consectetur adipisicing elit. Rem eum soluta asperiores sint quasi debitis animi, doloremque officia iste, architecto autem quia, labore quibusdam. Dicta sed dolores aliquid expedita ipsa.</textarea
+        >
+        <textarea
+          readonly
+          class="output-text"
+          id="output-text"
+          aria-label="Result appears here"
+        >
+Result will appear here.</textarea
+        >
+      </div>
+      <div class="options">
+        <div class="option-item tab-cycle">
+          <input type="checkbox" id="toggle-tab-text" class="toggle" />
+          <label for="toggle-tab-text">Toggle tab cycle text</label>
+          <div class="toggle-label">
+            Include "Presiona x para reiniciar el ciclo de pestañas." (Use if 5+ objects in
+            cycle)
+          </div>
+        </div>
+        <div class="option-item custom-width">
+          <input
+            type="checkbox"
+            id="toggle-custom-width"
+            class="toggle"
+            onchange="handleWidthInput()"
+          />
+          <label for="toggle-custom-width">Toggle custom width</label>
+          <div class="toggle-label">
+            Use custom width.(Default: 38 char for Instr & 88 char for KI)
+          </div>
+          <input
+            type="text"
+            id="custom-width"
+            maxlength="3"
+            size="3"
+            aria-label="Enter custom width"
+            disabled
+          />
+        </div>
+      </div>
+      <button id="format-btn" aria-label="Format Instructions Text" onclick="format()">
+        Format Instr Text
+      </button>
+       <button id="format-btn" aria-label="Format Keyboard Instructions Text" onclick="format(true)">
+        Format Key Instr Text
+      </button>
+      <br>
+    </div>
+  </body>
+</html>

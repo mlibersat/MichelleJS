@@ -1,0 +1,147 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(255, 255, 255);
+}
+
+.container {
+  background-color: rgba(235, 235, 235, 0.616);
+  font-size: 11pt;
+  width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  border: 1px solid rgba(50, 50, 50, 1);
+}
+
+code {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+h1 {
+  font-size: 16pt;
+  padding-top: 8px;
+}
+
+.instructions {
+  text-align: center;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.instructions-info {
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+input[type='checkbox'] {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+}
+
+label {
+  cursor: pointer;
+  text-indent: -9999px;
+  width: 40px;
+  height: 20px;
+  background: gray;
+  display: flex;
+  border-radius: 16px;
+  position: relative;
+}
+
+label::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 90px;
+  transition: 0.3s;
+}
+
+input:checked + label {
+  background: rgba(14, 38, 90, 1);
+}
+
+label:active::after {
+  width: 28px;
+}
+
+input:checked + label::after {
+  left: calc(100% - 2px);
+  transform: translateX(-100%);
+}
+
+.input-output {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 2rem;
+}
+
+.input-text {
+  border: 1px solid gray;
+}
+
+.output-text {
+  border: 1px solid gray;
+  background-color: rgb(221, 221, 221);
+  color: #333;
+}
+
+.output-text:focus {
+  border: 1px solid gray;
+  outline: none;
+  box-shadow: none;
+}
+
+textarea {
+  width: 350px;
+  height: 150px;
+  padding: 12px;
+  resize: none;
+  border-radius: 4px;
+}
+
+.option-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 4px;
+  padding-bottom: 12px;
+}
+
+.toggle-label {
+  padding-left: 8px;
+  padding-top: 2px;
+  padding-right: 8px;
+}
+
+#format-btn {
+  width: 200px;
+  margin-bottom: 20px;
+  background-color: rgb(14, 38, 90);
+  border: none;
+  border-radius: 2px;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  font-size: 16px;
+  border-radius: 2px;
+}

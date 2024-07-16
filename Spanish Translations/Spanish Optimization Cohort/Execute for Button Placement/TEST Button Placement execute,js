@@ -1,0 +1,94 @@
+function ggbOnInit() {
+  alignButtons(4);
+  function alignButtons(numOfButtons) {
+    const buttonWidths = [];
+
+    for (let i = numOfButtons; i >= 1; i--) {
+      buttonWidths.push(
+        ggbApplet.getValue(
+          ggbApplet.evalCommandGetLabels(
+            "ggbButton" +
+              i +
+              "Width=(x(Corner(ggbButton" +
+              i +
+              ", 3))-x(Corner(ggbButton" +
+              i +
+              ", 1)))/xpixel"
+          )
+        )
+      );
+    }
+
+    const appletWidth = ggbApplet.getXcoord("corner");
+    buttonWidths.forEach((buttonWidth, index) => {
+      const geoGebraIndex = index + 1;
+      let concatWidths = 0;
+      buttonWidths.slice(0, index + 1).forEach((width) => {
+        concatWidths -= width;
+      });
+      ggbApplet.setCoords(
+        "ggbButton" + (buttonWidths.length - index).toString(),
+        appletWidth - geoGebraIndex * 15 + concatWidths,
+        ggbApplet.getValue("(buttonBarHeight/ypixel-30)/2")
+      );
+    });
+  }
+}
+
+// Execute({"numGGBButtons = 2", "Execute({ "ggbButtonSequence = Sequence( "+UnicodeToLetter(34) + "ggbButton" + UnicodeToLetter(34) + " + i + " + UnicodeToLetter(34) + "Width=(x(Corner(ggbButton" + UnicodeToLetter(34) + " + i + " + UnicodeToLetter(34) + ", 3))-x(Corner(ggbButton" + UnicodeToLetter(34) + " + i + " + UnicodeToLetter(34) + ", 1)))/xpixel" + UnicodeToLetter(34) + ", i, 1, numGGBButtons )  ", "Execute(ggbButtonSequence)", "Delete(ggbButtonSequence)"  })"})
+
+numGGBButtons = 2;
+xpixel = (x(corner3) - x(corner1)) / x(corner);
+ypixel = (y(corner3) - y(corner1)) / y(corner);
+ggbButtonWidthMakerSequence = Sequence(
+  "ggbButton" +
+    i +
+    "Width=(x(Corner(ggbButton" +
+    i +
+    ", 3))-x(Corner(ggbButton" +
+    i +
+    ", 1)))/xpixel",
+  i,
+  1,
+  numGGBButtons
+);
+Execute(ggbButtonWidthMakerSequence);
+ggbButtonSequence = Sequence("ggbButton" + i, i, 1, numGGBButtons);
+ggbButtonWidthSequence = Sequence(
+  "ggbButton" + i + "Width",
+  i,
+  1,
+  numGGBButtons
+);
+ggbButtonRevSequence = Reverse(ggbButtonSequence);
+ggbButtonWidthConcatSequence = Sequence(
+  If(i < numGGBButtons, "+", "") + "Object(ggbButton" + i + "Width)",
+  i,
+  1,
+  numGGBButtons
+);
+// ggbButtonConcatWidths = Sequence("ggbButtonTake"+(numGGBButtons-i+1)+"=Take(ggbButtonWidthConcatSequence," + (i) + ")", i, 1, numGGBButtons)
+// Execute(ggbButtonConcatWidths)
+ggbButtonConcatWidthsRev = Sequence(
+  "ggbButtonWidthConcat" +
+    (numGGBButtons - i + 1) +
+    "=Sum(Reverse(Take(ggbButtonWidthConcatSequence," +
+    i +
+    ")))",
+  i,
+  1,
+  numGGBButtons
+);
+Execute(ggbButtonConcatWidthsRev);
+
+// Sequence(Execute({ "ggbButtonConcatWidth" + i }), i, 1, numGGBButtons)
+// ggbButtonConcatWidthSequence = Sequence("ggbButtonConcatWidth" + i + "=ggbButtonWidthConcat"+i, i, 1, numGGBButtons)
+// Execute(ggbButtonConcatWidthSequence)
+
+// ggbButtonsConcatWidthsSequence = Sequence(Sum(Reverse(ggbButtonTake+(numGGBButtons-i+1)+"")),i,1,numGGBButtons)
+// ggbButtonSetCoordsSequence = Sequence("SetCoords("+Element(ggbButtonRevSequence,i)+",x(Corner(5))-15*"+(numGGBButtons-i+1)+"-Sum(Reverse(ggbButtonTake"+(numGGBButtons-i+1)+")),(buttonBarHeight/ypixel-30)/2)",i,1,Length(ggbButtonRevSequence))
+// Execute(ggbButtonSetCoordsSequence)
+
+Delete(ggbButtonSequence);
+Delete(ggbButtonWidthRevSequence);
+Delete(ggbButtonSetCoordsSequence);

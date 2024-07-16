@@ -1,0 +1,64 @@
+/* function ggbOnInit() {
+  alignButtons(4);
+  function alignButtons(numOfButtons) {
+    const buttonWidths = [];
+
+    for (let i = numOfButtons; i >= 1; i--) {
+      buttonWidths.push(
+        ggbApplet.getValue(
+          ggbApplet.evalCommandGetLabels(
+            "ggbButton" +
+              i +
+              "Width=(x(Corner(ggbButton" +
+              i +
+              ", 3))-x(Corner(ggbButton" +
+              i +
+              ", 1)))/xpixel"
+          )
+        )
+      );
+    }
+
+    const appletWidth = ggbApplet.getXcoord("corner");
+    buttonWidths.forEach((buttonWidth, index) => {
+      const geoGebraIndex = index + 1;
+      let concatWidths = 0;
+      buttonWidths.slice(0, index + 1).forEach((width) => {
+        concatWidths -= width;
+      });
+      ggbApplet.setCoords(
+        "ggbButton" + (buttonWidths.length - index).toString(),
+        appletWidth - geoGebraIndex * 15 + concatWidths,
+        ggbApplet.getValue("(buttonBarHeight/ypixel-30)/2")
+      );
+    });
+  }
+} */
+
+
+
+numGGBButtons = 3
+xpixel = (x(corner3) - x(corner1)) / x(corner)
+ypixel = (y(corner3) - y(corner1)) / y(corner)
+ggbButtonWidthMakerSequence = Sequence(  "ggbButton" +    i +    "Width=(x(Corner(ggbButton" +    i +    ", 3))-x(Corner(ggbButton" +    i +    ", 1)))/xpixel",  i,  1,  numGGBButtons)
+ggbButtonWidthZeroMakerSequence = Sequence("ggbButton" + i + "Width=0", i, numGGBButtons + 1, 5)
+
+
+Execute(ggbButtonWidthMakerSequence)
+Execute(ggbButtonWidthZeroMakerSequence)
+ggbButtonSetCoordsSequence = Sequence("SetCoords(ggbButton" + i + ",x(Corner(5))-15*" + (numGGBButtons - i + 1) + "-ggbButton5Width - If(" + (i <= 4) + ",ggbButton4Width,0)- If(" + (i <= 3) + ",ggbButton3Width,0)- If(" + (i <= 2) + ",ggbButton2Width,0)- If(" + (i <= 1) + ",ggbButton1Width,0),(buttonBarHeight/ypixel-30)/2)", i, 1, numGGBButtons)
+
+
+Execute(ggbButtonSetCoordsSequence)
+
+Delete(numGGBButtons)
+Delete(ggbButtonWidthMakerSequence)
+Delete(ggbButtonWidthZeroMakerSequence)
+Delete(ggbButtonSetCoordsSequence)
+Delete(ggbButton1Width)
+Delete(ggbButton2Width)
+Delete(ggbButton3Width)
+Delete(ggbButton4Width)
+Delete(ggbButton5Width)
+
+

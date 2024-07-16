@@ -1,3 +1,41 @@
+
+//////////////////////////////// Final Execute /////////////////////////////////
+
+
+Execute({"numGGBButtons = 2", "xpixel = (x(corner3) - x(corner1)) / x(corner)", "ypixel = (y(corner3) - y(corner1)) / y(corner)", "ggbButtonWidthMakerSequence = Sequence(  "+UnicodeToLetter(34)+"ggbButton"+UnicodeToLetter(34)+" +    i +    "+UnicodeToLetter(34)+"Width=(x(Corner(ggbButton"+UnicodeToLetter(34)+" +    i +    "+UnicodeToLetter(34)+", 3))-x(Corner(ggbButton"+UnicodeToLetter(34)+" +    i +    "+UnicodeToLetter(34)+", 1)))/xpixel"+UnicodeToLetter(34)+",  i,  1,  numGGBButtons)", "ggbButtonWidthZeroMakerSequence = Sequence("+UnicodeToLetter(34)+"ggbButton"+UnicodeToLetter(34)+" + i + "+UnicodeToLetter(34)+"Width=0"+UnicodeToLetter(34)+", i, numGGBButtons + 1, 5)", "Execute(ggbButtonWidthMakerSequence)", "Execute(ggbButtonWidthZeroMakerSequence)", "ggbButtonSetCoordsSequence = Sequence("+UnicodeToLetter(34)+"SetCoords(ggbButton"+UnicodeToLetter(34)+" + i + "+UnicodeToLetter(34)+",x(Corner(5))-15*"+UnicodeToLetter(34)+" + (numGGBButtons - i + 1) + "+UnicodeToLetter(34)+"-ggbButton5Width - If("+UnicodeToLetter(34)+" + (i <= 4) + "+UnicodeToLetter(34)+",ggbButton4Width,0)- If("+UnicodeToLetter(34)+" + (i <= 3) + "+UnicodeToLetter(34)+",ggbButton3Width,0)- If("+UnicodeToLetter(34)+" + (i <= 2) + "+UnicodeToLetter(34)+",ggbButton2Width,0)- If("+UnicodeToLetter(34)+" + (i <= 1) + "+UnicodeToLetter(34)+",ggbButton1Width,0),(buttonBarHeight/ypixel-30)/2)"+UnicodeToLetter(34)+", i, 1, numGGBButtons)", "Execute(ggbButtonSetCoordsSequence)", "Delete(numGGBButtons)", "Delete(ggbButtonWidthMakerSequence)", "Delete(ggbButtonWidthZeroMakerSequence)", "Delete(ggbButtonSetCoordsSequence)", "Delete(ggbButton1Width)", "Delete(ggbButton2Width)", "Delete(ggbButton3Width)", "Delete(ggbButton4Width)", "Delete(ggbButton5Width)"})
+
+
+  //////////////////////////////// Execute Steps /////////////////////////////////
+
+/* 
+numGGBButtons = 3
+xpixel = (x(corner3) - x(corner1)) / x(corner)
+ypixel = (y(corner3) - y(corner1)) / y(corner)
+ggbButtonWidthMakerSequence = Sequence(  "ggbButton" +    i +    "Width=(x(Corner(ggbButton" +    i +    ", 3))-x(Corner(ggbButton" +    i +    ", 1)))/xpixel",  i,  1,  numGGBButtons)
+ggbButtonWidthZeroMakerSequence = Sequence("ggbButton" + i + "Width=0", i, numGGBButtons + 1, 5)
+
+
+Execute(ggbButtonWidthMakerSequence)
+Execute(ggbButtonWidthZeroMakerSequence)
+ggbButtonSetCoordsSequence = Sequence("SetCoords(ggbButton" + i + ",x(Corner(5))-15*" + (numGGBButtons - i + 1) + "-ggbButton5Width - If(" + (i <= 4) + ",ggbButton4Width,0)- If(" + (i <= 3) + ",ggbButton3Width,0)- If(" + (i <= 2) + ",ggbButton2Width,0)- If(" + (i <= 1) + ",ggbButton1Width,0),(buttonBarHeight/ypixel-30)/2)", i, 1, numGGBButtons)
+
+
+Execute(ggbButtonSetCoordsSequence)
+
+Delete(numGGBButtons)
+Delete(ggbButtonWidthMakerSequence)
+Delete(ggbButtonWidthZeroMakerSequence)
+Delete(ggbButtonSetCoordsSequence)
+Delete(ggbButton1Width)
+Delete(ggbButton2Width)
+Delete(ggbButton3Width)
+Delete(ggbButton4Width)
+Delete(ggbButton5Width)
+ */
+
+  
+////////////////////// Kim's JS //////////////////////////////
+
 /* function ggbOnInit() {
   alignButtons(4);
   function alignButtons(numOfButtons) {
@@ -34,31 +72,3 @@
     });
   }
 } */
-
-
-
-numGGBButtons = 3
-xpixel = (x(corner3) - x(corner1)) / x(corner)
-ypixel = (y(corner3) - y(corner1)) / y(corner)
-ggbButtonWidthMakerSequence = Sequence(  "ggbButton" +    i +    "Width=(x(Corner(ggbButton" +    i +    ", 3))-x(Corner(ggbButton" +    i +    ", 1)))/xpixel",  i,  1,  numGGBButtons)
-ggbButtonWidthZeroMakerSequence = Sequence("ggbButton" + i + "Width=0", i, numGGBButtons + 1, 5)
-
-
-Execute(ggbButtonWidthMakerSequence)
-Execute(ggbButtonWidthZeroMakerSequence)
-ggbButtonSetCoordsSequence = Sequence("SetCoords(ggbButton" + i + ",x(Corner(5))-15*" + (numGGBButtons - i + 1) + "-ggbButton5Width - If(" + (i <= 4) + ",ggbButton4Width,0)- If(" + (i <= 3) + ",ggbButton3Width,0)- If(" + (i <= 2) + ",ggbButton2Width,0)- If(" + (i <= 1) + ",ggbButton1Width,0),(buttonBarHeight/ypixel-30)/2)", i, 1, numGGBButtons)
-
-
-Execute(ggbButtonSetCoordsSequence)
-
-Delete(numGGBButtons)
-Delete(ggbButtonWidthMakerSequence)
-Delete(ggbButtonWidthZeroMakerSequence)
-Delete(ggbButtonSetCoordsSequence)
-Delete(ggbButton1Width)
-Delete(ggbButton2Width)
-Delete(ggbButton3Width)
-Delete(ggbButton4Width)
-Delete(ggbButton5Width)
-
-
